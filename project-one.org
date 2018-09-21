@@ -1,0 +1,44 @@
+#+Title: Project One
+#+Author: Simon Schnake
+#+LATEX_HEADER: \usepackage{physics}
+#+LATEX_HEADER: \usepackage{amssymb}
+
+* Experiment Setup
+Comparing different models
+-
+- Results charged particles in each scintialor cell
+- true energy
+* Linear Fit
+A traditional way of calibrating the neural net would be to sum all
+* First Network
+We are starting with a dense neural network and training
+* Are we learning the shape?
+** TODO divide the incoming cells by the total sum
+* Data Augmentation
+One of the biggest issues with the setup is that it
+leads to fast overfitting models. To compensate this, there are
+different ways. One way is to artificially increase the dataset by
+data augmentation. Data Augmentation means generating new data by transformation of the given data.
+TODO <- BESSER ERKLÄREN.
+Aneasy to understand example is shown in the image of the cat.  Examples
+of data augmentation are every form of flipping, rotations or
+cutting. In the perspective of a physicist, data augmentation could be
+interpreted as a form of making the data invariant under symmetry
+transformations. This is of course only a subset of the possible ways
+of data augmentation, but it should be enough for our
+application. Calorimeter events should be invariant under rotations
+perpendicular to the direction of the incoming particle. Our image of
+the physical process is processed in rectangular structures, which
+makes only rotations around $\frac{\pi}{2}$ valid transformations.  To
+reduce computation and data costs we randomly apply this
+transformations on incoming data into our network. So we do not
+tranform data we are not training on and we are not storing additional
+transformed datasets.
+
+** TODO Einbauen
+
+* Result
+* Problem
+* Analytical Solution
+* Adverserial Solution
+* Correction
