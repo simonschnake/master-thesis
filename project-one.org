@@ -7,26 +7,26 @@
 
 * Setup                                                            :noexport:
 Here are the needed packages. Also to config matplotlib for latex export
-#+BEGIN_SRC ipython :session one :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import matplotlib as mpl
-  import matplotlib.pylab as plt
-  # mpl.rcParams['text.usetex'] = True
-  # mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
-  # mpl.rcParams['mathtext.fontset'] = 'stix'
-  # mpl.rcParams['font.family'] = 'STIXGeneral'
+  import matplotlib.pyplot as plt
+  mpl.rcParams['text.usetex'] = True
+  mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+  mpl.rcParams['mathtext.fontset'] = 'stix'
+  mpl.rcParams['font.family'] = 'STIXGeneral'
 
   %matplotlib inline
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[1]:
+# Out[163]:
 :END:
 
 * Loading Data                                                     :noexport:
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import h5py
-data = h5py.File("../data/p-0920.h5")
+data = h5py.File("../data/pion.h5")
 X_test = data['test']['X']
 Y_test = data['test']['Y']
 X_train = data['train']['X']
@@ -35,15 +35,9 @@ Y_train = data['train']['Y']
 
 #+RESULTS:
 :RESULTS:
-# Out[2]:
+# Out[5]:
 :END:
 
-#+BEGIN_SRC ipython :session one :results raw drawer
-  import numpy as np
-  x = np.arange(0., 10., 0.1)
-  y = x*x + 5
-  plt.plot(x, y, 'k.')
-#+END_SRC
 * Experiment Setup
 Comparing different models
 -
@@ -51,14 +45,24 @@ Comparing different models
 - true energy
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-import numpy as np
-tracks = np.sum(X_test[:1000], axis=1)
-energies = np.transpose(Y_test[:1000])[0]
+  import numpy as np
+  tracks = np.sum(X_test[:10000], axis=1)
+  energies = np.transpose(Y_test[:10000])[0]
 
-plt.plot(energies, tracks, 'r.', alpha=0.3)
-plt.xlabel(r'$p_{\text{in}}$ [GeV]')
-plt.ylabel(r'$n(p_{\text{in}})$')
+
+  plt.plot(tracks, energies, 'r.', alpha=0.03)
+  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
+  plt.xlabel(r'$\sum n$')
+  plt.savefig('e-vs-sum_n.pdf')
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[169]:
+[[file:./obipy-resources/7YTGkx.png]]
+:END:
+
+[[./e-vs-sum_n.pdf]]
 
 * Linear Fit
 A traditional way of calibrating the neural net would be to sum over all scintilator cells and perfom
@@ -78,7 +82,7 @@ leads to fast overfitting models. To compensate this, there are
 different ways. One way is to artificially increase the dataset by
 data augmentation. Data Augmentation means generating new data by transformation of the given data.
 TODO <- BESSER ERKLÄREN.
-Aneasy to understand example is shown in the image of the cat.  Examples
+An easy to understand example is shown in the image of the cat.  Examples
 of data augmentation are every form of flipping, rotations or
 cutting. In the perspective of a physicist, data augmentation could be
 interpreted as a form of making the data invariant under symmetry
