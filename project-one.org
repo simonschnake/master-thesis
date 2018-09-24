@@ -2,7 +2,6 @@
 #+Author: Simon Schnake
 #+LATEX_HEADER: \usepackage{physics}
 #+LATEX_HEADER: \usepackage{amssymb}
-#+Inlineimages
 #+OPTIONS: toc:nil
 
 * Setup                                                            :noexport:
@@ -20,13 +19,13 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[163]:
+# Out[67]:
 :END:
 
 * Loading Data                                                     :noexport:
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import h5py
-data = h5py.File("../data/pion.h5")
+data = h5py.File("../data/electron.h5")
 X_test = data['test']['X']
 Y_test = data['test']['Y']
 X_train = data['train']['X']
@@ -35,42 +34,141 @@ Y_train = data['train']['Y']
 
 #+RESULTS:
 :RESULTS:
-# Out[5]:
+# Out[68]:
 :END:
 
 * Experiment Setup
 Comparing different models
--
 - Results charged particles in each scintialor cell
 - true energy
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import numpy as np
-  tracks = np.sum(X_test[:10000], axis=1)
+  sum_n = np.sum(X_test[:10000], axis=1)
   energies = np.transpose(Y_test[:10000])[0]
 
 
-  plt.plot(tracks, energies, 'r.', alpha=0.03)
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum n$')
+  plt.plot(sum_n, energies, 'r.', alpha=0.06)
+  plt.ylabel(r'$E_{\text{true}}$ [GeV]', fontsize=14)
+  plt.xlabel(r'$\sum_i n_i$',  fontsize=14)
   plt.savefig('e-vs-sum_n.pdf')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[169]:
-[[file:./obipy-resources/7YTGkx.png]]
+# Out[69]:
+[[file:./obipy-resources/6m8MBm.png]]
 :END:
 
+#+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintilator cells. 10000 points from the data are plotted.
+#+NAME: e-vs-sum_n
 [[./e-vs-sum_n.pdf]]
 
 * Linear Fit
-A traditional way of calibrating the neural net would be to sum over all scintilator cells and perfom
+A traditional way of calibrating the neural net would be to sum over all scintilator cells as shown in [cite:figure1]
 a linear fit to the energy.
-\[E = c_1\sum_i n_i + c_2\]
+\[E = c_0\sum_i n_i + c_1\]
+This is done with the method of least squares.
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+  from scipy.optimize import leastsq
+  # function to fit
+  fitfunc = lambda c , x: x*c[0]+c[1]
+  errfunc = lambda c , x, y: (y - fitfunc(c, x))
+  out = leastsq(errfunc, [20., 0.0], args=(sum_n, energies), full_output=1)
+  
+  c_fit = out[0]
+  covar = out[1]
 
+  n = np.arange(0, 255, 0.5)
+  plt.plot(sum_n, energies, 'r.', alpha=0.06)
+  plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
+
+  plt.ylabel(r'$E_{\text{true}}$ [GeV]', fontsize=14)
+  plt.xlabel(r'$\sum_i n_i$',  fontsize=14)
+
+  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
+  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
+  plt.savefig('e-vs-sum_n_fit.pdf')
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[136]:
+[[file:./obipy-resources/IhI9KA.png]]
+:END:
+
+#+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
+#+NAME: e-vs-sum_n_fit
+[[./e-vs-sum_n_fit.pdf]]
+
+\[
+   \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} 
+\]
+\[
+\text{likelihood} = \prod_{i} \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))}
+\]
+
+\[
+\text{cost} = - \sum_{i} \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
+\]
+
+\[
+\text{loss} = - \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
+\]
+\[
+\text{loss} = - \ln(e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}})-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
+\]
+\[
+\text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
+\]
+
+\[
+\text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}-\ln(\sqrt{\frac{\pi}{2}} \sigma_i\left(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})\right))
+\]
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+  from scipy.special import erf
+  from scipy.stats import norm
+  from scipy import optimize
+
+  def likelihood(par):
+      epsilon = 0.000001
+      mu = sum_n*par[0]+par[1]
+      sigma = np.sqrt(np.abs(mu)) # 2/par[0] 
+      elements = norm.pdf(energies, mu, sigma)
+      a = np.divide(mu-lower_border, np.sqrt(2)*sigma+epsilon)
+      b = np.divide(mu-upper_border, np.sqrt(2)*sigma+epsilon)
+      norms = np.abs(erf(a)- erf(b))
+      return -np.sum(np.log(np.divide(elements, norms + epsilon)+epsilon))
+
+  lower_border = 0  
+  upper_border = 10
+  out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
+  
+  c_like = out['x']
+
+  n = np.arange(0, 235, 0.5)
+  plt.plot(sum_n, energies, 'r.', alpha=0.06)
+  plt.plot(n, fitfunc(c, n), 'k-')     # Fit
+
+  plt.ylabel(r'$E_{\text{true}}$ [GeV]', fontsize=14)
+  plt.xlabel(r'$\sum_i n_i$',  fontsize=14)
+
+  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_like[0], ha='left')
+  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_like[1], ha='left')
+
+  plt.savefig('e-vs-sum_n_lik.pdf')
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[141]:
+[[file:./obipy-resources/cIjmcM.png]]
+:END:
+
+#+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the likelihood fit described above.
+#+NAME: e-vs-sum_n_lik
+[[./e-vs-sum_n_lik.pdf]]
 
 * First Network
 We are starting with a dense neural network and training
