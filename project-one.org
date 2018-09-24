@@ -2,14 +2,72 @@
 #+Author: Simon Schnake
 #+LATEX_HEADER: \usepackage{physics}
 #+LATEX_HEADER: \usepackage{amssymb}
+#+Inlineimages
+#+OPTIONS: toc:nil
 
+* Setup                                                            :noexport:
+Here are the needed packages. Also to config matplotlib for latex export
+#+BEGIN_SRC ipython :session one :results raw drawer :exports none :eval no-export
+  import matplotlib as mpl
+  import matplotlib.pylab as plt
+  # mpl.rcParams['text.usetex'] = True
+  # mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+  # mpl.rcParams['mathtext.fontset'] = 'stix'
+  # mpl.rcParams['font.family'] = 'STIXGeneral'
+
+  %matplotlib inline
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[1]:
+:END:
+
+* Loading Data                                                     :noexport:
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+import h5py
+data = h5py.File("../data/p-0920.h5")
+X_test = data['test']['X']
+Y_test = data['test']['Y']
+X_train = data['train']['X']
+Y_train = data['train']['Y']
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[2]:
+:END:
+
+#+BEGIN_SRC ipython :session one :results raw drawer
+  import numpy as np
+  x = np.arange(0., 10., 0.1)
+  y = x*x + 5
+  plt.plot(x, y, 'k.')
+#+END_SRC
 * Experiment Setup
 Comparing different models
 -
 - Results charged particles in each scintialor cell
 - true energy
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+import numpy as np
+tracks = np.sum(X_test[:1000], axis=1)
+energies = np.transpose(Y_test[:1000])[0]
+
+plt.plot(energies, tracks, 'r.', alpha=0.3)
+plt.xlabel(r'$p_{\text{in}}$ [GeV]')
+plt.ylabel(r'$n(p_{\text{in}})$')
+#+END_SRC
+
 * Linear Fit
-A traditional way of calibrating the neural net would be to sum all
+A traditional way of calibrating the neural net would be to sum over all scintilator cells and perfom
+a linear fit to the energy.
+\[E = c_1\sum_i n_i + c_2\]
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+
+#+END_SRC
+
 * First Network
 We are starting with a dense neural network and training
 * Are we learning the shape?
