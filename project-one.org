@@ -13,13 +13,13 @@ Here are the needed packages. Also to config matplotlib for latex export
   mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
   mpl.rcParams['mathtext.fontset'] = 'stix'
   mpl.rcParams['font.family'] = 'STIXGeneral'
-
+  mpl.rcParams['axes.labelsize'] = 20
   %matplotlib inline
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[67]:
+# Out[7]:
 :END:
 
 * Loading Data                                                     :noexport:
@@ -34,7 +34,7 @@ Y_train = data['train']['Y']
 
 #+RESULTS:
 :RESULTS:
-# Out[68]:
+# Out[8]:
 :END:
 
 * Experiment Setup
@@ -49,15 +49,15 @@ Comparing different models
 
 
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]', fontsize=14)
-  plt.xlabel(r'$\sum_i n_i$',  fontsize=14)
+  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
+  plt.xlabel(r'$\sum_i n_i$')
   plt.savefig('e-vs-sum_n.pdf')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[69]:
-[[file:./obipy-resources/6m8MBm.png]]
+# Out[9]:
+[[file:./obipy-resources/kuxZqr.png]]
 :END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintilator cells. 10000 points from the data are plotted.
@@ -83,8 +83,8 @@ This is done with the method of least squares.
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
   plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
 
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]', fontsize=14)
-  plt.xlabel(r'$\sum_i n_i$',  fontsize=14)
+  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
+  plt.xlabel(r'$\sum_i n_i$')
 
   plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
   plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
@@ -151,8 +151,8 @@ This is done with the method of least squares.
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
   plt.plot(n, fitfunc(c, n), 'k-')     # Fit
 
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]', fontsize=14)
-  plt.xlabel(r'$\sum_i n_i$',  fontsize=14)
+  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
+  plt.xlabel(r'$\sum_i n_i$')
 
   plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_like[0], ha='left')
   plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_like[1], ha='left')
