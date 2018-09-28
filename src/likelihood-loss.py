@@ -7,7 +7,7 @@
 #                            |___/                           #
 ##############################################################
 import numpy as np
-from keras.optimizers import Adam
+from keras.optimizers import Adadelta
 import h5py
 import pickle
 import tensorflow as tf
@@ -62,7 +62,6 @@ def likelihood_loss(y_true, y_pred):
     elements = tf.divide(tf.exp(tf.divide(- tf.square(mu - y_true),
                                           two*tf.square(sigma))),
                          tf.sqrt(two*pi)*sigma)
-    elements = tf.distributions.Normal(mu, sigma).prob(y_true)
     a = tf.divide(mu-lower_border, tf.sqrt(two)*sigma+epsilon)
     b = tf.divide(mu-upper_border, tf.sqrt(two)*sigma+epsilon)
     norms = tf.abs(tf.erf(a) - tf.erf(b))
@@ -98,43 +97,18 @@ model.compile(optimizer='rmsprop',
               loss='mse')
 epochs = 3
 batch_size = 128
-hist_update = model.fit(X_train,
-                        Y_train,
-                        epochs=epochs,
-                        batch_size=batch_size,
-                        validation_split=0.2).history
-
-history.update([('loss',
-                 history['loss'] + hist_update['loss']),
-                ('val_loss',
-                 history['val_loss'] + hist_update['val_loss'])])
+model.fit(X_train,
+          Y_train,
+          epochs=epochs,
+          batch_size=batch_size,
+          validation_split=0.2)
 
 
-def likelihood_loss(y_true, y_pred):
-    epsilon = tf.constant(np.float64(0.0000001))
-    lower_border = tf.constant(np.float64(0.))
-    upper_border = tf.constant(np.float64(10.))
-    two = tf.constant(np.float64(2.))
-    pi = tf.constant(np.float64(np.pi))
-    mu = y_pred
-    sigma = tf.sqrt(tf.abs(mu))
-    elements = tf.divide(tf.exp(tf.divide(- tf.square(mu - y_true),
-                                          two*tf.square(sigma))),
-                         tf.sqrt(two*pi)*sigma)
-    elements = tf.distributions.Normal(mu, sigma).prob(y_true)
-    a = tf.divide(mu-lower_border, tf.sqrt(two)*sigma+epsilon)
-    b = tf.divide(mu-upper_border, tf.sqrt(two)*sigma+epsilon)
-    norms = tf.abs(tf.erf(a) - tf.erf(b))
-    return -tf.reduce_mean(tf.log(tf.divide(elements,
-                                            norms + epsilon)
-                                  + epsilon))
-
-
-adamOpt = Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=1e-8, decay=0.01)
-model.compile(optimizer='Adam', loss=likelihood_loss)
+opt = Adadelta()
+model.compile(optimizer=opt, loss=likelihood_loss)
 
 epochs = 100
-batch_size = 256
+batch_size = 1024
 hist_update = model.fit(X_train,
                         Y_train,
                         epochs=epochs,
