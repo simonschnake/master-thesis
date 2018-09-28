@@ -30,8 +30,16 @@ Y_train = data['train']['Y']
 
 history = {'loss': [], 'val_loss': []}
 
+##############################################################
+#                        _      _                            #
+#        /\/\   ___   __| | ___| |                           #
+#       /    \ / _ \ / _` |/ _ \ |                           #
+#      / /\/\ \ (_) | (_| |  __/ |                           #
+#      \/    \/\___/ \__,_|\___|_|                           #
+##############################################################
 
-def firstModel():
+
+def likelihoodModel():
     # Define the input placeholder as a tensor with shape
     # input_shape. Think of this as your input image
     X_input = Input(shape=(1088,))
@@ -40,7 +48,27 @@ def firstModel():
     X = Dense(128, activation='relu', name='fc2')(X)
     X = Dense(10, activation='relu', name='fc3')(X)
     X = Dense(1, activation='linear', name='exit')(X)
-    return Model(inputs=X_input, outputs=X, name='firstModel')
+    return Model(inputs=X_input, outputs=X, name='likelihoodModel')
+
+
+def likelihood_loss(y_true, y_pred):
+    epsilon = tf.constant(np.float64(0.0000001))
+    lower_border = tf.constant(np.float64(0.))
+    upper_border = tf.constant(np.float64(10.))
+    two = tf.constant(np.float64(2.))
+    pi = tf.constant(np.float64(np.pi))
+    mu = y_pred
+    sigma = tf.sqrt(tf.abs(mu))
+    elements = tf.divide(tf.exp(tf.divide(- tf.square(mu - y_true),
+                                          two*tf.square(sigma))),
+                         tf.sqrt(two*pi)*sigma)
+    elements = tf.distributions.Normal(mu, sigma).prob(y_true)
+    a = tf.divide(mu-lower_border, tf.sqrt(two)*sigma+epsilon)
+    b = tf.divide(mu-upper_border, tf.sqrt(two)*sigma+epsilon)
+    norms = tf.abs(tf.erf(a) - tf.erf(b))
+    return -tf.reduce_mean(tf.log(tf.divide(elements,
+                                            norms + epsilon)
+                                  + epsilon))
 
 
 # try:
@@ -64,7 +92,7 @@ def firstModel():
 #                                  |___/                    #
 #############################################################
 
-model = firstModel()
+model = likelihoodModel()
 
 model.compile(optimizer='rmsprop',
               loss='mse')
@@ -82,7 +110,7 @@ history.update([('loss',
                  history['val_loss'] + hist_update['val_loss'])])
 
 
-def alt_loss(y_true, y_pred):
+def likelihood_loss(y_true, y_pred):
     epsilon = tf.constant(np.float64(0.0000001))
     lower_border = tf.constant(np.float64(0.))
     upper_border = tf.constant(np.float64(10.))
@@ -102,8 +130,8 @@ def alt_loss(y_true, y_pred):
                                   + epsilon))
 
 
-adamOpt = Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=1e-8)
-model.compile(optimizer='Adam', loss=alt_loss)
+adamOpt = Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=1e-8, decay=0.01)
+model.compile(optimizer='Adam', loss=likelihood_loss)
 
 epochs = 100
 batch_size = 256
@@ -127,6 +155,6 @@ history.update([('loss',
 #                         |___/                              #
 ##############################################################
 
-pickle.dump(history, open("history.p", "wb"))
+pickle.dump(history, open("likelihood_history.p", "wb"))
 
-model.save_weights('weights.h5')
+model.save_weights('likelihood_weights.h5')
