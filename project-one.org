@@ -4,6 +4,12 @@
 #+LATEX_HEADER: \usepackage{amssymb}
 #+OPTIONS: toc:nil
 
+* Planning                                                         :noexport:
+** TODO Write likelihood-loss chapter
+** TODO Implement hyperparameter optimzing in likelihood-loss.py
+** TODO Write adverserial training chapter
+** TODO Implement Data Augmentation
+
 * Setup                                                            :noexport:
 Here are the needed packages. Also to config matplotlib for latex export
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export

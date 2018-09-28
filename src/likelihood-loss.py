@@ -24,7 +24,7 @@ from keras.models import Model
 #                              |___/                         #
 ##############################################################
 
-data = h5py.File('../data/electron.h5', 'r')
+data = h5py.File('../../data/electron.h5', 'r')
 X_train = data['train']['X']
 Y_train = data['train']['Y']
 
