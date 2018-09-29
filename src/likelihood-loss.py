@@ -58,7 +58,7 @@ def likelihood_loss(y_true, y_pred):
     two = tf.constant(np.float64(2.))
     pi = tf.constant(np.float64(np.pi))
     mu = y_pred
-    sigma = tf.sqrt(tf.abs(mu))
+    sigma = tf.sqrt(tf.abs(y_true))
     elements = tf.divide(tf.exp(tf.divide(- tf.square(mu - y_true),
                                           two*tf.square(sigma))),
                          tf.sqrt(two*pi)*sigma)
@@ -104,10 +104,10 @@ model.fit(X_train,
           validation_split=0.2)
 
 
-opt = Adadelta()
+opt = Adadelta(lr=0.1)
 model.compile(optimizer=opt, loss=likelihood_loss)
 
-epochs = 100
+epochs = 5
 batch_size = 1024
 hist_update = model.fit(X_train,
                         Y_train,
