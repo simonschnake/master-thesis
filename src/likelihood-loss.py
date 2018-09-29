@@ -93,7 +93,7 @@ model = likelihoodModel()
 
 model.compile(optimizer='rmsprop',
               loss='mse')
-epochs = 3
+epochs = 5
 batch_size = 128
 model.fit(X_train,
           Y_train,
@@ -103,9 +103,9 @@ model.fit(X_train,
 
 
 opt = Adadelta()
-model.compile(optimizer=opt, loss=likelihood_loss)
+model.compile(optimizer='sgd', loss=likelihood_loss)
 
-epochs = 100
+epochs = 20
 batch_size = 1024
 hist_update = model.fit(X_train,
                         Y_train,
