@@ -103,7 +103,7 @@ model.fit(X_train,
 
 
 opt = Adadelta()
-model.compile(optimizer='sgd', loss=likelihood_loss)
+model.compile(optimizer='Adam', loss=likelihood_loss)
 
 epochs = 20
 batch_size = 1024
