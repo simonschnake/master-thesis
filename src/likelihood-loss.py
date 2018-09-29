@@ -102,8 +102,8 @@ model.fit(X_train,
           validation_split=0.2)
 
 
-opt = Adadelta()
-model.compile(optimizer='Adam', loss=likelihood_loss)
+opt = Adadelta(lr=0.01)
+model.compile(optimizer=opt, loss=likelihood_loss)
 
 epochs = 20
 batch_size = 1024
