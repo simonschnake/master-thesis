@@ -58,7 +58,7 @@ def likelihood_loss(y_true, y_pred):
     two = tf.constant(np.float64(2.))
     pi = tf.constant(np.float64(np.pi))
     mu = y_pred
-    sigma = tf.sqrt(tf.abs(mu))
+    sigma = tf.sqrt(tf.abs(y_true))
     first_part = tf.divide(tf.square(mu - y_true),
                            two*tf.square(sigma)+epsilon)
     prefactor = tf.sqrt(tf.divide(pi, two))*sigma
@@ -105,7 +105,7 @@ model.fit(X_train,
 opt = Adadelta(lr=0.01)
 model.compile(optimizer=opt, loss=likelihood_loss)
 
-epochs = 1000
+epochs = 100
 batch_size = 1024
 hist_update = model.fit(X_train,
                         Y_train,
