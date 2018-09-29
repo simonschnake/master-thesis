@@ -56,16 +56,14 @@ def likelihood_loss(y_true, y_pred):
     lower_border = tf.constant(np.float64(0.))
     upper_border = tf.constant(np.float64(10.))
     two = tf.constant(np.float64(2.))
-    pi = tf.constant(np.float64(np.pi))
     mu = y_pred
     sigma = tf.sqrt(tf.abs(y_true))
     first_part = tf.divide(tf.square(mu - y_true),
                            two*tf.square(sigma)+epsilon)
-    prefactor = tf.sqrt(tf.divide(pi, two))*sigma
     a = tf.divide(upper_border-mu, tf.sqrt(two)*sigma+epsilon)
     b = tf.divide(lower_border-mu, tf.sqrt(two)*sigma+epsilon)
     penalty = tf.abs(tf.erf(a) - tf.erf(b))
-    loss = first_part + tf.log(prefactor*penalty+epsilon)
+    loss = first_part + tf.log(penalty+epsilon)
     return tf.reduce_mean(loss)
 
 # try:
