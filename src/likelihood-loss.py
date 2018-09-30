@@ -103,8 +103,8 @@ model.fit(X_train,
 opt = Adadelta(lr=0.01)
 model.compile(optimizer=opt, loss=likelihood_loss)
 
-epochs = 35
-batch_size = 1024
+epochs = 250
+batch_size = 128
 hist_update = model.fit(X_train,
                         Y_train,
                         epochs=epochs,
