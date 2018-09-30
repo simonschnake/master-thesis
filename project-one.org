@@ -25,11 +25,6 @@ Here are the needed packages. Also to config matplotlib for latex export
   %matplotlib inline
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[1]:
-:END:
-
 * Loading Data                                                     :noexport:
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import h5py
@@ -39,11 +34,6 @@ Y_test = data['test']['Y']
 X_train = data['train']['X']
 Y_train = data['train']['Y']
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[2]:
-:END:
 
 * Experiment Setup
 Comparing different models
@@ -60,12 +50,6 @@ Comparing different models
   plt.xlabel(r'$\sum_i n_i$')
   plt.savefig('e-vs-sum_n.pdf')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[3]:
-[[file:./obipy-resources/TpHmYU.png]]
-:END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
 #+NAME: e-vs-sum_n
@@ -97,12 +81,6 @@ This is done with the method of least squares.
   plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
   plt.savefig('e-vs-sum_n_fit.pdf')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[4]:
-[[file:./obipy-resources/eR2S2W.png]]
-:END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
 #+NAME: e-vs-sum_n_fit
@@ -177,12 +155,6 @@ Which is
   plt.savefig('e-vs-sum_n_lik.pdf')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[5]:
-[[file:./obipy-resources/q7IQMr.png]]
-:END:
-
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the likelihood fit described above.
 #+NAME: e-vs-sum_n_lik
 [[./e-vs-sum_n_lik.pdf]] 
@@ -219,11 +191,6 @@ the true energy values and our predicted energy values. We train the network for
 
   model.save('model.h5')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[6]:
-:END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import pickle
@@ -407,11 +374,6 @@ used as a loss function.
   model = likelihoodModel()
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[11]:
-:END:
-
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import pickle
@@ -434,12 +396,6 @@ plt.ylabel('loss')
 plt.savefig('loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[12]:
-[[file:./obipy-resources/ctdLRG.png]]
-:END:
-
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   model.load_weights('src/likelihood_weights.h5')
   fig, ax = plt.subplots()
@@ -456,12 +412,6 @@ plt.savefig('loss.pdf', bbox_inches = 'tight')
   ax.spines["left"].set_visible(False)
   ax.spines["bottom"].set_visible(False)  
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[23]:
-[[file:./obipy-resources/ujeqYg.png]]
-:END:
 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -514,15 +464,7 @@ plt.savefig('loss.pdf', bbox_inches = 'tight')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
-  plt.ylim([0.,1.])
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[84]:
-: (0.0, 1.0)
-[[file:./obipy-resources/wfAYtg.png]]
-:END:
 
 * Adverserial Solution
 * Correction
