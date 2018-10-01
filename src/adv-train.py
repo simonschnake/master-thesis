@@ -16,7 +16,6 @@ from keras.layers import Input, Dense, Lambda
 from keras.models import Model
 from keras.optimizers import Adagrad
 from keras.utils import np_utils
-from keras.callbacks import EarlyStopping
 
 import h5py
 import pickle
@@ -109,7 +108,7 @@ hist_update = D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
                     validation_split=0.1).history
 history.update([('D_loss',
                  history['D_loss'] + hist_update['loss']),
-                ('val_loss',
+                ('val_D_loss',
                  history['val_D_loss'] + hist_update['val_loss'])])
 
 
@@ -120,18 +119,18 @@ Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 
 epochs = 2
 
-for i in range(3):
+for i in range(30):
 
     # Fit R
-    hist_update = DfR.fit([X_train, Y_train],
-                          Z_train,
-                          epochs=epochs,
-                          batch_size=batch_size,
-                          validation_split=0.1).history
+    R_hist_update = DfR.fit([X_train, Y_train],
+                            Z_train,
+                            epochs=epochs,
+                            batch_size=batch_size,
+                            validation_split=0.1).history
     history.update([('R_loss',
-                     history['R_loss'] + hist_update['loss']),
-                    ('val_loss',
-                     history['val_R_loss'] + hist_update['val_loss'])])
+                     history['R_loss'] + R_hist_update['loss']),
+                    ('val_R_loss',
+                     history['val_R_loss'] + R_hist_update['val_loss'])])
 
     # Fit D
     hist_update = DRf.fit([X_train, Y_train],
@@ -139,14 +138,12 @@ for i in range(3):
                           epochs=epochs,
                           batch_size=batch_size,
                           validation_split=0.1).history
-    history.update(('D_loss',
-                    history['D_loss'] + hist_update['D_loss']),
-                   ('val_loss',
-                    history['val_D_loss'] + hist_update['val_D_loss']),
-                   ('R_loss',
-                    history['R_loss'] + hist_update['R_loss']),
-                   ('val_loss',
-                    history['val_R_loss'] + hist_update['val_R_loss']))
+    history.update('D_loss': history['D_loss'] + hist_update['D_loss'])
+    history.update('val_D_loss', history['val_D_loss'] + hist_update['val_D_loss'])
+    history.update('R_loss', history['R_loss'] +
+                   [abs(x) for x in hist_update['R_loss']])
+    history.update('val_R_loss', history['val_R_loss'] +
+                   [abs(x) for x in hist_update['val_R_loss']])
 
 D.save_weights("adversarial_weights.h5")
 pickle.dump(history, open("adversarial_history.p", "wb"))
