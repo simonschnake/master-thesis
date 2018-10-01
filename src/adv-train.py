@@ -42,7 +42,7 @@ except OSError:
 X_train = data['train']['X']
 Y_train = data['train']['Y']
 
-history = {'loss': [], 'val_loss': []}
+history = {'D_loss': [], 'val_D_loss': [], 'R_loss': [], 'val_R_loss': []}
 
 ##############################################################
 #                        _      _                            #
@@ -60,14 +60,14 @@ Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
-D = Model([inputs], [Dx])
+D = Model([inputs], [Dx], name='D')
 
 results = Input(shape=(Y_train.shape[1],))
 Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([D(inputs), results])
 Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(20, activation="relu")(Rx)
 Rx = Dense(500, activation="softmax")(Rx)
-R = Model([inputs, results], [Rx])
+R = Model([inputs, results], [Rx], name='R')
 
 
 def make_loss_D(c):
@@ -91,7 +91,7 @@ DRf.compile(loss=[make_loss_D(c=1.0), make_loss_R(c=-lam)], optimizer=opt)
 D.trainable = False
 R.trainable = True
 DfR = Model([inputs, results], [R([inputs, results])])
-DfR.compile(loss=[make_loss_R(c=1.0)], optimizer=opt)
+DfR.compile(loss=[make_loss_R(c=lam)], optimizer=opt)
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -102,49 +102,51 @@ DfR.compile(loss=[make_loss_R(c=1.0)], optimizer=opt)
 #                                  |___/                    #
 #############################################################
 
-earlystop = EarlyStopping(monitor='val_loss',
-                          min_delta=0.01,
-                          patience=3,
-                          verbose=0, mode='auto')
-callbacks_list = [earlystop]
-
 batch_size = 128
 epochs = 5
 
-D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
-      validation_split=0.1, callbacks=callbacks_list)
+hist_update = D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
+                    validation_split=0.1).history
+history.update([('D_loss',
+                 history['D_loss'] + hist_update['loss']),
+                ('val_loss',
+                 history['val_D_loss'] + hist_update['val_loss'])])
 
+
+# Y_train to categories
 bins = np.arange(0., 10., 10./500.)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 
-for i in range(105):
+epochs = 2
+
+for i in range(3):
 
     # Fit R
-    d_weights = D.get_weights()
-
-    DfR.fit([X_train, Y_train],
-            Z_train,
-            # epochs=epochs,
-            batch_size=batch_size,
-            validation_split=0.1,
-            callbacks=callbacks_list)
-
-    print(d_weights[2][0] == D.get_weights()[2][0])
+    hist_update = DfR.fit([X_train, Y_train],
+                          Z_train,
+                          epochs=epochs,
+                          batch_size=batch_size,
+                          validation_split=0.1).history
+    history.update([('R_loss',
+                     history['R_loss'] + hist_update['loss']),
+                    ('val_loss',
+                     history['val_R_loss'] + hist_update['val_loss'])])
 
     # Fit D
-    r_weights = R.get_weights()
     hist_update = DRf.fit([X_train, Y_train],
                           [Y_train, Z_train],
-                          # epochs=epochs,
+                          epochs=epochs,
                           batch_size=batch_size,
-                          validation_split=0.1,
-                          callbacks=callbacks_list).history
-    history.update([('loss',
-                     history['loss'] + hist_update['loss']),
-                    ('val_loss',
-                     history['val_loss'] + hist_update['val_loss'])])
-    r_weights = R.get_weights()
+                          validation_split=0.1).history
+    history.update(('D_loss',
+                    history['D_loss'] + hist_update['D_loss']),
+                   ('val_loss',
+                    history['val_D_loss'] + hist_update['val_D_loss']),
+                   ('R_loss',
+                    history['R_loss'] + hist_update['R_loss']),
+                   ('val_loss',
+                    history['val_R_loss'] + hist_update['val_R_loss']))
 
 D.save_weights("adversarial_weights.h5")
 pickle.dump(history, open("adversarial_history.p", "wb"))
