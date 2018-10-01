@@ -116,14 +116,14 @@ bins = np.arange(0., 10., 10./500.)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 
-epochs = 3
+epochs = 1
 
-for i in range(15):
+for i in range(3):
 
     # Fit R
     hist_update = DfR.fit([X_train, Y_train],
                           Z_train,
-                          epochs=epochs,
+                          epochs=3*epochs,
                           batch_size=batch_size,
                           validation_split=0.1).history
     history.update([('R_loss',
