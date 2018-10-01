@@ -2,3 +2,5 @@
 *.tex
 *.pdf
 /obipy-resources/
+data/
+.mypy_cache/
