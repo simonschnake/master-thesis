@@ -16,7 +16,6 @@ from keras.layers import Input, Dense, Lambda
 from keras.models import Model
 from keras.optimizers import Adagrad
 from keras.utils import np_utils
-
 import h5py
 import pickle
 import numpy as np
@@ -102,13 +101,13 @@ DfR.compile(loss=[make_loss_R(c=lam)], optimizer=opt)
 #############################################################
 
 batch_size = 128
-epochs = 5
+epochs = 1
 
 hist_update = D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
                     validation_split=0.1).history
 history.update([('D_loss',
                  history['D_loss'] + hist_update['loss']),
-                ('val_D_loss',
+                ('val_loss',
                  history['val_D_loss'] + hist_update['val_loss'])])
 
 
@@ -117,20 +116,20 @@ bins = np.arange(0., 10., 10./500.)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 
-epochs = 2
+epochs = 1
 
-for i in range(30):
+for i in range(1):
 
     # Fit R
-    R_hist_update = DfR.fit([X_train, Y_train],
-                            Z_train,
-                            epochs=epochs,
-                            batch_size=batch_size,
-                            validation_split=0.1).history
+    hist_update = DfR.fit([X_train, Y_train],
+                          Z_train,
+                          epochs=epochs,
+                          batch_size=batch_size,
+                          validation_split=0.1).history
     history.update([('R_loss',
-                     history['R_loss'] + R_hist_update['loss']),
+                     history['R_loss'] + hist_update['loss']),
                     ('val_R_loss',
-                     history['val_R_loss'] + R_hist_update['val_loss'])])
+                     history['val_R_loss'] + hist_update['val_loss'])])
 
     # Fit D
     hist_update = DRf.fit([X_train, Y_train],
@@ -138,12 +137,14 @@ for i in range(30):
                           epochs=epochs,
                           batch_size=batch_size,
                           validation_split=0.1).history
-    history.update('D_loss': history['D_loss'] + hist_update['D_loss'])
-    history.update('val_D_loss', history['val_D_loss'] + hist_update['val_D_loss'])
-    history.update('R_loss', history['R_loss'] +
-                   [abs(x) for x in hist_update['R_loss']])
-    history.update('val_R_loss', history['val_R_loss'] +
-                   [abs(x) for x in hist_update['val_R_loss']])
+    history.update([('D_loss',
+                    history['D_loss'] + hist_update['D_loss']),
+                   ('val_D_loss',
+                    history['val_D_loss'] + hist_update['val_D_loss']),
+                   ('R_loss',
+                    history['R_loss'] + hist_update['R_loss']),
+                   ('val_R_loss',
+                    history['val_R_loss'] + hist_update['val_R_loss'])])
 
 D.save_weights("adversarial_weights.h5")
 pickle.dump(history, open("adversarial_history.p", "wb"))
