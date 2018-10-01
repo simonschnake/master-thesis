@@ -57,7 +57,7 @@ def likelihood_loss(y_true, y_pred):
     upper_border = tf.constant(np.float64(10.))
     two = tf.constant(np.float64(2.))
     mu = y_pred
-    sigma = tf.sqrt(tf.abs(y_true))
+    sigma = tf.sqrt(tf.abs(y_pred))
     first_part = tf.divide(tf.square(mu - y_true),
                            two*tf.square(sigma)+epsilon)
     a = tf.divide(upper_border-mu, tf.sqrt(two)*sigma+epsilon)
