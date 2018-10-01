@@ -82,6 +82,13 @@ def make_loss_R(c):
 
 opt = Adagrad()
 D.compile(loss=[make_loss_D(c=1.0)], optimizer=opt)
+
+batch_size = 128
+epochs = 5
+
+hist_update = D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
+                    validation_split=0.1).history
+
 D.trainable = True
 R.trainable = False
 DRf = Model([inputs, results], [D(inputs), R([inputs, results])])
@@ -100,16 +107,10 @@ DfR.compile(loss=[make_loss_R(c=lam)], optimizer=opt)
 #                                  |___/                    #
 #############################################################
 
-batch_size = 128
-epochs = 5
-
-hist_update = D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
-                    validation_split=0.1).history
 history.update([('D_loss',
                  history['D_loss'] + hist_update['loss']),
                 ('val_D_loss',
                  history['val_D_loss'] + hist_update['val_loss'])])
-
 
 # Y_train to categories
 bins = np.arange(0., 10., 10./500.)[:-1]
