@@ -107,7 +107,7 @@ hist_update = D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
                     validation_split=0.1).history
 history.update([('D_loss',
                  history['D_loss'] + hist_update['loss']),
-                ('val_loss',
+                ('val_D_loss',
                  history['val_D_loss'] + hist_update['val_loss'])])
 
 
@@ -116,9 +116,9 @@ bins = np.arange(0., 10., 10./500.)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 
-epochs = 3
+epochs = 1
 
-for i in range(15):
+for i in range(20):
 
     # Fit R
     hist_update = DfR.fit([X_train, Y_train],
@@ -134,7 +134,7 @@ for i in range(15):
     # Fit D
     hist_update = DRf.fit([X_train, Y_train],
                           [Y_train, Z_train],
-                          epochs=epochs,
+                          epochs=3*epochs,
                           batch_size=batch_size,
                           validation_split=0.1).history
     history.update([('D_loss',
