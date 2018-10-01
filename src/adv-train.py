@@ -101,7 +101,7 @@ DfR.compile(loss=[make_loss_R(c=lam)], optimizer=opt)
 #############################################################
 
 batch_size = 128
-epochs = 1
+epochs = 5
 
 hist_update = D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
                     validation_split=0.1).history
@@ -116,9 +116,9 @@ bins = np.arange(0., 10., 10./500.)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 
-epochs = 1
+epochs = 3
 
-for i in range(1):
+for i in range(15):
 
     # Fit R
     hist_update = DfR.fit([X_train, Y_train],
@@ -138,13 +138,13 @@ for i in range(1):
                           batch_size=batch_size,
                           validation_split=0.1).history
     history.update([('D_loss',
-                    history['D_loss'] + hist_update['D_loss']),
-                   ('val_D_loss',
-                    history['val_D_loss'] + hist_update['val_D_loss']),
-                   ('R_loss',
-                    history['R_loss'] + hist_update['R_loss']),
-                   ('val_R_loss',
-                    history['val_R_loss'] + hist_update['val_R_loss'])])
+                     history['D_loss'] + hist_update['D_loss']),
+                    ('val_D_loss',
+                     history['val_D_loss'] + hist_update['val_D_loss']),
+                    ('R_loss',
+                     history['R_loss'] + hist_update['R_loss']),
+                    ('val_R_loss',
+                     history['val_R_loss'] + hist_update['val_R_loss'])])
 
 D.save_weights("adversarial_weights.h5")
 pickle.dump(history, open("adversarial_history.p", "wb"))
