@@ -31,7 +31,14 @@ import numpy as np
 #                              |___/                         #
 ##############################################################
 
-data = h5py.File('../../data/electron.h5', 'r')
+try:
+    data = h5py.File('../../data/electron.h5', 'r')
+except OSError:
+    try:
+        data = h5py.File('../data/electron.h5', 'r')
+    except OSError:
+        print('Data not found')
+        exit()
 X_train = data['train']['X']
 Y_train = data['train']['Y']
 
@@ -59,8 +66,6 @@ results = Input(shape=(Y_train.shape[1],))
 Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([D(inputs), results])
 Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(20, activation="relu")(Rx)
-Rx = Dense(30, activation="relu")(Rx)
-Rx = Dense(40, activation="relu")(Rx)
 Rx = Dense(500, activation="softmax")(Rx)
 R = Model([inputs, results], [Rx])
 
@@ -77,12 +82,14 @@ def make_loss_R(c):
     return loss_R
 
 
-opt = Adagrad(lr=0.1)
+opt = Adagrad()
 D.compile(loss=[make_loss_D(c=1.0)], optimizer=opt)
-
+D.trainable = True
+R.trainable = False
 DRf = Model([inputs, results], [D(inputs), R([inputs, results])])
 DRf.compile(loss=[make_loss_D(c=1.0), make_loss_R(c=-lam)], optimizer=opt)
-
+D.trainable = False
+R.trainable = True
 DfR = Model([inputs, results], [R([inputs, results])])
 DfR.compile(loss=[make_loss_R(c=1.0)], optimizer=opt)
 
@@ -114,24 +121,19 @@ Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 for i in range(5):
 
     # Fit R
-    D.trainable = False
-    R.trainable = True
+    d_weights = D.get_weights()
 
-    DfR.compile(loss=[make_loss_R(c=1.0)],
-                optimizer=opt)
     DfR.fit([X_train, Y_train],
             Z_train,
-            # epochs=epochs,
+            epochs=epochs,
             batch_size=batch_size,
             validation_split=0.1,
             callbacks=callbacks_list)
 
+    print(d_weights[2][0] == D.get_weights()[2][0])
+
     # Fit D
-    D.trainable = True
-    R.trainable = False
-    DRf.compile(loss=[make_loss_D(c=1.0),
-                      make_loss_R(c=-lam)],
-                optimizer=opt)
+    r_weights = R.get_weights()
     hist_update = DRf.fit([X_train, Y_train],
                           [Y_train, Z_train],
                           # epochs=epochs,
@@ -142,6 +144,7 @@ for i in range(5):
                      history['loss'] + hist_update['loss']),
                     ('val_loss',
                      history['val_loss'] + hist_update['val_loss'])])
+    r_weights = R.get_weights()
 
-    D.save_weights("adversarial_weights.h5")
-    pickle.dump(history, open("adversarial_history.p", "wb"))
+D.save_weights("adversarial_weights.h5")
+pickle.dump(history, open("adversarial_history.p", "wb"))
