@@ -102,9 +102,8 @@ earlystop = EarlyStopping(monitor='val_loss',
 callbacks_list = [earlystop]
 
 batch_size = 128
-epochs = 20
+epochs = 5
 
-# D.load_weights("D_init_weights.h5")
 D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
       validation_split=0.1, callbacks=callbacks_list)
 
@@ -112,7 +111,7 @@ bins = np.arange(0., 10., 10./500.)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 
-for i in range(15):
+for i in range(5):
 
     # Fit R
     D.trainable = False
@@ -122,7 +121,7 @@ for i in range(15):
                 optimizer=opt)
     DfR.fit([X_train, Y_train],
             Z_train,
-            epochs=epochs,
+            # epochs=epochs,
             batch_size=batch_size,
             validation_split=0.1,
             callbacks=callbacks_list)
@@ -135,7 +134,7 @@ for i in range(15):
                 optimizer=opt)
     hist_update = DRf.fit([X_train, Y_train],
                           [Y_train, Z_train],
-                          epochs=epochs,
+                          # epochs=epochs,
                           batch_size=batch_size,
                           validation_split=0.1,
                           callbacks=callbacks_list).history
