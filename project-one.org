@@ -490,7 +490,7 @@ used as a loss function.
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import pickle
   history = pickle.load(open('src/adversarial_history.p', 'rb')
-  epochs_D = range(len(history['D_loss']))
+  epochs = range(len(history['D_loss']))
   fig, ax = plt.subplots()
   ax.spines['top'].set_visible(False)
   ax.spines['bottom'].set_visible(False)
@@ -499,10 +499,10 @@ used as a loss function.
   plt.tick_params(axis='both', which='both', bottom=False, top=False,
                   labelbottom=True, left=True, right=False, labelleft=True)
   ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
-  plt.plot(epochs_D, history['D_loss'], 'k-')
-  plt.plot(epochs_D, history['val_D_loss'], '-', color='#1f77b4')
-  plt.text(float(epochs_D[-1])+0.5, history['D_loss'][-1], 'training loss', ha='left', va='center', size=15)
-  plt.text(float(epochs_D[-1])+0.5, history['val_D_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
+  plt.plot(epochs, history['D_loss'], 'k-')
+  plt.plot(epochs, history['val_D_loss'], '-', color='#1f77b4')
+  plt.text(float(epochs[-1])+0.5, history['D_loss'][-1], 'training loss', ha='left', va='center', size=15)
+  plt.text(float(epochs[-1])+0.5, history['val_D_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
   plt.xlabel('epochs')
   plt.ylabel('loss')
 #+END_SRC
