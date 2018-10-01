@@ -63,7 +63,7 @@ def likelihood_loss(y_true, y_pred):
     a = tf.divide(upper_border-mu, tf.sqrt(two)*sigma+epsilon)
     b = tf.divide(lower_border-mu, tf.sqrt(two)*sigma+epsilon)
     penalty = tf.abs(tf.erf(a) - tf.erf(b))
-    loss = first_part + tf.log(penalty+epsilon)
+    loss = first_part + tf.log(penalty+epsilon)+tf.log(sigma+epsilon)
     return tf.reduce_mean(loss)
 
 # try:
