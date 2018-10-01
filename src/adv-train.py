@@ -120,7 +120,11 @@ Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 epochs = 1
 
 for i in range(3):
-
+    DfRw = DfR.get_weights()
+    DRfw = DRf.get_weights()
+    dw = D.get_weights()
+    print(DRfw[0][0] == dw[0][0])
+    print(DRfw[0][0] == DfRw[6][0])
     # Fit R
     hist_update = DfR.fit([X_train, Y_train],
                           Z_train,
@@ -135,7 +139,7 @@ for i in range(3):
     # Fit D
     hist_update = DRf.fit([X_train, Y_train],
                           [Y_train, Z_train],
-                          epochs=3*epochs,
+                          epochs=epochs,
                           batch_size=batch_size,
                           validation_split=0.1).history
     history.update([('D_loss',

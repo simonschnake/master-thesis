@@ -67,18 +67,18 @@ This is done with the method of least squares.
   errfunc = lambda c , x, y: (y - fitfunc(c, x))
   out = leastsq(errfunc, [0.1, 0.0], args=(sum_n, energies), full_output=1)
 
-  c_fit = out[0]
+  c_fit1 = out[0]
   covar = out[1]
 
   n = np.arange(0, 255, 0.5)
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
+  plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
 
   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$\sum_i n_i$')
 
-  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
-  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
+  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit1[0], ha='left')
+  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit1[1], ha='left')
   plt.savefig('e-vs-sum_n_fit.pdf')
 #+END_SRC
 
@@ -86,7 +86,29 @@ This is done with the method of least squares.
 #+NAME: e-vs-sum_n_fit
 [[./e-vs-sum_n_fit.pdf]]
 
+The relation is bijectiv so the solution can be found by swapping the axixes.
 
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+  from scipy.optimize import leastsq
+  # function to fit
+  fitfunc2 = lambda c , x: (x-c[1])/(abs(c[0])+0.0001)
+  errfunc = lambda c , x, y: (y - fitfunc2(c, x))
+  out = leastsq(errfunc, [0., 0.0], args=(energies, sum_n), full_output=1)
+
+  c_fit = out[0]
+  covar = out[1]
+
+  n = np.arange(0, 255, 0.5)
+  plt.plot(sum_n, energies, 'r.', alpha=0.06)
+  plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
+  plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
+
+  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
+  plt.xlabel(r'$\sum_i n_i$')
+
+  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
+  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
+#+END_SRC
 
 \[
    \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} 
@@ -144,7 +166,9 @@ Which is
 
   n = np.arange(0, 240, 0.5)
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
+  plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
   plt.plot(n, fitfunc(c_like, n), 'k-')     # Fit
+  plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
 
   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$\sum_i n_i$')
@@ -489,7 +513,7 @@ used as a loss function.
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import pickle
-  history = pickle.load(open('src/adversarial_history.p', 'rb')
+  history = pickle.load(open('src/adversarial_history.p', 'rb'))
   epochs = range(len(history['D_loss']))
   fig, ax = plt.subplots()
   ax.spines['top'].set_visible(False)
@@ -509,7 +533,7 @@ used as a loss function.
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import pickle
-  history = pickle.load(open('src/adversarial_history.p', 'rb')
+  history = pickle.load(open('src/adversarial_history.p', 'rb'))
   epochs_R = range(len(history['R_loss']))
   fig, ax = plt.subplots()
   ax.spines['top'].set_visible(False)
@@ -530,7 +554,7 @@ used as a loss function.
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   model.load_weights('src/adversarial_weights.h5')
   fig, ax = plt.subplots()
-  plt.plot(energies, fitfunc(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
+  plt.plot(energies, fitfunc(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
   # plt.plot(Y_train[:10000], (model.predict(X_train[:10000])-Y_train[:10000]), 'r.', alpha=0.25, markersize=3)
   plt.plot(Y_test[:10000], (model.predict(X_test[:10000])-Y_test[:10000]), 'k.', alpha=0.25, markersize=3)
   # plt.ylim([-6., 6])
@@ -565,12 +589,12 @@ used as a loss function.
       len_by = int(len_by_n/n)
       # calculate results
       y = np.mean(np.transpose(Y)[0][perm].reshape(len_by, n), axis=1)
-      mu = np.mean(np.transpose(X)[0][perm].reshape(len_by, n), axis=1)
-      sigma = np.std(np.transpose(X)[0][perm].reshape(len_by, n), axis=1)
+      mu = np.mean(np.transpose(X-Y)[0][perm].reshape(len_by, n), axis=1)
+      sigma = np.std(np.transpose(X-Y)[0][perm].reshape(len_by, n), axis=1)
       return y, mu, sigma
 
   n = 1000
-  y_f, mu_f, sigma_f = measure_val(fitfunc(c_like, np.sum(X_test, axis=1)).reshape(len(X_test), 1), Y_test, n)
+  y_f, mu_f, sigma_f = measure_val(fitfunc(c_fit, np.sum(X_test, axis=1)).reshape(len(X_test), 1), Y_test, n)
   y_nn, mu_nn, sigma_nn = measure_val(model.predict(X_test), Y_test, n)
   y_ov, mu_ov, sigma_ov = measure_val(model.predict(X_train), Y_train, n*10)
 
@@ -578,9 +602,9 @@ used as a loss function.
   fig = plt.figure()
   ax = fig.add_subplot(2,1,1)
 
-  ax.plot(y_f, mu_f - y_f, 'k.')
-  ax.plot(y_nn, mu_nn - y_nn, 'r.')
-  ax.plot(y_ov, mu_ov - y_ov, '.',color='#1f77b4')
+  ax.plot(y_f, mu_f, 'k.')
+  ax.plot(y_nn, mu_nn, 'r.')
+  ax.plot(y_ov, mu_ov, '.',color='#1f77b4')
   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
   ax.xaxis.set_ticks([])
   ax.spines["top"].set_visible(False)
@@ -588,7 +612,7 @@ used as a loss function.
   ax.spines["bottom"].set_visible(False)
 
   ax = fig.add_subplot(2,1,2)
-  ax.plot(y_f, sigma_f/ np.sqrt(y_f), 'k.')
+  ax.plot(y_f, sigma_f/np.sqrt(y_f), 'k.')
   ax.plot(y_nn, sigma_nn/np.sqrt(y_nn), 'r.')
   ax.plot(y_ov, sigma_ov/np.sqrt(y_ov), '.', color='#1f77b4')
   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
