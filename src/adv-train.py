@@ -118,14 +118,14 @@ bins = np.arange(0., 10., 10./500.)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 
-for i in range(5):
+for i in range(105):
 
     # Fit R
     d_weights = D.get_weights()
 
     DfR.fit([X_train, Y_train],
             Z_train,
-            epochs=epochs,
+            # epochs=epochs,
             batch_size=batch_size,
             validation_split=0.1,
             callbacks=callbacks_list)
