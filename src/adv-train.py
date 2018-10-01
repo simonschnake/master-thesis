@@ -118,11 +118,7 @@ Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 
 epochs = 1
 
-<<<<<<< HEAD
 for i in range(3):
-=======
-for i in range(20):
->>>>>>> 6260596ff34d088ca1f8dd17d23a8781423a3b38
 
     # Fit R
     hist_update = DfR.fit([X_train, Y_train],
