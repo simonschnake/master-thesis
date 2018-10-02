@@ -204,7 +204,7 @@ the true energy values and our predicted energy values. We train the network for
 
 #+RESULTS:
 :RESULTS:
-# Out[21]:
+# Out[64]:
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -230,8 +230,8 @@ plt.savefig('loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[22]:
-[[file:./obipy-resources/sbHufQ.png]]
+# Out[65]:
+[[file:./obipy-resources/CYMCoS.png]]
 :END:
 
 
@@ -261,13 +261,19 @@ physics. Also
   ax.spines["right"].set_visible(False)  
   ax.spines["left"].set_visible(False)
   ax.spines["bottom"].set_visible(False)  
+  plt.savefig('first.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[23]:
-[[file:./obipy-resources/AUdKLd.png]]
+# Out[68]:
+[[file:./obipy-resources/XFlmRM.png]]
 :END:
+
+#+CAPTION: Results of the linear fit vs the first neural net
+#+NAME: first
+[[./first.pdf]]
+
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   def measure_val(X, Y, n):
@@ -296,36 +302,38 @@ physics. Also
   n = 1000
   y_f, mu_f, sigma_f = measure_val(fitfunc(c_fit, np.sum(X_test, axis=1)).reshape(len(X_test), 1), Y_test, n)
   y_nn, mu_nn, sigma_nn = measure_val(model.predict(X_test), Y_test, n)
-  y_ov, mu_ov, sigma_ov = measure_val(model.predict(X_train), Y_train, n*10)
-
 
   fig = plt.figure()
   ax = fig.add_subplot(2,1,1)
 
-  ax.plot(y_f, mu_f - y_f, 'k.')
-  ax.plot(y_nn, mu_nn - y_nn, 'r.')
-  ax.plot(y_ov, mu_ov - y_ov, '.',color='#1f77b4')
+  ax.plot(y_f, mu_f - y_f, '-',color='#1f77b4')
+  ax.plot(y_nn, mu_nn - y_nn, 'k-')
   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
   ax.xaxis.set_ticks([])
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
   ax.spines["bottom"].set_visible(False)
 
-  ax = fig.add_subplot(2,1,2)
-  ax.plot(y_f, sigma_f/ np.sqrt(y_f), 'k.')
-  ax.plot(y_nn, sigma_nn/np.sqrt(y_nn), 'r.')
-  ax.plot(y_ov, sigma_ov/np.sqrt(y_ov), '.', color='#1f77b4')
+  ax = fig.add_suwqbplot(2,1,2)
+  ax.plot(y_f, sigma_f/ np.sqrt(y_f), '-', color='#1f77b4')
+  ax.plot(y_nn, sigma_nn/np.sqrt(y_nn), 'k-')
   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
+
+  plt.savefig('first_res.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[27]:
-[[file:./obipy-resources/hQiF28.png]]
+# Out[70]:
+[[file:./obipy-resources/lz3GWH.png]]
 :END:
+
+#+CAPTION: Results of the linear fit vs the first neural net
+#+NAME: first_res
+[[./first_res.pdf]]
 
 ** Server Stuff :noexport:
 Here we copy stuff to the server and back
