@@ -64,7 +64,7 @@ results = Input(shape=(Y_train.shape[1],))
 Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([D(inputs), results])
 Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(20, activation="relu")(Rx)
-Rx = Dense(500, activation="softmax")(Rx)
+Rx = Dense(50, activation="softmax")(Rx)
 R = Model([inputs, results], [Rx], name='R')
 
 
@@ -113,16 +113,16 @@ history.update([('D_loss',
                  history['val_D_loss'] + hist_update['val_loss'])])
 
 # Y_train to categories
-bins = np.arange(0., 10., 10./500.)[:-1]
+bins = np.arange(0., 10., 10./50.)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
-Z_train = np_utils.to_categorical(Z_train, num_classes=500)
+Z_train = np_utils.to_categorical(Z_train, num_classes=50)
 
 for i in range(5):
 
     # Fit R
     hist_update = DfR.fit([X_train, Y_train],
                           Z_train,
-                          epochs=3,
+                          epochs=5,
                           batch_size=batch_size,
                           validation_split=0.1).history
     history.update([('R_loss',
