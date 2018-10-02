@@ -60,11 +60,12 @@ Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 
+cases = 5000
 results = Input(shape=(Y_train.shape[1],))
 Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([D(inputs), results])
 Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(20, activation="relu")(Rx)
-Rx = Dense(500, activation="softmax")(Rx)
+Rx = Dense(cases, activation="softmax")(Rx)
 R = Model([inputs, results], [Rx], name='R')
 
 
@@ -113,11 +114,11 @@ history.update([('D_loss',
                  history['val_D_loss'] + hist_update['val_loss'])])
 
 # Y_train to categories
-bins = np.arange(0., 10., 10./500.)[:-1]
+bins = np.arange(0., 10., 10./cases)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
-Z_train = np_utils.to_categorical(Z_train, num_classes=500)
+Z_train = np_utils.to_categorical(Z_train, num_classes=cases)
 
-for i in range(5):
+for i in range(7):
 
     # Fit R
     hist_update = DfR.fit([X_train, Y_train],
@@ -141,9 +142,9 @@ for i in range(5):
                     ('val_D_loss',
                      history['val_D_loss'] + hist_update['val_D_loss']),
                     ('R_loss',
-                     history['R_loss'] + hist_update['R_loss']),
+                     history['R_loss'] + [-x for x in hist_update['R_loss']]),
                     ('val_R_loss',
-                     history['val_R_loss'] + hist_update['val_R_loss'])])
+                     history['val_R_loss'] + [-x for x in hist_update['val_R_loss']])])
 
 D.save_weights("adversarial_weights.h5")
 pickle.dump(history, open("adversarial_history.p", "wb"))
