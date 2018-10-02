@@ -83,12 +83,6 @@ def make_loss_R(c):
 opt = Adagrad()
 D.compile(loss=[make_loss_D(c=1.0)], optimizer=opt)
 
-batch_size = 128
-epochs = 5
-
-hist_update = D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
-                    validation_split=0.1).history
-
 D.trainable = True
 R.trainable = False
 DRf = Model([inputs, results], [D(inputs), R([inputs, results])])
@@ -107,6 +101,12 @@ DfR.compile(loss=[make_loss_R(c=lam)], optimizer=opt)
 #                                  |___/                    #
 #############################################################
 
+batch_size = 128
+epochs = 5
+
+hist_update = D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
+                    validation_split=0.1).history
+
 history.update([('D_loss',
                  history['D_loss'] + hist_update['loss']),
                 ('val_D_loss',
@@ -117,18 +117,12 @@ bins = np.arange(0., 10., 10./500.)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=500)
 
-epochs = 1
+for i in range(5):
 
-for i in range(3):
-    DfRw = DfR.get_weights()
-    DRfw = DRf.get_weights()
-    dw = D.get_weights()
-    print(DRfw[0][0] == dw[0][0])
-    print(DRfw[0][0] == DfRw[6][0])
     # Fit R
     hist_update = DfR.fit([X_train, Y_train],
                           Z_train,
-                          epochs=3*epochs,
+                          epochs=3,
                           batch_size=batch_size,
                           validation_split=0.1).history
     history.update([('R_loss',
@@ -139,7 +133,7 @@ for i in range(3):
     # Fit D
     hist_update = DRf.fit([X_train, Y_train],
                           [Y_train, Z_train],
-                          epochs=epochs,
+                          epochs=1,
                           batch_size=batch_size,
                           validation_split=0.1).history
     history.update([('D_loss',
