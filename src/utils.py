@@ -31,3 +31,21 @@ def sliced_statistics(y_true, y_pred, number_of_slices):
     mu = np.mean(y_pred, axis=1)
     sigma = np.sqrt(np.mean(np.square(y_true-y_pred), axis=1))
     return value, mu, sigma
+
+def measure_val(X, Y, n):
+    '''
+    Calculate mean and std of X following Y
+    Y: numpy array with shape (,1)
+    X: numpy array with the same shape as X
+    n: len of each results (int and lower than len(Y))
+    returns: value, mu, sigma
+    '''
+    
+    # find the sorted order of Y
+    len_by_n = len(Y) - (len(Y) % n)
+    perm = Y[:len_by_n, 0].argsort()
+    # calculate results
+    y = np.mean(np.transpose(Y)[0][perm].reshape(len_by_n/n, n), axis=1)
+    mu = np.mean(np.transpose(X)[0][perm].reshape(len_by_n/n, n), axis=1)
+    sigma = np.std(np.transpose(X)[0][perm].reshape(len_by_n/n, n), axis=1)
+    return y, mu, sigma
