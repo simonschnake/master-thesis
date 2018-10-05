@@ -202,11 +202,6 @@ the true energy values and our predicted energy values. We train the network for
   D = Model([inputs], [Dx], name='D')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[64]:
-:END:
-
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import pickle
 history = pickle.load(open('src/first_history.p', 'rb'))
@@ -228,12 +223,6 @@ plt.ylabel('loss')
 plt.savefig('loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[65]:
-[[file:./obipy-resources/CYMCoS.png]]
-:END:
-
 
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
 #+NAME: Loss
@@ -246,11 +235,11 @@ that the model learns the data and nothing about the underlying
 physics. Also 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  model.load_weights('src/first_weights.h5')
+  D.load_weights('src/first_weights.h5')
   fig, ax = plt.subplots()
   plt.plot(energies, fitfunc(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-  #plt.plot(Y_train[:10000], (model.predict(X_train[:10000])-Y_train[:10000]), '.', alpha=0.25, markersize=3, color='#1f77b4')
-  plt.plot(Y_test[:10000], (model.predict(X_test[:10000])-Y_test[:10000]), 'k.', alpha=0.25, markersize=3)
+  #plt.plot(Y_train[:10000], (D.predict(X_train[:10000])-Y_train[:10000]), '.', alpha=0.25, markersize=3, color='#1f77b4')
+  plt.plot(Y_test[:10000], (D.predict(X_test[:10000])-Y_test[:10000]), 'k.', alpha=0.25, markersize=3)
   plt.plot(np.arange(11), np.ones(11), 'w-', linewidth=0.5)
   plt.ylim([-5., 5])
   plt.xlim([0.,10])
@@ -264,59 +253,36 @@ physics. Also
   plt.savefig('first.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[68]:
-[[file:./obipy-resources/XFlmRM.png]]
-:END:
-
 #+CAPTION: Results of the linear fit vs the first neural net
 #+NAME: first
 [[./first.pdf]]
 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  def measure_val(X, Y, n):
-      '''
-      Calculate mean and std of X following Y
-      Y: numpy array with shape (,1)
-      X: numpy array with the same shape as X
-      n: len of each results (int and lower than len(Y))
-      returns: value, mu, sigma
-      '''
-      # ensure(len(Y.shape) == 2 and Y.shape[1] == 1).is_(True)
-      # ensure(Y.shape == X.shape).is_(True)
-      # ensure(n).is_an(int)
-      # ensure(n < len(Y)).is_(True)
-
-      # find the sorted order of Y
-      len_by_n = len(Y) - (len(Y) % n)
-      perm = Y[:len_by_n, 0].argsort()
-      len_by = int(len_by_n/n)
-      # calculate results
-      y = np.mean(np.transpose(Y)[0][perm].reshape(len_by, n), axis=1)
-      mu = np.mean(np.transpose(X)[0][perm].reshape(len_by, n), axis=1)
-      sigma = np.std(np.transpose(X)[0][perm].reshape(len_by, n), axis=1)
-      return y, mu, sigma
-
-  n = 1000
-  y_f, mu_f, sigma_f = measure_val(fitfunc(c_fit, np.sum(X_test, axis=1)).reshape(len(X_test), 1), Y_test, n)
-  y_nn, mu_nn, sigma_nn = measure_val(model.predict(X_test), Y_test, n)
+  import sys
+  sys.path.append('./src')
+  from utils import *
+  y_true = np.array(Y_test).reshape(len(Y_test),)
+  y_pred = D.predict(X_test).reshape(len(y_true),)
+  y_fit = fitfunc(c_fit, np.sum(X_test, axis=1))
+  n = 20
+  y_f, mu_f, sigma_f = sliced_statistics(y_true[:28000] , y_fit[:28000:], n) 
+  y_nn, mu_nn, sigma_nn = sliced_statistics(y_true[:28000:] , y_pred[:28000:], n) 
 
   fig = plt.figure()
   ax = fig.add_subplot(2,1,1)
 
-  ax.plot(y_f, mu_f - y_f, '-',color='#1f77b4')
-  ax.plot(y_nn, mu_nn - y_nn, 'k-')
+  ax.plot(y_f, mu_f - y_f, '.',color='#1f77b4')
+  ax.plot(y_nn, mu_nn - y_nn, 'k.')
   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
   ax.xaxis.set_ticks([])
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
   ax.spines["bottom"].set_visible(False)
 
-  ax = fig.add_suwqbplot(2,1,2)
-  ax.plot(y_f, sigma_f/ np.sqrt(y_f), '-', color='#1f77b4')
-  ax.plot(y_nn, sigma_nn/np.sqrt(y_nn), 'k-')
+  ax = fig.add_subplot(2,1,2)
+  ax.plot(y_f, sigma_f, '.', color='#1f77b4')
+  ax.plot(y_nn, sigma_nn, 'k.')
   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
   ax.spines["top"].set_visible(False)
@@ -324,12 +290,6 @@ physics. Also
 
   plt.savefig('first_res.pdf', bbox_inches = 'tight')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[70]:
-[[file:./obipy-resources/lz3GWH.png]]
-:END:
 
 #+CAPTION: Results of the linear fit vs the first neural net
 #+NAME: first_res
@@ -370,20 +330,14 @@ plt.ylabel('loss')
 plt.savefig('loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[44]:
-[[file:./obipy-resources/VWPrfp.png]]
-:END:
-
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  model.load_weights('src/likelihood_weights.h5')
+  D.load_weights('src/likelihood_weights.h5')
   fig, ax = plt.subplots()
   plt.plot(energies, fitfunc(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-  # plt.plot(Y_train[:10000], (model.predict(X_train[:10000])-Y_train[:10000]), 'r.', alpha=0.25, markersize=3)
-  plt.plot(Y_test[:10000], (model.predict(X_test[:10000])-Y_test[:10000]), 'k.', alpha=0.25, markersize=3)
+  # plt.plot(Y_train[:10000], (D.predict(X_train[:10000])-Y_train[:10000]), 'r.', alpha=0.25, markersize=3)
+  plt.plot(Y_test, (D.predict(X_test)-Y_test), 'k.', alpha=0.25, markersize=3)
   # plt.ylim([-6., 6])
-  plt.xlim([0.,10])
+  # plt.xlim([0.,10])
   plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
 
@@ -393,23 +347,21 @@ plt.savefig('loss.pdf', bbox_inches = 'tight')
   ax.spines["bottom"].set_visible(False)  
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[45]:
-[[file:./obipy-resources/Qvd0hU.png]]
-:END:
-
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  y_f, mu_f, sigma_f = measure_val(fitfunc(c_fit, np.sum(X_test, axis=1)).reshape(len(X_test), 1), Y_test, n)
-  model.load_weights('src/likelihood_weights.h5')
-  y_lh, mu_lh, sigma_lh = measure_val(model.predict(X_test), Y_test, n)
+  y_true = np.array(Y_test).reshape(len(Y_test),)
+  D.load_weights('src/likelihood_weights.h5')
+  y_pred = D.predict(X_test).reshape(len(y_true),)
+  y_fit = fitfunc(c_fit, np.sum(X_test, axis=1))
+  n = 10
+  y_f, mu_f, sigma_f = sliced_statistics(y_true , y_fit, n) 
+  y_lh, mu_lh, sigma_lh = sliced_statistics(y_true , y_pred, n) 
 
   fig = plt.figure()
   ax = fig.add_subplot(2,1,1)
 
-  ax.plot(y_f, mu_f, '.', color='#1f77b4')
-  ax.plot(y_lh, mu_lh, 'k.')
+  ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
+  ax.plot(y_lh, mu_lh - mu_lh, 'k-')
   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
   ax.xaxis.set_ticks([])
   ax.spines["top"].set_visible(False)
@@ -417,19 +369,13 @@ plt.savefig('loss.pdf', bbox_inches = 'tight')
   ax.spines["bottom"].set_visible(False)
 
   ax = fig.add_subplot(2,1,2)
-  ax.plot(y_f, sigma_f/ np.sqrt(y_f), '.', color='#1f77b4')
-  ax.plot(y_lh, sigma_lh/np.sqrt(y_lh), 'k.')
+  ax.plot(y_f, sigma_f/ np.sqrt(y_f), '-', color='#1f77b4')
+  ax.plot(y_lh, sigma_lh/np.sqrt(y_lh), 'k-')
   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[54]:
-[[file:./obipy-resources/3EM8EG.png]]
-:END:
 
 * Adversarial Solution
 
@@ -457,13 +403,6 @@ used as a loss function.
   plt.ylabel('loss')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[34]:
-: Text(0,0.5,'loss')
-[[file:./obipy-resources/f9nzUe.png]]
-:END:
-
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import pickle
   history = pickle.load(open('src/adversarial_history.p', 'rb'))
@@ -484,18 +423,11 @@ used as a loss function.
   plt.ylabel('loss')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[35]:
-: Text(0,0.5,'loss')
-[[file:./obipy-resources/HjlDRw.png]]
-:END:
-
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  model.load_weights('src/adversarial_weights.h5')
+  D.load_weights('src/adversarial_weights.h5')
   fig, ax = plt.subplots()
   plt.plot(energies, fitfunc(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-  plt.plot(Y_test[:10000], (model.predict(X_test[:10000])-Y_test[:10000]), 'k.', alpha=0.25, markersize=3)
+  plt.plot(Y_test[:10000], (D.predict(X_test[:10000])-Y_test[:10000]), 'k.', alpha=0.25, markersize=3)
   # plt.ylim([-6., 6])
   plt.xlim([0.,10])
   plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
@@ -507,30 +439,24 @@ used as a loss function.
   ax.spines["bottom"].set_visible(False)  
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[55]:
-[[file:./obipy-resources/vBKDHG.png]]
-:END:
-
 
 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  n = 1000
-  y_f, mu_f, sigma_f = measure_val(fitfunc(c_fit, np.sum(X_test, axis=1)).reshape(len(X_test), 1), Y_test, n)
-  model.load_weights('src/adversarial_weights.h5')
-  y_adv, mu_adv, sigma_adv = measure_val(model.predict(X_test), Y_test, n)
-  model.load_weights('src/first_weights.h5')
-  y_wo, mu_wo, sigma_wo = measure_val(model.predict(X_test), Y_test, n)
-
+  y_true = np.array(Y_test).reshape(len(Y_test),)
+  D.load_weights('src/adversarial_weights.h5')
+  y_pred = D.predict(X_test).reshape(len(y_true),)
+  y_fit = fitfunc(c_fit, np.sum(X_test, axis=1))
+  n = 20
+  y_f, mu_f, sigma_f = sliced_statistics(y_true , y_fit, n) 
+  y_adv, mu_adv, sigma_adv = sliced_statistics(y_true , y_pred, n) 
 
   fig = plt.figure()
   ax = fig.add_subplot(2,1,1)
 
-  ax.plot(y_adv, mu_adv, 'k.')
-  ax.plot(y_wo, mu_wo, 'r.')
-  ax.plot(y_f, mu_f, '.',color='#1f77b4')
+  ax.plot(y_adv, mu_adv - y_adv, 'k-')
+  ax.plot(y_nn, mu_nn - y_nn, 'r-')
+  ax.plot(y_f, mu_f - y_f, '-',color='#1f77b4')
   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
   ax.xaxis.set_ticks([])
   ax.spines["top"].set_visible(False)
@@ -538,20 +464,14 @@ used as a loss function.
   ax.spines["bottom"].set_visible(False)
 
   ax = fig.add_subplot(2,1,2)
-  ax.plot(y_adv, sigma_adv/np.sqrt(y_adv), 'k.')
-  ax.plot(y_wo, sigma_wo/np.sqrt(y_wo), 'r.')
-  ax.plot(y_f, sigma_f/np.sqrt(y_f), '.', color='#1f77b4')
+  ax.plot(y_adv, sigma_adv/np.sqrt(y_adv), 'k-')
+  ax.plot(y_nn, sigma_nn/np.sqrt(y_nn), 'r-')
+  ax.plot(y_f, sigma_f/np.sqrt(y_f), '-', color='#1f77b4')
   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[58]:
-[[file:./obipy-resources/Wsqs4p.png]]
-:END:
 
 * Are we learning the shape?
 ** TODO divide the incoming cells by the total sum
