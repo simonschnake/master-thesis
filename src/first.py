@@ -11,15 +11,12 @@
 #                            |___/                           #
 ##############################################################
 
-from keras import losses
-from keras.layers import Input, Dense, Lambda
+from keras.layers import Input, Dense, Flatten
 from keras.models import Model
-from keras.optimizers import Adagrad
-from keras.utils import np_utils
 import h5py
 import pickle
-import numpy as np
-
+import sys
+from data_augment import DataGenerator
 ##############################################################
 #  _                 _ _                  ___      _         #
 # | | ___   __ _  __| (_)_ __   __ _     /   \__ _| |_ __ _  #
@@ -40,6 +37,9 @@ except OSError:
 X_train = data['train']['X']
 Y_train = data['train']['Y']
 
+X_test = data['test']['X']
+Y_test = data['test']['Y']
+
 history = {'loss': [], 'val_loss': []}
 
 ##############################################################
@@ -50,8 +50,9 @@ history = {'loss': [], 'val_loss': []}
 #      \/    \/\___/ \__,_|\___|_|                           #
 ##############################################################
 
-inputs = Input(shape=(X_train.shape[1],))
-Dx = Dense(128, activation="relu")(inputs)
+inputs = Input(shape=(8, 8, 17,))
+Dx = Flatten()(inputs)
+Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(10, activation="relu")(Dx)
@@ -69,17 +70,16 @@ D.compile(loss='mse', optimizer='rmsprop')
 #                                  |___/                    #
 #############################################################
 
-batch_size = 128
-epochs = 35
+epochs = 1
 
-hist_update = D.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size,
-                    validation_split=0.1).history
+hist_update = D.fit_generator(DataGenerator(X_train, Y_train),
+                              epochs=epochs).history
 
-history.update([('loss',
-                 history['loss'] + hist_update['loss']),
-                ('val_loss',
-                 history['val_loss'] + hist_update['val_loss'])])
+# history.update([('loss',
+#                  history['loss'] + hist_update['loss']),
+#                 ('val_loss',
+#                  history['val_loss'] + hist_update['val_loss'])])
 
 
-D.save_weights("first_weights.h5")
-pickle.dump(history, open("first_history.p", "wb"))
+# D.save_weights("first_weights.h5")
+# pickle.dump(history, open("first_history.p", "wb"))

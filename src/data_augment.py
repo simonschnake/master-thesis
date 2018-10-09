@@ -5,6 +5,72 @@ from tensorflow.python.ops import functional_ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import math_ops
 
+import keras
+import numpy as np
+
+
+class DataGenerator(keras.utils.Sequence):
+
+    def __init__(self, x_set, y_set, batch_size=32, height=8, width=8,
+                 channels=17, random_flip=True, random_rotate=True,
+                 random_shift_height=True, random_shift_width=True):
+        self.x, self.y = x_set, y_set
+        self.batch_size = batch_size
+        self.height = height
+        self.width = width
+        self.channels = channels
+        self.random_flip = random_flip
+        self.random_rotate = random_rotate
+        self.random_shift_height = random_shift_height
+        self.random_shift_width = random_shift_width
+
+    def __len__(self):
+        return int(np.ceil(len(self.x) / float(self.batch_size)))
+
+    def __getitem__(self, idx):
+        batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
+        batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
+
+        # transform data to geometrical array
+
+        batch_x = batch_x.reshape(self.batch_size, self.channels,
+                                  self.height, self.width)
+        # (batch_size, x, y, z) -> (batch_size, y, z, x) because x
+        # represents the 'channels' if we interprete our data as
+        # an image.
+        batch_x = np.transpose(batch_x, (0, 2, 3, 1))
+        # data_augmentation
+
+        # randomly flip the array
+        if self.random_flip:
+            if random.choice([True, False]):
+                batch_x = np.flip(batch_x, axis=1)
+
+        # randomly turn the array around
+        if self.random_rotate:
+            batch_x = np.rot90(batch_x, k=random.randint(0, 3), axes=(1, 2))
+
+        # randomly shift the array entries
+        zero_block = np.zeros(batch_x.shape)
+        # first in heights
+        if self.random_shift_height:
+            max_shift = int(self.height/2)-1
+            shift = random.randint(-max_shift, max_shift)
+            batch_x = np.concatenate([zero_block, batch_x, zero_block], axis=1)
+            batch_x = batch_x[:,
+                              self.height-shift:2*self.height-shift]
+
+        # than in width
+        if self.random_shift_width:
+            max_shift = int(self.width/2)-1
+            shift = random.randint(-max_shift, max_shift)
+            batch_x = np.concatenate([zero_block, batch_x, zero_block], axis=2)
+            batch_x = batch_x[:,
+                              :,
+                              self.width-shift:2*self.width-shift]
+
+        return batch_x, batch_y
+
 
 def _random_flip(data, flip_index):
     """
