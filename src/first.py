@@ -70,16 +70,21 @@ D.compile(loss='mse', optimizer='rmsprop')
 #                                  |___/                    #
 #############################################################
 
-epochs = 1
+epochs = 100
 
-hist_update = D.fit_generator(DataGenerator(X_train, Y_train),
-                              epochs=epochs).history
+hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
+                                            batch_size=128), epochs=epochs,
+                              validation_data=DataGenerator(X_test,
+                                                            Y_test, batch_size=128,
+                                                            random_flip=False, random_rotate=False,
+                                                            random_shift_height=False,
+                                                            random_shift_width=False)).history
 
-# history.update([('loss',
-#                  history['loss'] + hist_update['loss']),
-#                 ('val_loss',
-#                  history['val_loss'] + hist_update['val_loss'])])
+history.update([('loss',
+                 history['loss'] + hist_update['loss']),
+                ('val_loss',
+                 history['val_loss'] + hist_update['val_loss'])])
 
 
-# D.save_weights("first_weights.h5")
-# pickle.dump(history, open("first_history.p", "wb"))
+D.save_weights("first_weights.h5")
+pickle.dump(history, open("first_history.p", "wb"))
