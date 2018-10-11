@@ -11,11 +11,11 @@
 #                            |___/                           #
 ##############################################################
 
-from keras.layers import Input, Dense, Flatten
+from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, Activation
 from keras.models import Model
 import h5py
 import pickle
-import sys
+
 from data_augment import DataGenerator
 ##############################################################
 #  _                 _ _                  ___      _         #
@@ -51,7 +51,10 @@ history = {'loss': [], 'val_loss': []}
 ##############################################################
 
 inputs = Input(shape=(8, 8, 17,))
-Dx = Flatten()(inputs)
+Dx = Conv2D(32, (2, 2), strides = (1, 1), name = 'conv0')(inputs)
+# Dx = BatchNormalization(axis = 3, name = 'bn0')(Dx)
+Dx = Activation('relu')(Dx)
+Dx = Flatten()(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
@@ -59,7 +62,7 @@ Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 
-D.compile(loss='mse', optimizer='rmsprop')
+D.compile(loss='mse', optimizer='adadelta')
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -70,21 +73,21 @@ D.compile(loss='mse', optimizer='rmsprop')
 #                                  |___/                    #
 #############################################################
 
-epochs = 100
+epochs = 250
 
-hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
-                                            batch_size=128), epochs=epochs,
-                              validation_data=DataGenerator(X_test,
-                                                            Y_test, batch_size=128,
-                                                            random_flip=False, random_rotate=False,
-                                                            random_shift_height=False,
-                                                            random_shift_width=False)).history
+hist_update = D.fit_generator(
+    DataGenerator(X_train, Y_train, batch_size=128, random_flip=False,
+                  random_rotate=False, random_shift_height=False,
+                  random_shift_width=False),
+    epochs=epochs,
+    validation_data=DataGenerator(X_test, Y_test, batch_size=2000,
+                                  random_flip=False, random_rotate=False,
+                                  random_shift_height=False,
+                                  random_shift_width=False)).history
 
-history.update([('loss',
-                 history['loss'] + hist_update['loss']),
-                ('val_loss',
-                 history['val_loss'] + hist_update['val_loss'])])
-
+history.update([('loss', history['loss'] + hist_update['loss']),
+                ('val_loss', history['val_loss'] +
+                 hist_update['val_loss'])])
 
 D.save_weights("first_weights.h5")
 pickle.dump(history, open("first_history.p", "wb"))
