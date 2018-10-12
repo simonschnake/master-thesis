@@ -13,7 +13,7 @@
 
 from keras import losses
 from keras.layers import Input, Dense, Conv2D, Flatten, Activation, Lambda
-from keras.models import Model, clone_model
+from keras.models import Model
 from keras.optimizers import Adadelta
 import h5py
 import pickle
@@ -62,8 +62,7 @@ Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
-D_trainable = Model([inputs], [Dx], name='D')
-
+D = Model([inputs], [Dx], name='D')
 
 cases = 500
 input_D = Input(shape=(Y_train.shape[1],))
@@ -72,8 +71,7 @@ Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([input_D, results])
 Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(cases, activation="softmax")(Rx)
-R_trainable = Model([input_D, results], [Rx], name='R')
-
+R = Model([input_D, results], [Rx], name='R')
 
 def make_loss_D(c):
     def loss_D(y_true, y_pred):
@@ -87,21 +85,16 @@ def make_loss_R(c):
     return loss_R
 
 opt = Adadelta()
-# D.load_weights('data_augment_weights.h5')
-# D2.load_weights('data_augment_weights.h5')
-D_untrainable = clone_model(D_trainable)
-R_untrainable = clone_model(R_trainable)
-R_untrainable.trainable = False
-D_untrainable.trainable = False
 
-train_D = Model([inputs, results], [D_trainable(inputs), R_untrainable([D_trainable(inputs), results])])
+R.trainable = False
+D.trainable = True
+train_D = Model([inputs, results], [D(inputs), R([D(inputs), results])])
 train_D.compile(loss=[make_loss_D(c=1.0), make_loss_R(c=-lam)], optimizer=opt)
 
-train_R = Model([inputs, results], [R_trainable([D_untrainable(inputs), results])])
+R.trainable = True
+D.trainable = False
+train_R = Model([inputs, results], [R([D(inputs), results])])
 train_R.compile(loss=[make_loss_R(c=lam)], optimizer=opt)
-
-train_D.summary()
-train_R.summary()
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -118,9 +111,6 @@ Z_train = np_utils.to_categorical(Z_train, num_classes=cases)
 
 for i in range(7):
 
-
-    D_untrainable.get_weights(D_trainable.get_weights())
-    
     hist_update = train_R.fit_generator(
         DataGenerator(X_train, Y_train, Z_train, adversary=True),
         epochs=3,
@@ -132,7 +122,6 @@ for i in range(7):
         ('val_R_loss', history['val_R_loss'] + hist_update['val_loss'])])
     
     # Fit D
-    R_untrainable.get_weights(R_trainable.get_weights())
     
     hist_update = train_D.fit_generator(
         DataGenerator(X_train, Y_train, Z_train,
