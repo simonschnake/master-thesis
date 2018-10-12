@@ -13,7 +13,7 @@
 
 from keras import losses
 from keras.layers import Input, Dense, Conv2D, Flatten, Activation, Lambda
-from keras.models import Model
+from keras.models import Model, clone_model
 from keras.optimizers import Adadelta
 import h5py
 import pickle
@@ -62,17 +62,17 @@ Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
-D = Model([inputs], [Dx], name='D')
+D_trainable = Model([inputs], [Dx], name='D')
 
 
 cases = 500
+input_D = Input(shape=(Y_train.shape[1],))
 results = Input(shape=(Y_train.shape[1],))
-Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([D(inputs), results])
-# Rx = Lambda(lambda x: (x[0]-x[1]))([D(inputs), results])
+Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([input_D, results])
 Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(cases, activation="softmax")(Rx)
-R = Model([inputs, results], [Rx], name='R')
+R_trainable = Model([input_D, results], [Rx], name='R')
 
 
 def make_loss_D(c):
@@ -86,22 +86,22 @@ def make_loss_R(c):
         return c * losses.categorical_crossentropy(z_pred, z_true)
     return loss_R
 
-
 opt = Adadelta()
-D.compile(loss=[make_loss_D(c=1.0)], optimizer=opt)
-D.load_weights('data_augment_weights.h5')
+# D.load_weights('data_augment_weights.h5')
+# D2.load_weights('data_augment_weights.h5')
+D_untrainable = clone_model(D_trainable)
+R_untrainable = clone_model(R_trainable)
+R_untrainable.trainable = False
+D_untrainable.trainable = False
 
-R.trainable = False
-D.trainable = True
-DRf = Model([inputs, results], [D(inputs), R([inputs, results])])
-DRf.compile(loss=[make_loss_D(c=1.0), make_loss_R(c=-lam)], optimizer=opt)
-R.trainable = True
-D.trainable = False
-DfR = Model([inputs, results], [R([inputs, results])])
-DfR.compile(loss=[make_loss_R(c=lam)], optimizer=opt)
+train_D = Model([inputs, results], [D_trainable(inputs), R_untrainable([D_trainable(inputs), results])])
+train_D.compile(loss=[make_loss_D(c=1.0), make_loss_R(c=-lam)], optimizer=opt)
 
-DfR.summary()
-DRf.summary()
+train_R = Model([inputs, results], [R_trainable([D_untrainable(inputs), results])])
+train_R.compile(loss=[make_loss_R(c=lam)], optimizer=opt)
+
+train_D.summary()
+train_R.summary()
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -118,10 +118,10 @@ Z_train = np_utils.to_categorical(Z_train, num_classes=cases)
 
 for i in range(7):
 
-    # Fit R
-    dw = D.get_weights()
-    rw = R.get_weights()
-    hist_update = DfR.fit_generator(
+
+    D_untrainable.get_weights(D_trainable.get_weights())
+    
+    hist_update = train_R.fit_generator(
         DataGenerator(X_train, Y_train, Z_train, adversary=True),
         epochs=3,
         validation_data=DataGenerator(X_train, Y_train, Z_train,
@@ -132,7 +132,9 @@ for i in range(7):
         ('val_R_loss', history['val_R_loss'] + hist_update['val_loss'])])
     
     # Fit D
-    hist_update = DRf.fit_generator(
+    R_untrainable.get_weights(R_trainable.get_weights())
+    
+    hist_update = train_D.fit_generator(
         DataGenerator(X_train, Y_train, Z_train,
                       adversary=False),
         epochs=3,
