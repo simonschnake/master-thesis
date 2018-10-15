@@ -27,12 +27,20 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 * Loading Data                                                     :noexport:
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-import h5py
-data = h5py.File("../data/electron.h5", 'r')
-X_test = data['test']['X']
-Y_test = data['test']['Y']
-X_train = data['train']['X']
-Y_train = data['train']['Y']
+  import h5py
+
+  try:
+      data = h5py.File('../data/electron.h5', 'r')
+  except OSError:
+      try:
+	      data = h5py.File('data/electron.h5', 'r')
+      except OSError:
+	      print('Data not found')
+
+  X_test = data['test']['X']
+  Y_test = data['test']['Y']
+  X_train = data['train']['X']
+  Y_train = data['train']['Y']
 #+END_SRC
 
 * Experiment Setup
@@ -109,79 +117,6 @@ The relation is bijectiv so the solution can be found by swapping the axixes.
   plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
   plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
 #+END_SRC
-
-\[
-   \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} 
-\]
-\[
-\text{likelihood} = \prod_{i} \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))}
-\]
-
-\[
-\text{cost} = - \sum_{i} \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
-\]
-
-\[
-\text{loss} = - \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
-\]
-\[
-\text{loss} = - \ln(e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}})-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
-\]
-\[
-\text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
-\]
-
-\[
-\text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}+\ln(\sqrt{\frac{\pi}{2}} \sigma_i\left(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})\right))
-\]
-
-For stability reasons we use the results of the leastsquares fit as
-the start parameters of our minimum likelihood fit.  The minimizing
-method is "L-BFGS-B"[CITE]. $\mu_i$ is the prediction of our model in
-this case the result of the linear fit.  The number of charged
-particles in the scintillators is poisson distributed. So the
-estimator the energy has a standard deviance of $\sqrt{\mu}$.
-
-Which is 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  from scipy.special import erf
-  from scipy.stats import norm
-  from scipy import optimize
-
-  def likelihood(par):
-      epsilon = 0.0000001
-      mu = sum_n*par[0]+par[1]
-      sigma = np.sqrt(np.abs(mu)) # 2/par[0] 
-      elements = norm.pdf(energies, mu, sigma)
-      a = np.divide(mu-lower_border, np.sqrt(2)*sigma+epsilon)
-      b = np.divide(mu-upper_border, np.sqrt(2)*sigma+epsilon)
-      norms = np.abs(erf(a)- erf(b))
-      return -np.sum(np.log(np.divide(elements, norms + epsilon)+epsilon))
-
-  lower_border = 0  
-  upper_border = 10
-  out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
-  
-  c_like = out['x']
-
-  n = np.arange(0, 240, 0.5)
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
-  plt.plot(n, fitfunc(c_like, n), 'k-')     # Fit
-  plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
-
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum_i n_i$')
-
-  plt.text(1, 9, r'$c_0 =$ '+ '%.3f' % c_like[0], ha='left')
-  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_like[1], ha='left')
-
-  plt.savefig('e-vs-sum_n_lik.pdf')
-#+END_SRC
-
-#+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the likelihood fit described above.
-#+NAME: e-vs-sum_n_lik
-[[./e-vs-sum_n_lik.pdf]] 
 
 * First Network
 
@@ -363,6 +298,81 @@ plt.savefig('data_augment_loss.pdf', bbox_inches = 'tight')
 [[./data_augment_res.pdf]]
 
 * Likelihood Solution
+
+\[
+   \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} 
+\]
+\[
+\text{likelihood} = \prod_{i} \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))}
+\]
+
+\[
+\text{log likelihood} = - \sum_{i} \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
+\]
+
+\[
+ = - \sum_{i} \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
+\]
+\[
+ = - \sum_{i} \ln(e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}})-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
+\]
+\[
+ = \sum_{i} \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
+\]
+
+\[
+ = \sum_{i} \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}+\ln(\sqrt{\frac{\pi}{2}} \sigma_i\left(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})\right))
+\]
+
+For stability reasons we use the results of the leastsquares fit as
+the start parameters of our minimum likelihood fit.  The minimizing
+method is "L-BFGS-B"[CITE]. $\mu_i$ is the prediction of our model in
+this case the result of the linear fit.  The number of charged
+particles in the scintillators is poisson distributed. So the
+estimator the energy has a standard deviance of $\sqrt{\mu}$.
+
+Which is 
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+  from scipy.special import erf
+  from scipy.stats import norm
+  from scipy import optimize
+
+  def likelihood(par):
+      epsilon = 0.0000001
+      mu = sum_n*par[0]+par[1]
+      sigma = 0.31*np.sqrt(np.abs(energies)) # 2/par[0] 
+      elements = norm.pdf(energies, mu, sigma)
+      a = np.divide(mu-lower_border, np.sqrt(2)*sigma+epsilon)
+      b = np.divide(mu-upper_border, np.sqrt(2)*sigma+epsilon)
+      norms = np.abs(erf(a)- erf(b))
+      return -np.sum(np.log(np.divide(elements, norms + epsilon)+epsilon))
+
+  lower_border = 0  
+  upper_border = 10
+  out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
+  
+  c_like = out['x']
+
+  n = np.arange(0, 240, 0.5)
+  plt.plot(sum_n, energies, 'r.', alpha=0.06)
+  plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
+  plt.plot(n, fitfunc(c_like, n), 'k-')     # Fit
+  #  plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
+
+  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
+  plt.xlabel(r'$\sum_i n_i$')
+
+  plt.text(1, 9, r'$c_0 =$ '+ '%.3f' % c_like[0], ha='left')
+  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_like[1], ha='left')
+
+  plt.savefig('e-vs-sum_n_lik.pdf')
+#+END_SRC
+
+#+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the likelihood fit described above.
+#+NAME: e-vs-sum_n_lik
+[[./e-vs-sum_n_lik.pdf]] 
+
+
 To diminish the depency of the distribution of given true labels, the
 maximum likelihood fit, developed in the previous chapter, will be
 used as a loss function.
@@ -440,6 +450,7 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
   ax.spines["right"].set_visible(False)
   ax.spines["bottom"].set_visible(False)
   print((sigma_nn / np.sqrt(y_nn))[-1])
+  print((sigma_f / np.sqrt(y_f))[-1])
   ax = fig.add_subplot(2,1,2)
   ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
   ax.plot(y_nn, sigma_nn / np.sqrt(y_nn), 'k-')
@@ -458,7 +469,7 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
 [[./likelihood_res.pdf]]
 
 
-* Adversarial Solution
+* Adversarial Solution                                             :noexport:
 
 To diminish the depency of the distribution of given true labels, the
 maximum likelihood fit, developed in the previous chapter, will be
@@ -580,5 +591,5 @@ used as a loss function.
   plt.ylim([0., 0.5])
 #+END_SRC
 
-* Are we learning the shape?
+* Are we learning the shape?                                       :noexport:
 ** TODO divide the incoming cells by the total sum
