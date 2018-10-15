@@ -66,7 +66,7 @@ D = Model([inputs], [Dx], name='D')
 def likelihood_loss(y_true, y_pred):
     epsilon = tf.constant(0.0000001)
     mu = y_pred
-    sigma = 0.313*tf.sqrt(y_true)
+    sigma = 0.32*tf.sqrt(y_true)
     first_part = tf.divide(tf.square(mu - y_true),
                            2.*tf.square(sigma)+epsilon)
     a = tf.divide(10.-mu, tf.sqrt(2.)*sigma+epsilon)
@@ -87,15 +87,15 @@ D.load_weights('data_augment_weights.h5')
 #                                  |___/                    #
 #############################################################
 
-epochs = 250
+epochs = 25
 
 hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
-                                            batch_size=128), epochs=epochs,
+                                            batch_size=128,
+                                            data_augment=True),
+                              epochs=epochs,
                               validation_data=DataGenerator(X_test,
                                                             Y_test, batch_size=1000,
-                                                            random_flip=False, random_rotate=False,
-                                                            random_shift_height=False,
-                                                            random_shift_width=False)).history
+                                                            data_augment=False)).history
 
 history.update([('loss',
                  history['loss'] + hist_update['loss']),

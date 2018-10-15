@@ -86,6 +86,8 @@ def make_loss_R(c):
 
 opt = Adadelta()
 
+D.load_weights('data_augment_weights.h5')
+
 R.trainable = False
 D.trainable = True
 train_D = Model([inputs, results], [D(inputs), R([D(inputs), results])])
@@ -94,7 +96,7 @@ train_D.compile(loss=[make_loss_D(c=1.0), make_loss_R(c=-lam)], optimizer=opt)
 R.trainable = True
 D.trainable = False
 train_R = Model([inputs, results], [R([D(inputs), results])])
-train_R.compile(loss=[make_loss_R(c=lam)], optimizer=opt)
+train_R.compile(loss=[make_loss_R(c=lam)], optimizer='rmsprop')
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -109,36 +111,16 @@ bins = np.arange(0., 10., 10./cases)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=cases)
 
-for i in range(7):
+for i in range(25):
 
-    hist_update = train_R.fit_generator(
+    train_R.fit_generator(
         DataGenerator(X_train, Y_train, Z_train, adversary=True),
-        epochs=3,
-        validation_data=DataGenerator(X_train, Y_train, Z_train,
-                                      data_augment=True,
-                                      adversary=True)).history
-    history.update([
-        ('R_loss', history['R_loss'] + hist_update['loss']),
-        ('val_R_loss', history['val_R_loss'] + hist_update['val_loss'])])
+        epochs=10)
     
-    # Fit D
-    
-    hist_update = train_D.fit_generator(
+    train_D.fit_generator(
         DataGenerator(X_train, Y_train, Z_train,
                       adversary=False),
-        epochs=3,
-        validation_data=DataGenerator(
-            X_train, Y_train,
-            data_augment=False,
-            adv_cases=cases,
-            adversary=False)).history
-
-    history.update([
-        ('D_loss', history['D_loss'] + hist_update['D_loss']),
-        ('val_D_loss', history['val_D_loss'] + hist_update['val_D_loss']),
-        ('R_loss', history['R_loss'] + [-x for x in hist_update['R_loss']]),
-        ('val_R_loss', history['val_R_loss']
-         + [-x for x in hist_update['val_R_loss']])])
+        epochs=10)
 
 D.save_weights("adversarial_weights.h5")
-pickle.dump(history, open("adversarial_history.p", "wb"))
+

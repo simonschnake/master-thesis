@@ -301,9 +301,8 @@ plt.savefig('data_augment_loss.pdf', bbox_inches = 'tight')
   fig, ax = plt.subplots()
   plt.plot(energies, fitfunc(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
   results = D.predict_generator(DataGenerator(X_test, Y_test,
-					      batch_size=128, random_flip=False,
-					      random_rotate=False, random_shift_height=False,
-					      random_shift_width=False))
+					      batch_size=128,
+					      data_augment=False))
   plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
   plt.ylim([-5., 5])
   plt.xlim([0.,10])
@@ -389,6 +388,10 @@ plt.ylabel('loss')
 plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
+#+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
+#+NAME: Loss
+[[./likelihood_loss.pdf]]
+
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   D.load_weights('src/likelihood_weights.h5')
   fig, ax = plt.subplots()
@@ -403,8 +406,13 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)  
   ax.spines["left"].set_visible(False)
-  ax.spines["bottom"].set_visible(False)  
+  ax.spines["bottom"].set_visible(False)
+  plt.savefig('likelihood.pdf', bbox_inches = 'tight')
 #+END_SRC
+
+#+CAPTION: Results of the linear fit vs the first neural net with data augmentation
+#+NAME: first
+[[./likelihood.pdf]]
 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -423,14 +431,15 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
 
   ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
   ax.plot(y_nn, mu_nn - y_nn, 'k-')
-  plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1]+0.005, 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
-  plt.text(y_nn[-1] + 0.1, mu_nn[-1] - y_nn[-1]-0.005, 'neural net', ha='left', va='center', size=15)
+  plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1]+0.01, 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
+  plt.text(y_nn[-1] + 0.1, mu_nn[-1] - y_nn[-1]-0.01, 'neural net', ha='left', va='center', size=15)
   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
+  plt.ylim([-0.3, 0.3])
   ax.xaxis.set_ticks([])
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
   ax.spines["bottom"].set_visible(False)
-  # print((sigma_nn / np.sqrt(y_nn))[-1])
+  print((sigma_nn / np.sqrt(y_nn))[-1])
   ax = fig.add_subplot(2,1,2)
   ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
   ax.plot(y_nn, sigma_nn / np.sqrt(y_nn), 'k-')
@@ -440,82 +449,40 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
   ax.spines["right"].set_visible(False)
   plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1])+0.01, 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
   plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1])-0.01, 'neural net', ha='left', va='center', size=15)
-  plt.ylim([0., 0.5])
-  plt.savefig('data_augment_res.pdf', bbox_inches = 'tight')
-#+END_SRC
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  import sys
-  sys.path.append('./src')
-  from utils import *
-  y_true = np.array(Y_test).reshape(len(Y_test),)
-  D.load_weights('src/likelihood_weights.h5')
-  y_pred = D.predict(X_test).reshape(len(y_true),)
-  y_fit = fitfunc(c_fit, np.sum(X_test, axis=1)).reshape(len(y_true),)
-  n = 20
-  y_f, mu_f, sigma_f = sliced_statistics(y_true, y_fit, n) 
-  y_lh, mu_lh, sigma_lh = sliced_statistics(y_true , y_pred, n) 
-
-  fig = plt.figure()
-  ax = fig.add_subplot(2,1,1)
-
-  ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
-  ax.plot(y_lh, mu_lh - y_lh, 'k-')
-  plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1], 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
-  plt.text(y_lh[-1] + 0.1, mu_lh[-1] - y_lh[-1], 'likelihood loss', ha='left', va='center', size=15)
-  plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
-  ax.xaxis.set_ticks([])
-  ax.spines["top"].set_visible(False)
-  ax.spines["right"].set_visible(False)
-  ax.spines["bottom"].set_visible(False)
-
-  ax = fig.add_subplot(2,1,2)
-  ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
-  ax.plot(y_lh, sigma_lh / np.sqrt(y_lh), 'k-')
-  plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
-  plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-  ax.spines["top"].set_visible(False)
-  ax.spines["right"].set_visible(False)
-  plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1]), 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
-  plt.text(y_lh[-1] + 0.1, sigma_lh[-1] / np.sqrt(y_lh[-1]), 'likelihood loss', ha='left', va='center', size=15)
-  plt.ylim([0., 1.5])
+  plt.ylim([0.0, 0.5])
   plt.savefig('likelihood_res.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  y_true = np.array(Y_test).reshape(len(Y_test),)
-  D.load_weights('src/likelihood_weights.h5')
-  y_pred = D.predict(X_test).reshape(len(y_true),)
-  y_fit = fitfunc(c_fit, np.sum(X_test, axis=1))
-  n = 10
-  y_f, mu_f, sigma_f = sliced_statistics(y_true , y_fit, n) 
-  y_lh, mu_lh, sigma_lh = sliced_statistics(y_true , y_pred, n) 
+#+CAPTION: Results of the linear fit vs the first neural net width data augmentation
+#+NAME: first_res
+[[./likelihood_res.pdf]]
 
-  fig = plt.figure()
-  ax = fig.add_subplot(2,1,1)
-
-  ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
-  ax.plot(y_lh, mu_lh - mu_lh, 'k-')
-  plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
-  ax.xaxis.set_ticks([])
-  ax.spines["top"].set_visible(False)
-  ax.spines["right"].set_visible(False)
-  ax.spines["bottom"].set_visible(False)
-
-  ax = fig.add_subplot(2,1,2)
-  ax.plot(y_f, sigma_f/ np.sqrt(y_f), '-', color='#1f77b4')
-  ax.plot(y_lh, sigma_lh/np.sqrt(y_lh), 'k-')
-  plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
-  plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-  ax.spines["top"].set_visible(False)
-  ax.spines["right"].set_visible(False)
-#+END_SRC
 
 * Adversarial Solution
 
 To diminish the depency of the distribution of given true labels, the
 maximum likelihood fit, developed in the previous chapter, will be
 used as a loss function.
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+  D.load_weights('src/adversarial_weights.h5')
+  fig, ax = plt.subplots()
+  plt.plot(energies, fitfunc(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
+  results = D.predict_generator(DataGenerator(X_test, Y_test,
+					      batch_size = 32))
+  plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
+  plt.ylim([-5., 5])
+  plt.xlim([0.,10])
+  plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
+  plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)  
+  ax.spines["left"].set_visible(False)
+  ax.spines["bottom"].set_visible(False)  
+  plt.savefig('adversarial.pdf', bbox_inches = 'tight')
+#+END_SRC
+
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import pickle
