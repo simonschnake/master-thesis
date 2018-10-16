@@ -43,7 +43,13 @@ Here are the needed packages. Also to config matplotlib for latex export
   Y_train = data['train']['Y']
 #+END_SRC
 
-* Experiment Setup
+* Experimental Setup
+
+
+#+CAPTION: Visualization of an event in the calorimeter simulation. On the left, the side view is shown. On the right, the front view is shown.
+[[./front-side.pdf]]
+#+NAME: e-vs-sum_n
+
 Comparing different models
 - Results charged particles in each scintialor cell
 - true energy
@@ -68,25 +74,29 @@ A traditional way of calibrating the neural net would be to sum over all scintil
 a linear fit to the energy.
 \[E = c_0\sum_i n_i + c_1\]
 This is done with the method of least squares.
+
+The relation is bijectiv so the solution can be found by swapping the axixes.
+
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   from scipy.optimize import leastsq
   # function to fit
-  fitfunc = lambda c , x: x*c[0]+c[1]
+  fitfunc = lambda c , x: (x-c[1])/(abs(c[0])+0.0001)
   errfunc = lambda c , x, y: (y - fitfunc(c, x))
-  out = leastsq(errfunc, [0.1, 0.0], args=(sum_n, energies), full_output=1)
+  out = leastsq(errfunc, [0., 0.0], args=(energies, sum_n), full_output=1)
 
-  c_fit1 = out[0]
+  c_fit = out[0]
   covar = out[1]
 
-  n = np.arange(0, 255, 0.5)
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
+  n = np.arange(0, 10.1, 0.1)
+  plt.plot(energies, sum_n, 'r.', alpha=0.06)
+  plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
 
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum_i n_i$')
+  plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+  plt.ylabel(r'$\sum_i n_i$')
 
-  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit1[0], ha='left')
-  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit1[1], ha='left')
+  plt.text(1, 325, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
+  plt.text(1, 300, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
+
   plt.savefig('e-vs-sum_n_fit.pdf')
 #+END_SRC
 
@@ -94,29 +104,6 @@ This is done with the method of least squares.
 #+NAME: e-vs-sum_n_fit
 [[./e-vs-sum_n_fit.pdf]]
 
-The relation is bijectiv so the solution can be found by swapping the axixes.
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  from scipy.optimize import leastsq
-  # function to fit
-  fitfunc2 = lambda c , x: (x-c[1])/(abs(c[0])+0.0001)
-  errfunc = lambda c , x, y: (y - fitfunc2(c, x))
-  out = leastsq(errfunc, [0., 0.0], args=(energies, sum_n), full_output=1)
-
-  c_fit = out[0]
-  covar = out[1]
-
-  n = np.arange(0, 255, 0.5)
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
-  plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
-
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum_i n_i$')
-
-  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
-  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
-#+END_SRC
 
 * First Network
 
@@ -468,6 +455,8 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
 #+NAME: first_res
 [[./likelihood_res.pdf]]
 
+
+* Pions
 
 * Adversarial Solution                                             :noexport:
 
