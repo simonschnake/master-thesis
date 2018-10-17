@@ -451,7 +451,7 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
-#+NAME: first_res
+#+NAME: likelihood_res
 [[./likelihood_res.pdf]]
 
 
@@ -527,7 +527,13 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
 
   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$\sum_i n_i$')
+  plt.savefig('pion_fit.pdf', bbox_inches = 'tight')
  #+END_SRC
+
+#+CAPTION: Here a polynom is fitted via an likelihood to the pion data
+#+NAME: pion_fit
+[[./pion_fit.pdf]] 
+
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import pickle
@@ -547,7 +553,12 @@ plt.text(float(epochs[-1])+0.5, history['loss'][-1], 'training loss', ha='left',
 plt.text(float(epochs[-1])+0.5, history['val_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
 plt.xlabel('epochs')
 plt.ylabel('loss')
+plt.savefig('pion_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
+
+#+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
+#+NAME: Loss
+[[./pion_loss.pdf]]
 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -565,7 +576,12 @@ plt.ylabel('loss')
   ax.spines["right"].set_visible(False)  
   ax.spines["left"].set_visible(False)
   ax.spines["bottom"].set_visible(False)
+  plt.savefig('pion.pdf', bbox_inches = 'tight')
 #+END_SRC
+
+#+CAPTION: Results of the linear fit vs the first neural net with data augmentation for pions
+#+NAME: pion
+[[./pion.pdf]]
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import sys
@@ -583,7 +599,7 @@ plt.ylabel('loss')
 
   ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
   ax.plot(y_nn, mu_nn - y_nn, 'k-')
-  plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1]+0.01, 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
+  plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1]+0.01, 'polynom fit', ha='left', va='center', size=15, color='#1f77b4')
   plt.text(y_nn[-1] + 0.1, mu_nn[-1] - y_nn[-1]-0.01, 'neural net', ha='left', va='center', size=15)
   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
   # plt.ylim([-0.3, 0.3])
@@ -599,11 +615,15 @@ plt.ylabel('loss')
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
   print((sigma_nn / np.sqrt(y_nn))[-10])
-  plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1])+0.01, 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
+  plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1])+0.01, 'polynom fit', ha='left', va='center', size=15, color='#1f77b4')
   plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1])-0.01, 'neural net', ha='left', va='center', size=15)
   # plt.ylim([0.0, 0.5])
-
+  plt.savefig('pion_res.pdf', bbox_inches = 'tight')
 #+END_SRC
+
+#+CAPTION: Results of the polynom fit vs the first neural net width data augmentation
+#+NAME: pion_res
+[[./pion_res.pdf]]
 
 
 * Adversarial Solution                                             :noexport:
