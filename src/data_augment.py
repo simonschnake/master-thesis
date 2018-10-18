@@ -10,8 +10,7 @@
 # \/    \__,_|\___|_|\_\__,_|\__, |\___||___/                #
 #                            |___/                           #
 ##############################################################
-import tensorflow as tf
-import numpy as np
+
 from keras.layers import Input, Dense, Conv2D, Flatten, Activation
 from keras.models import Model
 import h5py
@@ -63,20 +62,7 @@ Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 
-def likelihood_loss(y_true, y_pred):
-    epsilon = tf.constant(0.0000001)
-    mu = y_pred
-    sigma = 0.32*tf.sqrt(y_true)
-    first_part = tf.divide(tf.square(mu - y_true),
-                           2.*tf.square(sigma)+epsilon)
-    a = tf.divide(10.-mu, tf.sqrt(2.)*sigma+epsilon)
-    b = tf.divide(0.-mu, tf.sqrt(2.)*sigma+epsilon)
-    penalty = tf.erf(a) - tf.erf(b)
-    loss = first_part + tf.log(penalty+epsilon) + tf.log(tf.sqrt(2.*np.pi)*sigma+epsilon)
-    return tf.reduce_mean(loss)
-
-D.compile(loss=likelihood_loss, optimizer='adadelta')
-D.load_weights('data_augment_weights.h5')
+D.compile(loss='mse', optimizer='adadelta')
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -87,15 +73,15 @@ D.load_weights('data_augment_weights.h5')
 #                                  |___/                    #
 #############################################################
 
-epochs = 25
+epochs = 250
 
 hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
-                                            batch_size=128,
-                                            data_augment=True),
-                              epochs=epochs,
+                                            batch_size=128), epochs=epochs,
                               validation_data=DataGenerator(X_test,
                                                             Y_test, batch_size=1000,
-                                                            data_augment=False)).history
+                                                            random_flip=False, random_rotate=False,
+                                                            random_shift_height=False,
+                                                            random_shift_width=False)).history
 
 history.update([('loss',
                  history['loss'] + hist_update['loss']),
@@ -103,5 +89,5 @@ history.update([('loss',
                  history['val_loss'] + hist_update['val_loss'])])
 
 
-D.save_weights("likelihood_weights.h5")
-pickle.dump(history, open("likelihood_history.p", "wb"))
+D.save_weights("data_augment_weights.h5")
+pickle.dump(history, open("data_augment_history.p", "wb"))

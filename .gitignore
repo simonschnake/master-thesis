@@ -4,3 +4,4 @@
 /obipy-resources/
 data/
 .mypy_cache/
+src/__pycache__/
