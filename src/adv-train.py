@@ -12,7 +12,7 @@
 ##############################################################
 
 from keras import losses
-from keras.layers import Input, Dense, Conv2D, Flatten, Activation, Lambda
+from keras.layers import Input, Dense, Conv2D, Flatten, Activation, Lambda, Concatenate
 from keras.models import Model
 from keras.optimizers import Adadelta
 import h5py
@@ -51,7 +51,7 @@ history = {'D_loss': [], 'val_D_loss': [], 'R_loss': [], 'val_R_loss': []}
 #      \/    \/\___/ \__,_|\___|_|                           #
 ##############################################################
 
-lam = 0.5
+lam = 2.5
 
 inputs = Input(shape=(8, 8, 17,))
 Dx = Conv2D(32, (2, 2), strides=(1, 1))(inputs)
@@ -67,7 +67,9 @@ D = Model([inputs], [Dx], name='D')
 cases = 500
 d_result = Input(shape=(Y_train.shape[1],))
 results = Input(shape=(Y_train.shape[1],))
-Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([d_result, results])
+Rx = Lambda(lambda x: (x[0]-x[1])**2/x[1])([d_result, results])
+Rx2 = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([d_result, results])
+Rx = Concatenate(axis=-1)((Rx, Rx2))
 Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(20, activation="relu")(Rx)
 Rx = Dense(cases, activation="softmax")(Rx)
@@ -113,11 +115,21 @@ bins = np.arange(0., 10., 10./cases)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=cases)
 
-epochs = 2
+pre_train_epochs = 2
+epochs = 5
 dg = DataGenerator(X_train, Y_train, Z_train, batch_size=256)
 dg_it = iter(dg)
+
+for i in range(pre_train_epochs*len(dg)):
+    x, y, z = next(dg_it)
+    train_R.train_on_batch([x, y], z)
+    if (i % 100) is 0:
+        print("{0:.1f}%".format(100*i/(pre_train_epochs*len(dg))))
+
 for i in range(epochs*len(dg)):
     x, y, z = next(dg_it)
+    train_R.train_on_batch([x, y], z)
+    train_R.train_on_batch([x, y], z)
     train_R.train_on_batch([x, y], z)
     train_D.train_on_batch([x, y], [y, z])
     if (i % 100) is 0:

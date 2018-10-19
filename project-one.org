@@ -484,11 +484,11 @@ used as a loss function.
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   D.load_weights('src/adversarial_weights.h5')
   fig, ax = plt.subplots()
-  plt.plot(energies, fitfunc(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
+  plt.plot(energies, func(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
   results = D.predict_generator(DataGenerator(X_test, Y_test,
 					      batch_size = 32))
   plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
-  plt.ylim([-5., 5])
+  # plt.ylim([-5., 5])
   plt.xlim([0.,10])
   plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
@@ -496,8 +496,45 @@ used as a loss function.
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)  
   ax.spines["left"].set_visible(False)
-  ax.spines["bottom"].set_visible(False)  
+  ax.spines["bottom"].set_visible(False)
   plt.savefig('adversarial.pdf', bbox_inches = 'tight')
+#+END_SRC
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+  import sys
+  sys.path.append('./src')
+  from utils import *
+  y_true = np.array(Y_test)[:len(results)].reshape(len(results),)
+  y_pred = results.reshape(len(results),)
+  y_fit = func(c_fit, np.sum(X_test[:len(results)], axis=1)).reshape(len(results),)
+  n = 20
+  y_f, mu_f, sigma_f = sliced_statistics(y_true, y_fit, n) 
+  y_nn, mu_nn, sigma_nn = sliced_statistics(y_true , y_pred, n) 
+  
+  fig = plt.figure()
+  ax = fig.add_subplot(2,1,1)
+
+  ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
+  ax.plot(y_nn, mu_nn - y_nn, 'k-')
+  plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1], 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
+  plt.text(y_nn[-1] + 0.1, mu_nn[-1] - y_nn[-1], 'neural net', ha='left', va='center', size=15)
+  plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
+  ax.xaxis.set_ticks([])
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)
+  ax.spines["bottom"].set_visible(False)
+
+  ax = fig.add_subplot(2,1,2)
+  ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
+  ax.plot(y_nn, sigma_nn / np.sqrt(y_nn), 'k-')
+  plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
+  plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)
+  plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1]), 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
+  plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1]), 'neural net', ha='left', va='center', size=15)
+  plt.ylim([0., 0.5])
+  plt.savefig('adversarial_res.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 
