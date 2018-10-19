@@ -36,15 +36,13 @@ def sliced_statistics(y_true, y_pred, number_of_slices):
 class DataGenerator(keras.utils.Sequence):
 
     def __init__(self, x_set, y_set, z_set=None, batch_size=128, height=8,
-                 width=8, channels=17, data_augment=True,
-                 adv_training=False, adversary=False, adv_cases=500):
+                 width=8, channels=17, data_augment=True):
         self.x, self.y, self.z = x_set, y_set, z_set
         self.batch_size = batch_size
         self.height = height
         self.width = width
         self.channels = channels
         self.data_augment = data_augment
-        self.adversary = adversary
 
     def __len__(self):
         return int(np.floor(len(self.x) / float(self.batch_size)))
@@ -83,12 +81,9 @@ class DataGenerator(keras.utils.Sequence):
             batch_x = np.concatenate([zero_block, batch_x, zero_block], axis=2)
             batch_x = batch_x[:, :, self.width-shift:2*self.width-shift]
 
-        if self.z is not None:
-            batch_z = self.z[idx * self.batch_size:(idx + 1) * self.batch_size]
-            if self.adversary:
-                return [batch_x, batch_y], batch_z
-            else:
-                return [batch_x, batch_y], [batch_y, batch_z]
+        if self.z is None:
+            return batch_x, batch_y
 
         else:
-            return batch_x, batch_y
+            batch_z = self.z[idx * self.batch_size:(idx + 1) * self.batch_size]
+            return batch_x, batch_y, batch_z

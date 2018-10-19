@@ -65,20 +65,14 @@ Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 
 cases = 500
-input_D = Input(shape=(Y_train.shape[1],))
+d_result = Input(shape=(Y_train.shape[1],))
 results = Input(shape=(Y_train.shape[1],))
-Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([input_D, results])
+Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([d_result, results])
 Rx = Dense(10, activation="relu")(Rx)
-<<<<<<< HEAD
 Rx = Dense(20, activation="relu")(Rx)
-Rx = Dense(50, activation="softmax")(Rx)
-R = Model([inputs, results], [Rx], name='R')
-
-=======
-Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(cases, activation="softmax")(Rx)
-R = Model([input_D, results], [Rx], name='R')
->>>>>>> master
+R = Model([d_result, results], [Rx], name='R')
+
 
 def make_loss_D(c):
     def loss_D(y_true, y_pred):
@@ -90,6 +84,7 @@ def make_loss_R(c):
     def loss_R(z_true, z_pred):
         return c * losses.categorical_crossentropy(z_pred, z_true)
     return loss_R
+
 
 opt = Adadelta()
 
@@ -118,51 +113,14 @@ bins = np.arange(0., 10., 10./cases)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=cases)
 
-for i in range(25):
-
-<<<<<<< HEAD
-# Y_train to categories
-bins = np.arange(0., 10., 10./50.)[:-1]
-Z_train = np.digitize(Y_train, bins=bins)
-Z_train = np_utils.to_categorical(Z_train, num_classes=50)
-
-for i in range(5):
-
-    # Fit R
-    hist_update = DfR.fit([X_train, Y_train],
-                          Z_train,
-                          epochs=5,
-                          batch_size=batch_size,
-                          validation_split=0.1).history
-    history.update([('R_loss',
-                     history['R_loss'] + hist_update['loss']),
-                    ('val_R_loss',
-                     history['val_R_loss'] + hist_update['val_loss'])])
-
-    # Fit D
-    hist_update = DRf.fit([X_train, Y_train],
-                          [Y_train, Z_train],
-                          epochs=1,
-                          batch_size=batch_size,
-                          validation_split=0.1).history
-    history.update([('D_loss',
-                     history['D_loss'] + hist_update['D_loss']),
-                    ('val_D_loss',
-                     history['val_D_loss'] + hist_update['val_D_loss']),
-                    ('R_loss',
-                     history['R_loss'] + hist_update['R_loss']),
-                    ('val_R_loss',
-                     history['val_R_loss'] + hist_update['val_R_loss'])])
-=======
-    train_R.fit_generator(
-        DataGenerator(X_train, Y_train, Z_train, adversary=True),
-        epochs=10)
-    
-    train_D.fit_generator(
-        DataGenerator(X_train, Y_train, Z_train,
-                      adversary=False),
-        epochs=10)
->>>>>>> master
+epochs = 2
+dg = DataGenerator(X_train, Y_train, Z_train, batch_size=256)
+dg_it = iter(dg)
+for i in range(epochs*len(dg)):
+    x, y, z = next(dg_it)
+    train_R.train_on_batch([x, y], z)
+    train_D.train_on_batch([x, y], [y, z])
+    if (i % 100) is 0:
+        print("{0:.1f}%".format(100*i/(epochs*len(dg))))
 
 D.save_weights("adversarial_weights.h5")
-
