@@ -1,5 +1,8 @@
 # this file is for outsourcing python functions, to keep our notebooks clean
+import keras
 import numpy as np
+import random
+
 
 def sliced_statistics(y_true, y_pred, number_of_slices):
     '''
@@ -28,3 +31,63 @@ def sliced_statistics(y_true, y_pred, number_of_slices):
     mu = np.mean(y_pred, axis=1)
     sigma = np.std(y_pred, axis=1)
     return value, mu, sigma
+
+
+class DataGenerator(keras.utils.Sequence):
+
+    def __init__(self, x_set, y_set, z_set=None, batch_size=128, height=8,
+                 width=8, channels=17, data_augment=True, adv=False):
+        self.x, self.y, self.z = x_set, y_set, z_set
+        self.batch_size = batch_size
+        self.height = height
+        self.width = width
+        self.channels = channels
+        self.data_augment = data_augment
+        self.adv = adv
+
+    def __len__(self):
+        return int(np.floor(len(self.x) / float(self.batch_size)))
+
+    def __getitem__(self, idx):
+        batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
+        batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
+
+        # transform data to geometrical array
+
+        batch_x = batch_x.reshape(self.batch_size, self.channels,
+                                  self.height, self.width)
+        # (batch_size, x, y, z) -> (batch_size, y, z, x) because x
+        # represents the 'channels' if we interprete our data as
+        # an image.
+        batch_x = np.transpose(batch_x, (0, 2, 3, 1))
+
+        # data_augmentation
+        if self.data_augment:
+            # randomly flip the array
+            if random.choice([True, False]):
+                batch_x = np.flip(batch_x, axis=1)
+            # randomly turn the array around
+            batch_x = np.rot90(batch_x, k=random.randint(0, 3), axes=(1, 2))
+
+            # randomly shift the array entries
+            zero_block = np.zeros(batch_x.shape)
+            # first in heights
+            max_shift = int(self.height/2)-1
+            shift = random.randint(-max_shift, max_shift)
+            batch_x = np.concatenate([zero_block, batch_x, zero_block], axis=1)
+            batch_x = batch_x[:, self.height-shift:2*self.height-shift]
+            # than in width
+            max_shift = int(self.width/2)-1
+            shift = random.randint(-max_shift, max_shift)
+            batch_x = np.concatenate([zero_block, batch_x, zero_block], axis=2)
+            batch_x = batch_x[:, :, self.width-shift:2*self.width-shift]
+
+        if self.z is None:
+            return batch_x, batch_y
+
+        else:
+            batch_z = self.z[idx * self.batch_size:(idx + 1) * self.batch_size]
+            if self.adv is True:
+                return [batch_x, batch_y], batch_z
+            else:
+                return [batch_x, batch_y], [batch_y, batch_z]

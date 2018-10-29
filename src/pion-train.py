@@ -10,8 +10,9 @@
 # \/    \__,_|\___|_|\_\__,_|\__, |\___||___/                #
 #                            |___/                           #
 ##############################################################
-
-from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, Activation
+import tensorflow as tf
+import numpy as np
+from keras.layers import Input, Dense, Conv2D, Flatten, Activation
 from keras.models import Model
 import h5py
 import pickle
@@ -27,13 +28,14 @@ from utils import DataGenerator
 ##############################################################
 
 try:
-    data = h5py.File('../../data/electron.h5', 'r')
+    data = h5py.File('../../data/pion.h5', 'r')
 except OSError:
     try:
-        data = h5py.File('../data/electron.h5', 'r')
+        data = h5py.File('../data/pion.h5', 'r')
     except OSError:
         print('Data not found')
         exit()
+
 X_train = data['train']['X']
 Y_train = data['train']['Y']
 
@@ -50,8 +52,8 @@ history = {'loss': [], 'val_loss': []}
 #      \/    \/\___/ \__,_|\___|_|                           #
 ##############################################################
 
-inputs = Input(shape=(8, 8, 17,))
-Dx = Conv2D(32, (2, 2), strides = (1, 1), name = 'conv0')(inputs)
+inputs = Input(shape=(8, 8, 17))
+Dx = Conv2D(32, (2, 2), strides=(1, 1))(inputs)
 # Dx = BatchNormalization(axis = 3, name = 'bn0')(Dx)
 Dx = Activation('relu')(Dx)
 Dx = Flatten()(Dx)
@@ -62,7 +64,21 @@ Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 
-D.compile(loss='mse', optimizer='rmsprop')
+
+def likelihood_loss(y_true, y_pred):
+    epsilon = tf.constant(0.0000001)
+    mu = y_pred
+    sigma = 0.53*tf.sqrt(y_true)
+    first_part = tf.divide(tf.square(mu - y_true),
+                           2.*tf.square(sigma)+epsilon)
+    a = tf.divide(10.-mu, tf.sqrt(2.)*sigma+epsilon)
+    b = tf.divide(0.-mu, tf.sqrt(2.)*sigma+epsilon)
+    penalty = tf.erf(a) - tf.erf(b)
+    loss = first_part + tf.log(penalty+epsilon) + tf.log(tf.sqrt(2.*np.pi)*sigma+epsilon)
+    return tf.reduce_mean(loss)
+
+
+D.compile(loss='mse', optimizer='adadelta')
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -73,17 +89,38 @@ D.compile(loss='mse', optimizer='rmsprop')
 #                                  |___/                    #
 #############################################################
 
+D.compile(loss='mse', optimizer='adadelta')
+
+epochs = 25
+
+D.fit_generator(DataGenerator(X_train, Y_train,
+                              batch_size=128,
+                              data_augment=True),
+                epochs=epochs,
+                validation_data=DataGenerator(X_test,
+                                              Y_test,
+                                              batch_size=1000,
+                                              data_augment=False))
+
+D.compile(loss=likelihood_loss, optimizer='adadelta')
+
 epochs = 250
 
-hist_update = D.fit_generator(
-    DataGenerator(X_train, Y_train,
-                  batch_size=128, data_augment=False), epochs=epochs,
-    validation_data=DataGenerator(X_train, Y_train, batch_size=128,
+hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
+                                            batch_size=128,
+                                            data_augment=True),
+                              epochs=epochs,
+                              validation_data=DataGenerator(
+                                  X_test,
+                                  Y_test, batch_size=1000,
                                   data_augment=False)).history
 
-history.update([('loss', history['loss'] + hist_update['loss']),
-                ('val_loss', history['val_loss'] +
-                 hist_update['val_loss'])])
 
-D.save_weights("first_weights.h5")
-pickle.dump(history, open("first_history.p", "wb"))
+history.update([('loss',
+                 history['loss'] + hist_update['loss']),
+                ('val_loss',
+                 history['val_loss'] + hist_update['val_loss'])])
+
+
+D.save_weights("pion_weights.h5")
+pickle.dump(history, open("pion_history.p", "wb"))

@@ -11,7 +11,7 @@
 #                            |___/                           #
 ##############################################################
 
-from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, Activation
+from keras.layers import Input, Dense, Conv2D, Flatten, Activation
 from keras.models import Model
 import h5py
 import pickle
@@ -62,7 +62,7 @@ Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 
-D.compile(loss='mse', optimizer='rmsprop')
+D.compile(loss='mse', optimizer='adadelta')
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -75,15 +75,19 @@ D.compile(loss='mse', optimizer='rmsprop')
 
 epochs = 250
 
-hist_update = D.fit_generator(
-    DataGenerator(X_train, Y_train,
-                  batch_size=128, data_augment=False), epochs=epochs,
-    validation_data=DataGenerator(X_train, Y_train, batch_size=128,
-                                  data_augment=False)).history
+hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
+                                            batch_size=128), epochs=epochs,
+                              validation_data=DataGenerator(X_test,
+                                                            Y_test, batch_size=1000,
+                                                            random_flip=False, random_rotate=False,
+                                                            random_shift_height=False,
+                                                            random_shift_width=False)).history
 
-history.update([('loss', history['loss'] + hist_update['loss']),
-                ('val_loss', history['val_loss'] +
-                 hist_update['val_loss'])])
+history.update([('loss',
+                 history['loss'] + hist_update['loss']),
+                ('val_loss',
+                 history['val_loss'] + hist_update['val_loss'])])
 
-D.save_weights("first_weights.h5")
-pickle.dump(history, open("first_history.p", "wb"))
+
+D.save_weights("data_augment_weights.h5")
+pickle.dump(history, open("data_augment_history.p", "wb"))
