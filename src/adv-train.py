@@ -124,7 +124,7 @@ for i in range(7):
     # Fit R
     hist_update = DfR.fit([X_train, Y_train],
                           Z_train,
-                          epochs=3,
+                          epochs=5,
                           batch_size=batch_size,
                           validation_split=0.1).history
     history.update([('R_loss',
