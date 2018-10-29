@@ -25,6 +25,11 @@ Here are the needed packages. Also to config matplotlib for latex export
   %matplotlib inline
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+# Out[1]:
+:END:
+
 * Loading Data                                                     :noexport:
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import h5py
@@ -34,6 +39,11 @@ Y_test = data['test']['Y']
 X_train = data['train']['X']
 Y_train = data['train']['Y']
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[3]:
+:END:
 
 * Experiment Setup
 Comparing different models
@@ -51,13 +61,74 @@ Comparing different models
   plt.savefig('e-vs-sum_n.pdf')
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+# Out[4]:
+[[file:./obipy-resources/rYJ2dX.png]]
+:END:
+
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
 #+NAME: e-vs-sum_n
 [[./e-vs-sum_n.pdf]]
 
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+  from mpl_toolkits.mplot3d import Axes3D
+  from matplotlib.colors import ListedColormap
+
+  # Choose data sample
+
+  id = 7
+  test_sample = X_test[id].reshape(17, 8, 8)
+  maximum = np.amax(test_sample)
+
+
+  # Choose colormap
+  cmap = plt.cm.Reds
+
+  # Get the colormap colors
+  my_cmap = cmap(np.arange(cmap.N))
+
+  # Set alpha
+  my_cmap[:,-1] = np.linspace(0, 1, cmap.N)
+
+  # Create new colormap
+  my_cmap = ListedColormap(my_cmap)
+
+  # create grid
+
+  Y, Z = np.meshgrid(np.arange(test_sample.shape[1])+1, np.arange(test_sample.shape[2])+1)
+
+
+  # create the figure
+  fig = plt.figure()
+  ax = fig.add_subplot(111, projection='3d')
+
+  for i in range(test_sample.shape[0]):
+      ax.plot_surface(Z, i*np.ones(Y.shape)+1, Y, rstride=1, cstride=1, facecolors=my_cmap(np.sqrt(np.sqrt(test_sample[i]/maximum))), shade=False)
+
+  ax.set_xlabel('Y')
+  ax.set_ylabel('X')
+  ax.set_zlabel('Z')
+  ax.text(5, 0, -4, str(Y_test[id][0])+' GeV')
+  plt.savefig('data_display.pdf')
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[37]:
+[[file:./obipy-resources/eqyBsu.png]]
+:END:
+
+#+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
+#+NAME: e-vs-sum_n
+[[./data_display.pdf]]
+
+
+
 * Linear Fit
 A traditional way of calibrating the neural net would be to sum over all scintillator cells as shown in [cite:figure1]
-a linear fit to the energy.
+a linear fit to the energy
 \[E = c_0\sum_i n_i + c_1\]
 This is done with the method of least squares.
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -70,9 +141,9 @@ This is done with the method of least squares.
   c_fit1 = out[0]
   covar = out[1]
 
-  n = np.arange(0, 255, 0.5)
+  n = np.arange(0, 250, 0.5)
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
+  plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
 
   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$\sum_i n_i$')
@@ -81,6 +152,12 @@ This is done with the method of least squares.
   plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit1[1], ha='left')
   plt.savefig('e-vs-sum_n_fit.pdf')
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[31]:
+[[file:./obipy-resources/2Ey2TT.png]]
+:END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
 #+NAME: e-vs-sum_n_fit
@@ -98,17 +175,24 @@ The relation is bijectiv so the solution can be found by swapping the axixes.
   c_fit = out[0]
   covar = out[1]
 
-  n = np.arange(0, 255, 0.5)
+  n = np.arange(0, 250, 0.5)
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
   plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
-  plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
+  # plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
 
   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$\sum_i n_i$')
 
-  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
-  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
+#  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
+#  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[28]:
+: Text(0.5,0,'$\\sum_i n_i$')
+[[file:./obipy-resources/m5vk29.png]]
+:END:
 
 \[
    \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} 
@@ -179,6 +263,12 @@ Which is
   plt.savefig('e-vs-sum_n_lik.pdf')
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+# Out[24]:
+[[file:./obipy-resources/Gut6Hg.png]]
+:END:
+
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the likelihood fit described above.
 #+NAME: e-vs-sum_n_lik
 [[./e-vs-sum_n_lik.pdf]] 
@@ -222,6 +312,12 @@ plt.xlabel('epochs')
 plt.ylabel('loss')
 plt.savefig('loss.pdf', bbox_inches = 'tight')
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[38]:
+[[file:./obipy-resources/ZmiRS6.png]]
+:END:
 
 
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.

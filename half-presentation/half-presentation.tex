@@ -1,7 +1,7 @@
 \documentclass[10pt]{beamer}
 \usetheme[outer/progressbar=foot]{metropolis}
 \usepackage{booktabs}
-\usepackage[scale=2]{ccicons}
+%\usepackage[scale=2]{ccicons}
 \usepackage{pgfplots}
 \usepackage[ngerman]{babel}
 \usepackage[utf8]{inputenc}
@@ -41,6 +41,12 @@
 \begin{frame}{Simulation Setup}
   \begin{columns}
     \column{0.5\textwidth}
+    \begin{textblock*}{150pt}(2pt,55pt)
+      \begin{itemize}
+      \item Simulation with Geant4\small{}
+      \item $e^-$ from 0. to 10 GeV
+      \end{itemize}
+    \end{textblock*}
     \begin{textblock*}{10pt}(2pt,100pt)
       \begin{tabular}{l|l|l}
         layer  & scint    & absorber \\ \hline
@@ -53,34 +59,48 @@
     \end{textblock*}
     \column{0.5\textwidth}
     \begin{figure}[htp]
-      \includegraphics[width=1.2\textwidth]{front.png}
-      \includegraphics[width=1.2\textwidth]{side.png}
+      \includegraphics[width=1.1\textwidth]{front.png}\\
+      \includegraphics[width=1.1\textwidth]{side.png}
+    \end{figure}
+  \end{columns}
+  \begin{textblock*}{100pt}(250pt,70pt)
+    Front view
+  \end{textblock*}
+  \begin{textblock*}{100pt}(250pt,150pt)
+    Side view
+  \end{textblock*}
+\end{frame}
+
+\begin{frame}{Resulting Data}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{figure}[htp]
+      \includegraphics[width=1.1\textwidth]{../data_display.pdf}
+    \end{figure}
+    \column{0.5\textwidth}
+    \begin{figure}[htp]
+      \includegraphics[width=1.1\textwidth]{../e-vs-sum_n.pdf}
     \end{figure}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Data}
-\begin{textblock*}{100pt}(150pt,100pt)
-Deine Mutter
-\end{textblock*}
-\end{frame}
-
 \begin{frame}{Linear Fit}
-  \begin{textblock*}{70pt}(50pt,50pt)
-    \small \tikz \node[anchor=east] (n1) {First Block};
-  \end{textblock*}
-  \begin{textblock*}{70pt}(290pt,240pt)
-    \small \tikz \node[anchor=north] (n2) {Second Block};
-  \end{textblock*}
-  \begin{textblock*}{70pt}(290pt,240pt)
-    \begin{tikzpicture}[overlay]
-      \path[->] (n1) edge [bend left] (n2);
-  \end{tikzpicture}
-  \end{textblock*}
+    \begin{figure}[htp]
+      \includegraphics[width=\textwidth]{../e-vs-sum_n_fit.pdf}
+    \end{figure}  
 \end{frame}
 
-\begin{frame}{First Results}
-
+\begin{frame}{First Results of the Neuralnet}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{figure}[htp]
+      \includegraphics[width=1.1\textwidth]{../loss.pdf}
+    \end{figure}
+    \column{0.5\textwidth}
+    \begin{figure}[htp]
+      \includegraphics[width=1.1\textwidth]{../first.pdf}
+    \end{figure}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Data Augmentation}
