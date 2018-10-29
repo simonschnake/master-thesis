@@ -5,11 +5,8 @@
 #+OPTIONS: toc:nil
 
 * Planning                                                         :noexport:
-** TODO Write likelihood-loss chapter
-** TODO Implement hyperparameter optimzing in likelihood-loss.py
-** TODO Write adverserial training chapter
-** TODO Implement Data Augmentation
 
+** 
 * Setup                                                            :noexport:
 Here are the needed packages. Also to config matplotlib for latex export
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -27,7 +24,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[1]:
+# Out[12]:
 :END:
 
 * Loading Data                                                     :noexport:
@@ -48,10 +45,16 @@ Here are the needed packages. Also to config matplotlib for latex export
   Y_train = data['train']['Y']
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+# Out[13]:
+:END:
+
 * Experimental Setup
 
 
 #+CAPTION: Visualization of an event in the calorimeter simulation. On the left, the side view is shown. On the right, the front view is shown.
+#+ATTR_LATEX: :width 1.25\textwidth
 [[./front-side.pdf]]
 #+NAME: e-vs-sum_n
 
@@ -72,8 +75,8 @@ Comparing different models
 
 #+RESULTS:
 :RESULTS:
-# Out[4]:
-[[file:./obipy-resources/rYJ2dX.png]]
+# Out[14]:
+[[file:./obipy-resources/1X523T.png]]
 :END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
@@ -125,8 +128,8 @@ Comparing different models
 
 #+RESULTS:
 :RESULTS:
-# Out[37]:
-[[file:./obipy-resources/eqyBsu.png]]
+# Out[15]:
+[[file:./obipy-resources/IZKFq0.png]]
 :END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
@@ -165,8 +168,8 @@ This is done with the method of least squares.
 
 #+RESULTS:
 :RESULTS:
-# Out[31]:
-[[file:./obipy-resources/2Ey2TT.png]]
+# Out[16]:
+[[file:./obipy-resources/ffmh4f.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
@@ -200,9 +203,9 @@ The relation is bijectiv so the solution can be found by swapping the axixes.
 
 #+RESULTS:
 :RESULTS:
-# Out[28]:
+# Out[17]:
 : Text(0.5,0,'$\\sum_i n_i$')
-[[file:./obipy-resources/m5vk29.png]]
+[[file:./obipy-resources/0bWaEe.png]]
 :END:
 
 \[
@@ -279,12 +282,18 @@ Which is
   plt.savefig('e-vs-sum_n_fit.pdf')
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+# Out[18]:
+[[file:./obipy-resources/o6anI1.png]]
+:END:
+
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
 #+NAME: e-vs-sum_n_fit
 [[./e-vs-sum_n_fit.pdf]]
 
 * First Network
-
+  
 We are starting with a fully connected neural network. It is build out of 4 layers with 64 neurons each. The activation function of each layer is ReLu.
 Our output layer is one neuron with a linear activation. We train the network with the rmsprop optimizer and our loss function is the mean squared error between
 the true energy values and our predicted energy values. We train the network for 10 epochs with a batch size of 128.
@@ -313,6 +322,11 @@ the true energy values and our predicted energy values. We train the network for
 
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+# Out[19]:
+:END:
+
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import pickle
 
@@ -337,8 +351,8 @@ plt.savefig('first_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[38]:
-[[file:./obipy-resources/ZmiRS6.png]]
+# Out[20]:
+[[file:./obipy-resources/142TeN.png]]
 :END:
 
 
@@ -351,6 +365,42 @@ the training set decreases over time, the loss for the validation set
 increases. This implies that our model is overfitting, which means
 that the model learns the data and nothing about the underlying
 physics. Also 
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+  D.load_weights('src/first_weights.h5')
+  func = lambda c, x: c[0]*x+c[1] 
+  fig, ax = plt.subplots()
+  plt.plot(energies, func(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
+  results = D.predict_generator(DataGenerator(X_test, Y_test,
+					      batch_size=128,
+					      data_augment=False))
+  plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
+  plt.plot(energies, fitfunc(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
+  plt.ylim([-5., 5])
+  plt.xlim([0.,10])
+  plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
+  plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+
+  plt.text(7, -3.5, 'neural net', ha='left', va='center', size=17)
+  plt.text(7, 3.5, 'linear fit', ha='left', va='center', size=17, color='#1f77b4')
+
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)  
+  ax.spines["left"].set_visible(False)
+  ax.spines["bottom"].set_visible(False)  
+  plt.savefig('first.pdf', bbox_inches = 'tight')
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[31]:
+[[file:./obipy-resources/zJ3ERx.png]]
+:END:
+
+#+CAPTION: Results of the linear fit vs the first neural net with data augmentation
+#+NAME: first
+[[./first.pdf]]
+
 
 * Data Augmentation
 One of the biggest issues with the setup is that it
@@ -396,6 +446,12 @@ plt.ylim([0.38, 0.8])
 plt.savefig('data_augment_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+# Out[32]:
+[[file:./obipy-resources/V7DZZS.png]]
+:END:
+
 
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
 #+NAME: Loss
@@ -411,10 +467,14 @@ plt.savefig('data_augment_loss.pdf', bbox_inches = 'tight')
 					      batch_size=128,
 					      data_augment=False))
   plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
+  plt.plot(energies, fitfunc(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
   plt.ylim([-5., 5])
   plt.xlim([0.,10])
   plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+
+  plt.text(7, -3.5, 'neural net', ha='left', va='center', size=17)
+  plt.text(7, 3.5, 'linear fit', ha='left', va='center', size=17, color='#1f77b4')
 
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)  
@@ -422,6 +482,12 @@ plt.savefig('data_augment_loss.pdf', bbox_inches = 'tight')
   ax.spines["bottom"].set_visible(False)  
   plt.savefig('data_augment.pdf', bbox_inches = 'tight')
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[34]:
+[[file:./obipy-resources/GB8XAG.png]]
+:END:
 
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
 #+NAME: first
@@ -464,6 +530,12 @@ plt.savefig('data_augment_loss.pdf', bbox_inches = 'tight')
   plt.ylim([0., 0.5])
   plt.savefig('data_augment_res.pdf', bbox_inches = 'tight')
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[26]:
+[[file:./obipy-resources/Up7PL7.png]]
+:END:
 
 #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
 #+NAME: first_res
@@ -819,7 +891,6 @@ used as a loss function.
   plt.ylim([0., 0.5])
 #+END_SRC
 
-
 * Pions
 ** Loading Data                                                    :noexport:
  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -899,6 +970,7 @@ used as a loss function.
 #+NAME: pion_fit
 [[./pion_fit.pdf]] 
 
+** Neural Net
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import pickle
@@ -914,8 +986,8 @@ plt.tick_params(axis='both', which='both', bottom=False, top=False,
 ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
 plt.plot(epochs, history['loss'], 'k-')
 plt.plot(epochs, history['val_loss'], '-', color='#1f77b4')
-plt.text(float(epochs[-1])+0.5, history['loss'][-1], 'training loss', ha='left', va='center', size=15)
-plt.text(float(epochs[-1])+0.5, history['val_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
+plt.text(float(epochs[-1])+1.5, history['loss'][-1], 'training loss', ha='left', va='center', size=15)
+plt.text(float(epochs[-1])+1.5, history['val_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
 plt.xlabel('epochs')
 plt.ylabel('loss')
 plt.savefig('pion_loss.pdf', bbox_inches = 'tight')
