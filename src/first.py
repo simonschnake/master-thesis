@@ -16,7 +16,7 @@ from keras.models import Model
 import h5py
 import pickle
 
-from data_augment import DataGenerator
+from utils import DataGenerator
 ##############################################################
 #  _                 _ _                  ___      _         #
 # | | ___   __ _  __| (_)_ __   __ _     /   \__ _| |_ __ _  #
@@ -62,7 +62,7 @@ Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 
-D.compile(loss='mse', optimizer='adadelta')
+D.compile(loss='mse', optimizer='rmsprop')
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -76,14 +76,10 @@ D.compile(loss='mse', optimizer='adadelta')
 epochs = 250
 
 hist_update = D.fit_generator(
-    DataGenerator(X_train, Y_train, batch_size=128, random_flip=False,
-                  random_rotate=False, random_shift_height=False,
-                  random_shift_width=False),
-    epochs=epochs,
-    validation_data=DataGenerator(X_test, Y_test, batch_size=2000,
-                                  random_flip=False, random_rotate=False,
-                                  random_shift_height=False,
-                                  random_shift_width=False)).history
+    DataGenerator(X_train, Y_train,
+                  batch_size=128, data_augment=False), epochs=epochs,
+    validation_data=DataGenerator(X_train, Y_train, batch_size=128,
+                                  data_augment=False)).history
 
 history.update([('loss', history['loss'] + hist_update['loss']),
                 ('val_loss', history['val_loss'] +

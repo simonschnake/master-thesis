@@ -12,7 +12,7 @@
 ##############################################################
 
 from keras import losses
-from keras.layers import Input, Dense, Conv2D, Flatten, Activation, Lambda, Concatenate
+from keras.layers import Input, Dense, Conv2D, Flatten, Activation, Lambda
 from keras.models import Model
 from keras.optimizers import Adadelta
 import h5py
@@ -67,9 +67,7 @@ D = Model([inputs], [Dx], name='D')
 cases = 500
 d_result = Input(shape=(Y_train.shape[1],))
 results = Input(shape=(Y_train.shape[1],))
-Rx = Lambda(lambda x: (x[0]-x[1])**2/x[1])([d_result, results])
-Rx2 = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([d_result, results])
-Rx = Concatenate(axis=-1)((Rx, Rx2))
+Rx = Lambda(lambda x: (x[0]-x[1]))([d_result, results])
 Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(20, activation="relu")(Rx)
 Rx = Dense(cases, activation="softmax")(Rx)
@@ -120,19 +118,29 @@ epochs = 5
 dg = DataGenerator(X_train, Y_train, Z_train, batch_size=256)
 dg_it = iter(dg)
 
-for i in range(pre_train_epochs*len(dg)):
-    x, y, z = next(dg_it)
-    train_R.train_on_batch([x, y], z)
-    if (i % 100) is 0:
-        print("{0:.1f}%".format(100*i/(pre_train_epochs*len(dg))))
+# for i in range(pre_train_epochs*len(dg)):
+#     x, y, z = next(dg_it)
+#     train_R.train_on_batch([x, y], z)
+#     if (i % 100) is 0:
+#         print("{0:.1f}%".format(100*i/(pre_train_epochs*len(dg))))
 
-for i in range(epochs*len(dg)):
-    x, y, z = next(dg_it)
-    train_R.train_on_batch([x, y], z)
-    train_R.train_on_batch([x, y], z)
-    train_R.train_on_batch([x, y], z)
-    train_D.train_on_batch([x, y], [y, z])
-    if (i % 100) is 0:
-        print("{0:.1f}%".format(100*i/(epochs*len(dg))))
+# for i in range(epochs*len(dg)):
+#     x, y, z = next(dg_it)
+#     train_R.train_on_batch([x, y], z)
+#     train_D.train_on_batch([x, y], [y, z])
+#     if (i % 100) is 0:
+#         print("{0:.1f}%".format(100*i/(epochs*len(dg))))
+train_R.fit_generator(
+    DataGenerator(X_train, Y_train, Z_train,
+                  batch_size=256, adv=True, data_augment=False),
+    epochs=100)
+
+for i in range(5):
+    train_R.fit_generator(
+        DataGenerator(X_train, Y_train, Z_train, batch_size=256, adv=True),
+        epochs=5)
+    train_D.fit_generator(
+        DataGenerator(X_train, Y_train, Z_train, batch_size=256, adv=False),
+        epochs=5)
 
 D.save_weights("adversarial_weights.h5")
