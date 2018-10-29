@@ -1,6 +1,13 @@
 /ltximg/
-*.tex
+*.aux
+*.log
+*.nav
+*.snm
+*.toc
+*.out
 *.pdf
 /obipy-resources/
 data/
 .mypy_cache/
+src/__pycache__/
+project-one.tex
