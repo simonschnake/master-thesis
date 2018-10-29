@@ -1,0 +1,102 @@
+\documentclass[10pt]{beamer}
+\usetheme[outer/progressbar=foot]{metropolis}
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+\usepackage{pgfplots}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{blindtext}
+\usepackage{amsmath}
+\usepackage[italicdiff]{physics}
+\usepackage[italic]{hepnames}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{color}
+\usepackage{physics}
+\usepackage{tikz}
+\usepackage[absolute,overlay]{textpos}
+\usepackage[texcoord,grid,gridcolor=red!10,subgridcolor=green!10,gridunit=pt]{eso-pic}
+
+\usepgfplotslibrary{dateplot}
+
+
+%Frontpage
+\title{Calorimetry and Deep Learning}
+\date{\today}
+\author{Simon Schnake}
+\institute{Universität Hamburg}
+
+%Document
+\begin{document}
+\maketitle
+\tikzstyle{every picture}+=[remember picture]
+\begin{frame}{Calorimetry in Particle Physics}
+
+\end{frame}
+
+\begin{frame}{Deep Learning}
+
+\end{frame}
+
+\begin{frame}{Simulation Setup}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{textblock*}{10pt}(2pt,100pt)
+      \begin{tabular}{l|l|l}
+        layer  & scint    & absorber \\ \hline
+        layer 0      & 9mm     & 40 mm SS\\
+        layer 1 - 8  & 3.7mm   & 50.5 mm brass        \\
+        layer 9 - 14 & 3.7mm   & 56.5 mm brass         \\
+        layer 15     & 3.7 mm  & 75 mm SS \\
+        layer 16     & 9mm     &                      
+      \end{tabular}
+    \end{textblock*}
+    \column{0.5\textwidth}
+    \begin{figure}[htp]
+      \includegraphics[width=1.2\textwidth]{front.png}
+      \includegraphics[width=1.2\textwidth]{side.png}
+    \end{figure}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Data}
+\begin{textblock*}{100pt}(150pt,100pt)
+Deine Mutter
+\end{textblock*}
+\end{frame}
+
+\begin{frame}{Linear Fit}
+  \begin{textblock*}{70pt}(50pt,50pt)
+    \small \tikz \node[anchor=east] (n1) {First Block};
+  \end{textblock*}
+  \begin{textblock*}{70pt}(290pt,240pt)
+    \small \tikz \node[anchor=north] (n2) {Second Block};
+  \end{textblock*}
+  \begin{textblock*}{70pt}(290pt,240pt)
+    \begin{tikzpicture}[overlay]
+      \path[->] (n1) edge [bend left] (n2);
+  \end{tikzpicture}
+  \end{textblock*}
+\end{frame}
+
+\begin{frame}{First Results}
+
+\end{frame}
+
+\begin{frame}{Data Augmentation}
+
+\end{frame}
+
+\begin{frame}{Maximum Likelihood Loss}
+
+\end{frame}
+
+\begin{frame}{Adversary Training}
+
+\end{frame}
+
+\begin{frame}{Summary}
+
+\end{frame}
+
+\end{document}
