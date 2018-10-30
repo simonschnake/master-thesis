@@ -135,7 +135,8 @@ dg_it = iter(dg)
 #                   batch_size=256, adv=True, data_augment=False),
 #     epochs=100)
 
-for i in range(20):
+for i in range(200):
+    print(i)
     train_R.fit_generator(
         DataGenerator(X_train, Y_train, Z_train, batch_size=256, adv=True),
         epochs=5)
