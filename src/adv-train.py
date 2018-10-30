@@ -67,7 +67,7 @@ D = Model([inputs], [Dx], name='D')
 cases = 500
 d_result = Input(shape=(Y_train.shape[1],))
 results = Input(shape=(Y_train.shape[1],))
-Rx = Lambda(lambda x: (x[0]-x[1]))([d_result, results])
+Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([d_result, results])
 Rx = Dense(10, activation="relu")(Rx)
 Rx = Dense(20, activation="relu")(Rx)
 Rx = Dense(cases, activation="softmax")(Rx)
