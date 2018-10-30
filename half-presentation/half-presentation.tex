@@ -3,6 +3,7 @@
 \usepackage{booktabs}
 %\usepackage[scale=2]{ccicons}
 \usepackage{pgfplots}
+\usepackage{cancel}
 \usepackage[ngerman]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{blindtext}
@@ -91,9 +92,7 @@
 \end{frame}
 
 \begin{frame}{Neuralnet}
-    \begin{figure}[htp]
-      \includegraphics[width=\textwidth]{../e-vs-sum_n_fit.pdf}
-    \end{figure}  
+
 \end{frame}
 
 \begin{frame}{First Results of the Neuralnet}
@@ -111,7 +110,7 @@
 
 \begin{frame}{Data Augmentation}
     \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../data_augment_loss.pdf}
+      \includegraphics[width=0.8\textwidth]{../data_augment_loss.pdf}
     \end{figure}
 \end{frame}
 
@@ -129,13 +128,31 @@
   \end{columns}
 \end{frame}
 
-
-\begin{frame}{Data Augmentation}
-
+\begin{frame}{Maximum Likelihood Loss}
+Assumption: true values are gaussian distributed with const std $\sigma$
+  \begin{align*}
+    \text{max likelihood} &= \text{max} \prod \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}                          \\
+    \Rightarrow \text{max log likelihood} & =\text{max} \sum -\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2} - \ln(\sqrt{2\pi \sigma^2})                  \\
+                                          & =-\text{max} \sum\frac{(y_{\text{true}}-y_{\text{pred}})^2}{\cancel{2 \sigma^2}} - \cancel{\ln(\sqrt{2\pi \sigma^2})} \\
+                                          & = \text{min} \sum (y_{\text{true}}-y_{\text{pred}})^2
+  \end{align*}
 \end{frame}
 
 \begin{frame}{Maximum Likelihood Loss}
+  \begin{textblock*}{150pt}(30pt,35pt)
+      \includegraphics[width=\textwidth]{../e-vs-sum_n.pdf}
+  \end{textblock*}
+  \begin{textblock*}{150pt}(175pt,35pt)
+    \includegraphics[width=\textwidth]{../gaussian_shift.pdf}
+  \end{textblock*}
 
+  \begin{textblock*}{150pt}(5pt,140pt)
+    \begin{align*}
+      \Rightarrow \text{max log likelihood} = \text{min} \sum& \ln(\frac{\text{Norm}(y_{\text{true}} | y_{\text{pred}}, \sigma)}{\int^b_a \text{Norm}(y_{\text{true}} | y_{\text{pred}}, \sigma)})\\
+                                            =\text{min} \sum& \frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}\\
+   &+\ln(\frac{1}{2} \left(\text{erf}(\frac{y_{\text{pred}}-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{y_{\text{pred}}-b}{\sqrt{2}\sigma})\right))
+    \end{align*}
+  \end{textblock*}
 \end{frame}
 
 \begin{frame}{Adversary Training}

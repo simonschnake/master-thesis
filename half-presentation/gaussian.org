@@ -4,11 +4,7 @@
 #+LATEX_HEADER: \usepackage{amssymb}
 #+OPTIONS: toc:nil
 
-* Planning                                                         :noexport:
 
-** 
-* Setup                                                            :noexport:
-Here are the needed packages. Also to config matplotlib for latex export
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import matplotlib as mpl
   import matplotlib.pyplot as plt
@@ -20,274 +16,51 @@ Here are the needed packages. Also to config matplotlib for latex export
   mpl.rcParams['axes.labelsize'] = 15
 
   %matplotlib inline
-#+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[15]:
-:END:
-
-* Loading Data                                                     :noexport:
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  import h5py
-
-  try:
-      data = h5py.File('../data/electron.h5', 'r')
-  except OSError:
-      try:
-	      data = h5py.File('data/electron.h5', 'r')
-      except OSError:
-	      print('Data not found')
-
-  X_test = data['test']['X']
-  Y_test = data['test']['Y']
-  X_train = data['train']['X']
-  Y_train = data['train']['Y']
-#+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[16]:
-:END:
-
-* Experimental Setup
-
-
-#+CAPTION: Visualization of an event in the calorimeter simulation. On the left, the side view is shown. On the right, the front view is shown.
-#+ATTR_LATEX: :width 1.25\textwidth
-[[./front-side.pdf]]
-#+NAME: e-vs-sum_n
-
-Comparing different models
-- Results charged particles in each scintialor cell
-- true energy
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  import numpy as np
-  sum_n = np.sum(X_test[:10000], axis=1)
-  energies = np.transpose(Y_test[:10000])[0]
-
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum_i n_i$')
-  plt.savefig('e-vs-sum_n.pdf')
-#+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[17]:
-[[file:./obipy-resources/2jGqEd.png]]
-:END:
-
-#+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
-#+NAME: e-vs-sum_n
-[[./e-vs-sum_n.pdf]]
-
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  from mpl_toolkits.mplot3d import Axes3D
-  from matplotlib.colors import ListedColormap
-
-  # Choose data sample
-
-  id = 7
-  test_sample = X_test[id].reshape(17, 8, 8)
-  maximum = np.amax(test_sample)
-
-
-  # Choose colormap
-  cmap = plt.cm.Reds
-
-  # Get the colormap colors
-  my_cmap = cmap(np.arange(cmap.N))
-
-  # Set alpha
-  my_cmap[:,-1] = np.linspace(0, 1, cmap.N)
-
-  # Create new colormap
-  my_cmap = ListedColormap(my_cmap)
-
-  # create grid
-
-  Y, Z = np.meshgrid(np.arange(test_sample.shape[1])+1, np.arange(test_sample.shape[2])+1)
-
-
-  # create the figure
-  fig = plt.figure()
-  ax = fig.add_subplot(111, projection='3d')
-
-  for i in range(test_sample.shape[0]):
-      ax.plot_surface(Z, i*np.ones(Y.shape)+1, Y, rstride=1, cstride=1, facecolors=my_cmap(np.sqrt(np.sqrt(test_sample[i]/maximum))), shade=False)
-
-  ax.set_xlabel('Y')
-  ax.set_ylabel('X')
-  ax.set_zlabel('Z')
-  ax.text(5, 0, -4, str(Y_test[id][0])+' GeV')
-  plt.savefig('data_display.pdf')
-#+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[18]:
-[[file:./obipy-resources/3oUlnd.png]]
-:END:
-
-#+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
-#+NAME: e-vs-sum_n
-[[./data_display.pdf]]
-
-
-
-* Linear Fit
-A traditional way of calibrating the neural net would be to sum over all scintillator cells as shown in [cite:figure1]
-a linear fit to the energy
-\[E = c_0\sum_i n_i + c_1\]
-This is done with the method of least squares.
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  from scipy.optimize import leastsq
-  # function to fit
-  inv_fitfunc = lambda c , x: (x-c[1])/c[0]
-
-  fitfunc = lambda c , x: x*c[0]+c[1]
-  errfunc = lambda c , x, y: (y - fitfunc(c, x))
-  out = leastsq(errfunc, [0.1, 0.0], args=(energies, sum_n), full_output=1)
-
-  c_fit1 = out[0]
-  covar = out[1]
-
-  n = np.arange(0, 250, 0.5)
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, inv_fitfunc(c_fit1, n), 'k-')     # Fit
-
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum_i n_i$')
-
-  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit1[0], ha='left')
-  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit1[1], ha='left')
-  plt.savefig('e-vs-sum_n_fit.pdf')
-#+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[38]:
-[[file:./obipy-resources/QjLnOu.png]]
-:END:
-
-#+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
-#+NAME: e-vs-sum_n_fit
-[[./e-vs-sum_n_fit.pdf]]
-
-
-The relation is bijectiv so the solution can be found by swapping the axixes.
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  from scipy.optimize import leastsq
-  # function to fit
-  fitfunc = lambda c , x: (x-c[1])/(abs(c[0])+0.0001)
-  errfunc = lambda c , x, y: (y - fitfunc(c, x))
-  out = leastsq(errfunc, [0., 0.0], args=(energies, sum_n), full_output=1)
-
-  c_fit = out[0]
-  covar = out[1]
-
-  n = np.arange(0, 250, 0.5)
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
-  # plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
-
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum_i n_i$')
-
-#  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
-#  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
-#+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[20]:
-: Text(0.5,0,'$\\sum_i n_i$')
-[[file:./obipy-resources/Y3o1oA.png]]
-:END:
-
-\[
-   \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} 
-\]
-\[
-\text{likelihood} = \prod_{i} \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))}
-\]
-
-\[
-\text{cost} = - \sum_{i} \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
-\]
-
-\[
-\text{loss} = - \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
-\]
-\[
-\text{loss} = - \ln(e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}})-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
-\]
-\[
-\text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
-\]
-
-\[
-\text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}+\ln(\sqrt{\frac{\pi}{2}} \sigma_i\left(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})\right))
-\]
-
-For stability reasons we use the results of the leastsquares fit as
-the start parameters of our minimum likelihood fit.  The minimizing
-method is "L-BFGS-B"[CITE]. $\mu_i$ is the prediction of our model in
-this case the result of the linear fit.  The number of charged
-particles in the scintillators is poisson distributed. So the
-estimator the energy has a standard deviance of $\sqrt{\mu}$.
-
-Which is 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   from scipy.special import erf
   from scipy.stats import norm
   from scipy import optimize
 
-  def likelihood(par):
+  a=-1
+  b=1.5
+  mu=1
+  sigma=1
+  def likelihood(n, mu, sigma):
       epsilon = 0.0000001
-      mu = sum_n*par[0]+par[1]
-      sigma = np.sqrt(np.abs(mu)) # 2/par[0] 
-      elements = norm.pdf(energies, mu, sigma)
-      a = np.divide(mu-lower_border, np.sqrt(2)*sigma+epsilon)
-      b = np.divide(mu-upper_border, np.sqrt(2)*sigma+epsilon)
-      norms = np.abs(erf(a)- erf(b))
-      return -np.sum(np.log(np.divide(elements, norms + epsilon)+epsilon))
+      elements = norm.pdf(n, mu, sigma)
+      x1 = np.divide(mu-a, np.sqrt(2)*sigma+epsilon)
+      x2 = np.divide(mu-b, np.sqrt(2)*sigma+epsilon)
+      norms = np.abs(erf(x1)- erf(x2))/2
+      return np.divide(elements, norms + epsilon)
 
-  lower_border = 0  
-  upper_border = 10
-  out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
-  
-  c_like = out['x']
+  fig, ax = plt.subplots()
 
-  n = np.arange(0, 240, 0.5)
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
-  plt.plot(n, fitfunc(c_like, n), 'k-')     # Fit
-  plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
+  n = np.arange(-2, 3.01, 0.1)
+  plt.plot(n, norm.pdf(n, mu, sigma), 'k-')
+  plt.plot(n, likelihood(n, mu+0.6, sigma), 'k--')
+  n = np.arange(a, b+0.01, 0.1)
+  plt.plot(n, likelihood(n, mu+0.6, sigma), 'k-')
+  plt.fill_between(n, norm.pdf(n, mu, sigma), likelihood(n, mu+0.6, sigma), color='r', alpha=0.8)
+  plt.fill_between(n, 0, norm.pdf(n, mu, sigma), alpha=0.5)
+  plt.plot([b, b], [0, 1], 'k-')
+  plt.text(b, -0.08, 'b', ha='center', va='center', size=20, color='k')
+  plt.text(a, -0.08, 'a', ha='center', va='center', size=20, color='k')
+  plt.plot([a, a], [0, 1], 'k-')
+  plt.tick_params(axis='both', which='both', bottom=False, top=False,
+                  labelbottom=False, left=False, right=False, labelleft=False)
 
-  n = np.arange(0, 10.1, 0.1)
-  plt.plot(energies, sum_n, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
+  ax.spines['top'].set_visible(False)
+  ax.spines['bottom'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  ax.spines['left'].set_visible(False)
 
-  plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-  plt.ylabel(r'$\sum_i n_i$')
-
-
-  plt.text(1, 325, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
-  plt.text(1, 300, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
-
-  plt.savefig('e-vs-sum_n_fit.pdf')
+  plt.savefig('gaussian_shift.pdf')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[21]:
-[[file:./obipy-resources/xj8gFK.png]]
+# Out[131]:
+[[file:./obipy-resources/JPg3rO.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
