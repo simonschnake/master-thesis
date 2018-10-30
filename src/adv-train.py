@@ -51,7 +51,7 @@ history = {'D_loss': [], 'val_D_loss': [], 'R_loss': [], 'val_R_loss': []}
 #      \/    \/\___/ \__,_|\___|_|                           #
 ##############################################################
 
-lam = 2.5
+lam = 0.5
 
 inputs = Input(shape=(8, 8, 17,))
 Dx = Conv2D(32, (2, 2), strides=(1, 1))(inputs)
@@ -93,7 +93,7 @@ D.load_weights('data_augment_weights.h5')
 R.trainable = False
 D.trainable = True
 train_D = Model([inputs, results], [D(inputs), R([D(inputs), results])])
-train_D.compile(loss=[make_loss_D(c=1.0), make_loss_R(c=-lam)], optimizer=opt)
+train_D.compile(loss=[make_loss_D(c=1.0), make_loss_R(c=-lam)], optimizer='rmsprop')
 
 R.trainable = True
 D.trainable = False
@@ -130,12 +130,12 @@ dg_it = iter(dg)
 #     train_D.train_on_batch([x, y], [y, z])
 #     if (i % 100) is 0:
 #         print("{0:.1f}%".format(100*i/(epochs*len(dg))))
-train_R.fit_generator(
-    DataGenerator(X_train, Y_train, Z_train,
-                  batch_size=256, adv=True, data_augment=False),
-    epochs=100)
+# train_R.fit_generator(
+#     DataGenerator(X_train, Y_train, Z_train,
+#                   batch_size=256, adv=True, data_augment=False),
+#     epochs=100)
 
-for i in range(5):
+for i in range(20):
     train_R.fit_generator(
         DataGenerator(X_train, Y_train, Z_train, batch_size=256, adv=True),
         epochs=5)
