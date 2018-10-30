@@ -46,9 +46,10 @@
       \begin{itemize}
       \item Simulation with Geant4\small{}
       \item $e^-$ from 0. to 10 GeV
+      \item 300,000 events
       \end{itemize}
     \end{textblock*}
-    \begin{textblock*}{10pt}(2pt,100pt)
+    \begin{textblock*}{10pt}(2pt,125pt)
       \begin{tabular}{l|l|l}
         layer  & scint    & absorber \\ \hline
         layer 0      & 9mm     & 40 mm SS\\
@@ -86,7 +87,19 @@
 \end{frame}
 
 \begin{frame}{Neuralnet}
-
+  \begin{itemize*}
+  \item 
+    \begin{tabular}{l|l|l}
+      Layer & Type                                & Activation \\ \hline
+      1     & Conv2D(32, (2,2), strides = (1, 1)) & ReLu       \\
+      2     & Flatten()                           &            \\
+      3-5   & Dense(128)                          & ReLu       \\
+      6     & Dense(10)                           & ReLu       \\
+      7     & Dense(1)                            & Linear    
+    \end{tabular}
+  \item Loss = Mean Squared Error
+  \item Optimizer = Rmsprop
+  \end{itemize*}
 \end{frame}
 
 \begin{frame}{First Results of the Neuralnet}
@@ -103,6 +116,11 @@
 \end{frame}
 
 \begin{frame}{Data Augmentation}
+  \begin{itemize}
+  \item flip the data arrays in the y axes
+  \item rotate around the x axes
+  \item shift in y and z
+  \end{itemize}
     \begin{figure}[htp]
       \includegraphics[width=0.8\textwidth]{../data_augment_loss.pdf}
     \end{figure}
