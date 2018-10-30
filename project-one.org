@@ -10,6 +10,7 @@
 * Setup                                                            :noexport:
 Here are the needed packages. Also to config matplotlib for latex export
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+  !cd /home/schnakes/master-thesis
   import matplotlib as mpl
   import matplotlib.pyplot as plt
   mpl.rcParams['text.usetex'] = True
@@ -24,7 +25,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[15]:
+# Out[1]:
 :END:
 
 * Loading Data                                                     :noexport:
@@ -47,7 +48,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[16]:
+# Out[2]:
 :END:
 
 * Experimental Setup
@@ -75,8 +76,8 @@ Comparing different models
 
 #+RESULTS:
 :RESULTS:
-# Out[17]:
-[[file:./obipy-resources/2jGqEd.png]]
+# Out[3]:
+[[file:./obipy-resources/h3xlUT.png]]
 :END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
@@ -128,8 +129,8 @@ Comparing different models
 
 #+RESULTS:
 :RESULTS:
-# Out[18]:
-[[file:./obipy-resources/3oUlnd.png]]
+# Out[4]:
+[[file:./obipy-resources/SW1M4t.png]]
 :END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
@@ -170,8 +171,8 @@ This is done with the method of least squares.
 
 #+RESULTS:
 :RESULTS:
-# Out[38]:
-[[file:./obipy-resources/QjLnOu.png]]
+# Out[5]:
+[[file:./obipy-resources/CTQhJr.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
@@ -190,7 +191,8 @@ The relation is bijectiv so the solution can be found by swapping the axixes.
 
   c_fit = out[0]
   covar = out[1]
-
+  
+  fitfunc = lambda c , x: c[0]*x+c[1]+c[0]
   n = np.arange(0, 250, 0.5)
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
   plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
@@ -205,9 +207,9 @@ The relation is bijectiv so the solution can be found by swapping the axixes.
 
 #+RESULTS:
 :RESULTS:
-# Out[20]:
+# Out[34]:
 : Text(0.5,0,'$\\sum_i n_i$')
-[[file:./obipy-resources/Y3o1oA.png]]
+[[file:./obipy-resources/oKEKqX.png]]
 :END:
 
 \[
@@ -261,33 +263,33 @@ Which is
   lower_border = 0  
   upper_border = 10
   out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
-  
+
   c_like = out['x']
 
-  n = np.arange(0, 240, 0.5)
+  n = np.arange(0, 250, 0.5)
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
-  plt.plot(n, fitfunc(c_like, n), 'k-')     # Fit
-  plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
-
-  n = np.arange(0, 10.1, 0.1)
-  plt.plot(energies, sum_n, 'r.', alpha=0.06)
   plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
+  # plt.plot(n, fitfunc(c_like, n), 'b-')     # Fit
+  # plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
 
-  plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-  plt.ylabel(r'$\sum_i n_i$')
+  # n = np.arange(0, 10.1, 0.1)
+  # plt.plot(energies, sum_n, 'r.', alpha=0.06)
+  # plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
+
+  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
+  plt.xlabel(r'$\sum_i n_i$')
 
 
-  plt.text(1, 325, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
-  plt.text(1, 300, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
+  plt.text(1, 9.5, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
+  plt.text(1, 9, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
 
   plt.savefig('e-vs-sum_n_fit.pdf')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[21]:
-[[file:./obipy-resources/xj8gFK.png]]
+# Out[55]:
+[[file:./obipy-resources/VS7mL2.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
@@ -308,7 +310,7 @@ the true energy values and our predicted energy values. We train the network for
   from keras.models import Model
   import h5py
   import pickle
-
+  
   from src.utils import DataGenerator
 
   inputs = Input(shape=(8, 8, 17,))
@@ -326,7 +328,7 @@ the true energy values and our predicted energy values. We train the network for
 
 #+RESULTS:
 :RESULTS:
-# Out[22]:
+# Out[8]:
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -353,8 +355,8 @@ plt.savefig('first_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[23]:
-[[file:./obipy-resources/uK24pg.png]]
+# Out[9]:
+[[file:./obipy-resources/wuSvKe.png]]
 :END:
 
 
@@ -395,8 +397,8 @@ physics. Also
 
 #+RESULTS:
 :RESULTS:
-# Out[24]:
-[[file:./obipy-resources/nlFpBK.png]]
+# Out[10]:
+[[file:./obipy-resources/8emw1A.png]]
 :END:
 
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
@@ -450,8 +452,8 @@ plt.savefig('data_augment_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[25]:
-[[file:./obipy-resources/YF1pBc.png]]
+# Out[24]:
+[[file:./obipy-resources/PSQdnI.png]]
 :END:
 
 
@@ -487,8 +489,8 @@ plt.savefig('data_augment_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[26]:
-[[file:./obipy-resources/8NyeCy.png]]
+# Out[25]:
+[[file:./obipy-resources/qL2YoY.png]]
 :END:
 
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
@@ -535,8 +537,8 @@ plt.savefig('data_augment_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[27]:
-[[file:./obipy-resources/yvBCYk.png]]
+# Out[26]:
+[[file:./obipy-resources/e7svN0.png]]
 :END:
 
 #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
@@ -616,8 +618,8 @@ Which is
 
 #+RESULTS:
 :RESULTS:
-# Out[28]:
-[[file:./obipy-resources/uU3oif.png]]
+# Out[27]:
+[[file:./obipy-resources/PYFVEg.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the likelihood fit described above.
@@ -652,8 +654,8 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[29]:
-[[file:./obipy-resources/MRl4L1.png]]
+# Out[42]:
+[[file:./obipy-resources/t0dt32.png]]
 :END:
 
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
@@ -680,8 +682,8 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[30]:
-[[file:./obipy-resources/p1Embu.png]]
+# Out[43]:
+[[file:./obipy-resources/1W5NnT.png]]
 :END:
 
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
@@ -730,8 +732,8 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[31]:
-[[file:./obipy-resources/u4yvNA.png]]
+# Out[44]:
+[[file:./obipy-resources/FHdvyt.png]]
 :END:
 
 #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
@@ -760,8 +762,8 @@ plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[32]:
-[[file:./obipy-resources/WkPR0v.png]]
+# Out[45]:
+[[file:./obipy-resources/CTcggA.png]]
 :END:
 
 
@@ -786,13 +788,17 @@ used as a loss function.
   ax.spines["right"].set_visible(False)  
   ax.spines["left"].set_visible(False)
   ax.spines["bottom"].set_visible(False)
+
+  plt.text(7, -3.5, 'neural net', ha='left', va='center', size=17)
+  plt.text(7, 3.5, 'linear fit', ha='left', va='center', size=17, color='#1f77b4')
+
   plt.savefig('adversarial.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[33]:
-[[file:./obipy-resources/YOmr91.png]]
+# Out[47]:
+[[file:./obipy-resources/Ljrkxt.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -834,8 +840,8 @@ used as a loss function.
 
 #+RESULTS:
 :RESULTS:
-# Out[34]:
-[[file:./obipy-resources/A8g8bY.png]]
+# Out[48]:
+[[file:./obipy-resources/pH8rjh.png]]
 :END:
 
 
@@ -861,9 +867,9 @@ used as a loss function.
 
 #+RESULTS:
 :RESULTS:
-# Out[35]:
+# Out[21]:
 : Text(0,0.5,'loss')
-[[file:./obipy-resources/3VQVHJ.png]]
+[[file:./obipy-resources/QS44BU.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -888,9 +894,9 @@ used as a loss function.
 
 #+RESULTS:
 :RESULTS:
-# Out[36]:
+# Out[22]:
 : Text(0,0.5,'loss')
-[[file:./obipy-resources/9AjhtP.png]]
+[[file:./obipy-resources/DAJxTa.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export

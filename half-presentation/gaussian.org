@@ -6,6 +6,7 @@
 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+  import numpy as np
   import matplotlib as mpl
   import matplotlib.pyplot as plt
   mpl.rcParams['text.usetex'] = True
@@ -59,8 +60,8 @@
 
 #+RESULTS:
 :RESULTS:
-# Out[131]:
-[[file:./obipy-resources/JPg3rO.png]]
+# Out[2]:
+[[file:./obipy-resources/FKtAIg.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
