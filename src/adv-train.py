@@ -51,7 +51,7 @@ history = {'D_loss': [], 'val_D_loss': [], 'R_loss': [], 'val_R_loss': []}
 #      \/    \/\___/ \__,_|\___|_|                           #
 ##############################################################
 
-lam = 0.5
+lam = 2.5
 
 inputs = Input(shape=(8, 8, 17,))
 Dx = Conv2D(32, (2, 2), strides=(1, 1))(inputs)
@@ -65,13 +65,16 @@ Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 
 cases = 500
-d_result = Input(shape=(Y_train.shape[1],))
+# d_result = Input(shape=(Y_train.shape[1],))
 results = Input(shape=(Y_train.shape[1],))
-Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([d_result, results])
-Rx = Dense(10, activation="relu")(Rx)
-Rx = Dense(20, activation="relu")(Rx)
+Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([D(inputs), results])
+Rx = Dense(50, activation="relu")(Rx)
+Rx = Dense(50, activation="relu")(Rx)
+Rx = Dense(50, activation="relu")(Rx)
+Rx = Dense(50, activation="relu")(Rx)
+Rx = Dense(128, activation="relu")(Rx)
 Rx = Dense(cases, activation="softmax")(Rx)
-R = Model([d_result, results], [Rx], name='R')
+R = Model([inputs, results], [Rx], name='R')
 
 
 def make_loss_D(c):
@@ -92,12 +95,12 @@ D.load_weights('data_augment_weights.h5')
 
 R.trainable = False
 D.trainable = True
-train_D = Model([inputs, results], [D(inputs), R([D(inputs), results])])
+train_D = Model([inputs, results], [D(inputs), R([inputs, results])])
 train_D.compile(loss=[make_loss_D(c=1.0), make_loss_R(c=-lam)], optimizer='rmsprop')
 
 R.trainable = True
 D.trainable = False
-train_R = Model([inputs, results], [R([D(inputs), results])])
+train_R = Model([inputs, results], [R([inputs, results])])
 train_R.compile(loss=[make_loss_R(c=lam)], optimizer='rmsprop')
 
 #############################################################
@@ -135,7 +138,7 @@ dg_it = iter(dg)
 #                   batch_size=256, adv=True, data_augment=False),
 #     epochs=100)
 
-for i in range(200):
+for i in range(10):
     print(i)
     train_R.fit_generator(
         DataGenerator(X_train, Y_train, Z_train, batch_size=256, adv=True),
