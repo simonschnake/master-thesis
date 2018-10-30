@@ -797,8 +797,8 @@ used as a loss function.
 
 #+RESULTS:
 :RESULTS:
-# Out[47]:
-[[file:./obipy-resources/Ljrkxt.png]]
+# Out[65]:
+[[file:./obipy-resources/N5x6sJ.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -840,8 +840,8 @@ used as a loss function.
 
 #+RESULTS:
 :RESULTS:
-# Out[48]:
-[[file:./obipy-resources/pH8rjh.png]]
+# Out[66]:
+[[file:./obipy-resources/5dcJxi.png]]
 :END:
 
 
