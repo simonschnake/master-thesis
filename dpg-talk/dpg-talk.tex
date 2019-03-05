@@ -119,16 +119,15 @@
 \end{frame}
 
 \begin{frame}{Neuralnet}
+  \begin{tabular}{l|l|l}
+    Layer & Type                                & Activation \\ \hline
+    1     & Conv2D(32, (2,2), strides = (1, 1)) & ReLu       \\
+    2     & Flatten()                           &            \\
+    3-5   & Dense(128)                          & ReLu       \\
+    6     & Dense(10)                           & ReLu       \\
+    7     & Dense(1)                            & Linear    
+  \end{tabular}
   \begin{itemize}
-  \item 
-    \begin{tabular}{l|l|l}
-      Layer & Type                                & Activation \\ \hline
-      1     & Conv2D(32, (2,2), strides = (1, 1)) & ReLu       \\
-      2     & Flatten()                           &            \\
-      3-5   & Dense(128)                          & ReLu       \\
-      6     & Dense(10)                           & ReLu       \\
-      7     & Dense(1)                            & Linear    
-    \end{tabular}
   \item Loss = Mean Squared Error
   \item Optimizer = RMSprop
   \end{itemize}
