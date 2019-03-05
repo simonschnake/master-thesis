@@ -60,8 +60,8 @@
 
 #+RESULTS:
 :RESULTS:
-# Out[2]:
-[[file:./obipy-resources/FKtAIg.png]]
+# Out[1]:
+[[file:./obipy-resources/OxJoh0.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.

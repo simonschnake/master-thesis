@@ -54,6 +54,25 @@ Here are the needed packages. Also to config matplotlib for latex export
 * Experimental Setup
 
 
+what is needed [0/7]
+- [ ] custom made simulation
+- [ ] structure of the calorimeter, layers, dense, width how many $X_0$ for an electron, cubic
+- [ ] interaction point
+- [ ] simulated particles electrons 0-10 GeV (pions)
+- [ ] what is simulated
+- [ ] shower building
+- [ ] what is measured
+- [ ] how stored
+
+Here the simulation setup is presented. The framework to perform the
+simulation is Geant4[1]. The simulation setup is based on the setup of
+the CMS HCAL[2].  The calorimeter contains 17 layers. The layer
+structure is presented in the table[3]. For each layer there are 8x8
+scintillators. In each event the interaction of the incoming particle
+with the detector is simulated. After this simulation the number of
+charged tracks inside each scintillator cell is counted and stored
+inside an 8x8x17 array. 
+
 #+CAPTION: Visualization of an event in the calorimeter simulation. On the left, the side view is shown. On the right, the front view is shown.
 #+ATTR_LATEX: :width 1.25\textwidth
 [[./front-side.pdf]]
