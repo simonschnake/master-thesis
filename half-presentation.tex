@@ -1,0 +1,220 @@
+\documentclass[10pt]{beamer}
+\usetheme{m}                     % Use metropolis theme
+\usepackage{booktabs}
+\usepackage[scale=2]{ccicons}
+\usepackage{pgfplots}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{blindtext}
+\usepackage{amsmath}
+\usepackage[italicdiff]{physics}
+\usepackage[italic]{hepnames}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{color}
+\usepackage{physics}
+
+\usepgfplotslibrary{dateplot}
+
+
+%Frontpage
+\title{supersymmetrie}
+\date{\today}
+\author{Simon Schnake}
+\institute{Universität Hamburg}
+
+%Document
+\begin{document}
+  \maketitle
+  
+  \begin{frame}{Inhalt}
+\begin{itemize}[<+- | alert@+>]
+	\item Standardmodell
+	\item Supersymmetrie (SUSY)
+	\item Minimal Supersymmetric Standard Model
+	\item Suche nach Supersymmetrie am Large Hadron Collider (LHC)
+\end{itemize}
+\end{frame}
+  
+  
+\begin{frame}{das Standardmodell}
+	\begin{figure}[htp]
+    	\includegraphics[scale=0.25]{Standardmodell.pdf}
+    \end{figure}
+\end{frame}  
+
+\begin{frame}{Anforderungen an das Standardmodell}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.5\textwidth}
+    	\metroset{block=fill}
+		\begin{block}{Materie}<1->
+		Der fundamentale Aufbau der Materie im Universum soll beschrieben werden.
+		\end{block}
+		\begin{block}{Kräfte}<2->
+		Alle Kräfte der Natur sollen beschrieben werden.
+		\end{block}
+		\begin{block}{Extrapolierbarkeit}<3->
+		Die Theorie soll auch bei höheren Energien oder kleineren Abständen gelten.
+		\end{block} 
+    \column{0.5\textwidth}
+		\begin{figure}[htp]
+    	\includegraphics[scale=0.25]{Standardmodell.pdf}
+    	\end{figure}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}{Das Standardmodell im Test}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.5\textwidth}
+    	\metroset{block=fill}
+		\begin{block}{Materie}<1->
+		\alert<1>{Im Labor messbaren Teilchen - Ja! \\ Dunkle Materie - Nein!}
+		\end{block}
+		\begin{block}{Kräfte}
+		\only<2->{\alert<2>{Elektroschwache und Starke Wechselwirkungen werden beschrieben. Gravitation - Nein!\\ Auch keine Vereinigung aller Kräfte}}
+		 \only<1> {Alle Kräfte der Natur sollen beschrieben werden.}
+		\end{block}
+		\begin{block}{Extrapolierbarkeit}
+		\only<1-2>{Die Theorie soll auch bei höheren Energien oder kleineren Abständen gelten.}
+		\only<3->{\alert<3>{Hierachie-Problem des Standardmodells ist nicht gelöst.}}
+		\end{block} 
+    \column{0.5\textwidth}
+		\begin{figure}[htp]
+    	\includegraphics[scale=0.25]{Standardmodell.pdf}
+    	\end{figure}
+ \end{columns}
+\only<4>{\textbf{Das Standardmodell reicht nicht zur Beschreibung des Universums!}}
+\end{frame}
+	
+
+%  \begin{frame}{Hierachie-Problem des Standartmodells}
+%		Hier noch das Hierarchie-Problem erläutern
+%  \end{frame}  
+	
+\begin{frame}{Was ist Supersymmetrie?}
+	\begin{columns}[c,onlytextwidth]
+    	\column{0.6\textwidth}
+    		\metroset{block=fill}
+    		\begin{block}{Prinzip}<1->
+    			SUSY ist ein Prinzip, aus dem Theorien abgeleitet werden können.
+    		\end{block}
+    		\begin{block}{Materie und Kraft}<2->
+    			\centering
+    			$\boxed{\begin{array}[c]{c} \text{GLEICHUNG} \\ \textcolor{magenta}{\only<3-7>{\text{MATERIE}}\only<2,8->{\text{FERMION}}} \end{array}} = \boxed{\begin{array}[c]{c} \text{GLEICHUNG} \\ \textcolor{red}{\only<3-7>{\text{KRAFT}}\only<2,8->{\text{BOSON}}} \end{array}}$ \\
+    		\end{block}
+    		
+    		\only<4-7>{
+    			${\mathcal{L}}= \textcolor{magenta}{\text{MATERIE}} + \textcolor{red}{\text{KRAFT}}$
+    		}
+    		\only<5-7>{
+    			$\mathbb{SUSY}({\mathcal{L}})= \textcolor{magenta}{\text{KRAFT}} + \textcolor{red}{\text{MATERIE}}$
+    		}
+    		\only<6-7>{
+    			$\mathcal{L}= \textcolor{magenta}{\text{KRAFT}} + \textcolor{red}{\text{MATERIE}} + \textcolor{magenta}{\text{MATERIE}} + \textcolor{red}{\text{KRAFT}}$
+    		}
+    		\only<7>{
+    			$\mathbb{SUSY}(\mathcal{L})= \textcolor{magenta}{\text{MATERIE}} + \textcolor{red}{\text{KRAFT}} + \textcolor{magenta}{\text{KRAFT}} + \textcolor{red}{\text{MATERIE}}$
+    		}
+    		\begin{block}{SUSY Algebra}<8->
+    			$Q_a \ket{F} = \ket{B} \ , \quad Q_a \ket{B}=\ket{F} $
+    		\end{block}
+    		\begin{block}{Partnerteilchen}<9->
+    			Zu jedem Teilchen des Standardmodells, gibt es supersymmetrische Partnerteilchen.
+    		\end{block}
+    	\column{0.4\textwidth}
+    		\only<1-8>{\begin{figure}[htp]
+    	\includegraphics[scale=0.5]{susyparticles2.pdf}
+    	\end{figure}}
+    		\only<9->{\begin{figure}[htp]
+    	\includegraphics[scale=0.5]{susyparticles1.pdf}
+    	\end{figure}}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Wo zu Supersymmetrie?}
+	\metroset{block=fill}
+	\begin{block}{Vereinigung der Kräfte}<1->
+	In der Supersymmetrie vereinigen sich die elektromagnetische,\\ schwache und starke Wechselwirkung bei hohen Energien.
+	\end{block}
+	\begin{block}{Existenz des Higgs-Boson}<2->
+	Das Hierachie-Problem wird gelöst.
+	\end{block} 
+	\begin{block}{Dunkle Materie}<3->
+	Das leichteste (stabile) supersymmetrische Teilchen (LSP) ist ein guter Kanidat für dunkle Materie.
+	\end{block}
+\end{frame}
+
+\begin{frame}{MSSM - Minimal Supersymmetric Standard Model}
+Das Minimal Supersymmetric Standard Model ist die supersymmetrische Variante des Standardmodells, also besitzt es auch dieselbe Eichwechselwirkung.
+\begin{equation*}
+G = \mathrm{SU}(3)_C\otimes \mathrm{SU}(2)_L \otimes \mathrm{U}(1)_Y
+\end{equation*}
+Der Feldinhalt wird um ein weiteres Higgs-Dublett erweitert und anschließend jedem Feld/Teilchen genau ein Superpartner zugeordnet.
+
+Im MSSM ist das LSP (leichteste supersymmetrisches Teilchen) das Neutralino $\PSneutralinoOne$, welches deshalb der dunkle Materie Kanidat ist.
+
+\end{frame}
+
+\begin{frame}{GUT - grand unified theory}
+%\footnotesize{W. de Boer - Grand Unified Theories and Supersymmetry in -  Particle Physics and Cosmology hep-ph/9402266 March, 1994}
+ \begin{figure}[htp]
+    	\includegraphics[scale=0.4]{GUT.pdf}
+ \end{figure}
+\end{frame}
+
+\begin{frame}{SUSY Suche am LHC}
+
+\begin{figure}[htp]
+	\includegraphics[width=0.75\textwidth]{decay.pdf}
+\end{figure}
+
+\metroset{block=fill}
+\begin{block}{Experimentelle Signatur}
+\begin{itemize}[<+- | alert@+>]
+	\item Mehrere Jets
+	\item Fehlender transversaler Impuls
+	\item Keine isolierten Leptonen
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{SUSY Suche am LHC}
+
+\begin{columns}[c,onlytextwidth]
+    \column{0.5\textwidth}
+    \begin{figure}[htp]
+		\includegraphics[width=\textwidth]{barrel1.pdf}
+	\end{figure}
+	\column{0.5\textwidth}
+    \begin{figure}[htp]
+		\includegraphics[width=\textwidth]{barrel2.pdf}
+	\end{figure}
+\end{columns}
+\end{frame}
+
+\begin{frame}{SUSY Suche am LHC}
+
+\begin{figure}[htp]
+	\includegraphics[width=0.6\textwidth]{plot.pdf}
+\end{figure}
+\end{frame}
+
+\begin{frame}{SUSY Suche am LHC}
+
+\begin{figure}[htp]
+	\includegraphics[angle=-90,width=0.7\textwidth]{results.pdf}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Zusammenfassung}
+\begin{itemize}[<+- | alert@+>]
+	\item Das Standardmodell ist unvollständig
+	\item Supersymmetrie ist eine Theorie die jedem Teilchen ein Partnerteilchen mit unterschiedlichem Spin gibt
+	\item Supersymmetrische Theorien können das Standardmodell erweitern
+	\item Supersymmetrie ist schwer zu messen
+	\item Bis jetzt wurden Bereiche für Supersymmetrie ausgeschlossen, aber keine Supersymmetrie gemessen
+\end{itemize}
+\end{frame}
+
+\end{document}

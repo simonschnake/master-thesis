@@ -1,5 +1,6 @@
 /ltximg/
 *.aux
+*.pdf
 *.log
 *.nav
 *.snm
