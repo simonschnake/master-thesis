@@ -140,10 +140,10 @@ Comparing different models
 
 
 * Linear Fit
-A traditional way of calibrating the neural net would be to sum over all scintillator cells as shown in [cite:figure1]
-a linear fit to the energy
-\[E = c_0\sum_i n_i + c_1\]
-This is done with the method of least squares.
+A traditional way  of calibrating the neural net would  be to sum over
+all scintillator cells as shown in  [cite:figure1] a linear fit to the
+energy \[E  = c_0\sum_i n_i  + c_1\] This is  done with the  method of
+least squares.
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   from scipy.optimize import leastsq
@@ -174,13 +174,13 @@ This is done with the method of least squares.
 # Out[5]:
 [[file:./obipy-resources/CTQhJr.png]]
 :END:
-
-#+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
+#+
+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
 #+NAME: e-vs-sum_n_fit
 [[./e-vs-sum_n_fit.pdf]]
 
 
-The relation is bijectiv so the solution can be found by swapping the axixes.
+The relation is bijectiv so the solution can be found by swapping the axes.
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   from scipy.optimize import leastsq
