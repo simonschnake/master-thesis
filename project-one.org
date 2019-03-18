@@ -77,7 +77,7 @@ Comparing different models
 #+RESULTS:
 :RESULTS:
 # Out[3]:
-[[file:./obipy-resources/h3xlUT.png]]
+[[file:./obipy-resources/u0o1DF.png]]
 :END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
@@ -123,14 +123,14 @@ Comparing different models
   ax.set_xlabel('Y')
   ax.set_ylabel('X')
   ax.set_zlabel('Z')
-  ax.text(5, 0, -4, str(Y_test[id][0])+' GeV')
+  # ax.text(5, 0, -4, str(Y_test[id][0])+' GeV')
   plt.savefig('data_display.pdf')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[4]:
-[[file:./obipy-resources/SW1M4t.png]]
+# Out[6]:
+[[file:./obipy-resources/wQqKa1.png]]
 :END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
@@ -172,7 +172,7 @@ least squares.
 #+RESULTS:
 :RESULTS:
 # Out[5]:
-[[file:./obipy-resources/CTQhJr.png]]
+[[file:./obipy-resources/9F9A3Q.png]]
 :END:
 #+
 CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
