@@ -1,0 +1,1299 @@
+# -*- fill-column: 80; -*-
+
+#+TITLE: Energy Regression with Deep Learning in Particle Collider Physics
+
+#+OPTIONS: toc:nil creator:nil H:4 num:4 ':t ^:{} title:nil
+
+#+LaTeX_CLASS: thesis
+#+LaTeX_HEADER: \usepackage{latex_config}
+#+LATEX_HEADER: \usepackage{makeidx}
+#+LATEX_HEADER: \makeindex
+
+\include{_titlepage}
+\include{_abstract}
+\tableofcontents
+\cleardoublepage
+
+* Introduction
+* Particle Physics
+This chapter briefly outlines the core areas of particle physics that are
+relevant for this work. The standard model of particle physics and further
+topics are considered.
+
+** The Standard Model Of Particle Physics
+The Standard Model of Elementary Particle Physics summarizes the theoretical
+foundations of modern particle physics and describes the elementary particles
+and the fundamental interactions of physics. It contains a quantum field
+theoretical formulation of the electromagnetic, weak, strong interaction and the
+Higgs mechanism. The comparatively weak gravitation on the subatomic level is
+not included.
+
+** Fundamental Building Blocks
+The fundamental building blocks of matter are the elementary particles assumed
+to be point-like. Elementary particles can be divided into bosons and fermions
+according to their intrinsic angular momentum, the so-called spin. Bosons have
+an integer positive spin and fermions a positive half spin.
+
+
+\begin{figure}[h]
+
+\begin{tikzpicture}[x=1.2cm, y=1.2cm]
+  \draw[round] (-0.5,0.5) rectangle (4.4,-1.5);
+  \draw[round] (-0.6,0.6) rectangle (5.0,-2.5);
+  \draw[round] (-0.7,0.7) rectangle (5.6,-3.5);
+
+  \node at(0, 0)   {\particle[gray!20!white]
+                   {$u$}        {up}       {$2.3$ MeV}{1/2}{$2/3$}{R/G/B}};
+  \node at(0,-1)   {\particle[gray!20!white]
+                   {$d$}        {down}    {$4.8$ MeV}{1/2}{$-1/3$}{R/G/B}};
+  \node at(0,-2)   {\particle[gray!20!white]
+                   {$e$}        {electron}       {$511$ keV}{1/2}{$-1$}{}};
+  \node at(0,-3)   {\particle[gray!20!white]
+                   {$\nu_e$}    {$e$ neutrino}         {$<2$ eV}{1/2}{}{}};
+  \node at(1, 0)   {\particle
+                   {$c$}        {charm}   {$1.28$ GeV}{1/2}{$2/3$}{R/G/B}};
+  \node at(1,-1)   {\particle 
+                   {$s$}        {strange}  {$95$ MeV}{1/2}{$-1/3$}{R/G/B}};
+  \node at(1,-2)   {\particle
+                   {$\mu$}      {muon}         {$105.7$ MeV}{1/2}{$-1$}{}};
+  \node at(1,-3)   {\particle
+                   {$\nu_\mu$}  {$\mu$ neutrino}    {$<190$ keV}{1/2}{}{}};
+  \node at(2, 0)   {\particle
+                   {$t$}        {top}    {$173.2$ GeV}{1/2}{$2/3$}{R/G/B}};
+  \node at(2,-1)   {\particle
+                   {$b$}        {bottom}  {$4.7$ GeV}{1/2}{$-1/3$}{R/G/B}};
+  \node at(2,-2)   {\particle
+                   {$\tau$}     {tau}          {$1.777$ GeV}{1/2}{$-1$}{}};
+  \node at(2,-3)   {\particle
+                   {$\nu_\tau$} {$\tau$ neutrino}  {$<18.2$ MeV}{1/2}{}{}};
+  \node at(3,-3)   {\particle[orange!20!white]
+                   {$W^{\hspace{-.3ex}\scalebox{.5}{$\pm$}}$}
+                                {}              {$80.4$ GeV}{1}{$\pm1$}{}};
+  \node at(4,-3)   {\particle[orange!20!white]
+                   {$Z$}        {}                    {$91.2$ GeV}{1}{}{}};
+  \node at(3.5,-2) {\particle[green!50!black!20]
+                   {$\gamma$}   {photon}                        {}{1}{}{}};
+  \node at(3.5,-1) {\particle[purple!20!white]
+                   {$g$}        {gluon}                    {}{1}{}{color}};
+  \node at(5,0)    {\particle[gray!50!white]
+                   {$H$}        {Higgs}              {$125.1$ GeV}{0}{}{}};
+  \node at(6.1,-3) {\particle
+                   {}           {graviton}                       {}{}{}{}};
+
+  \node at(4.25,-0.5) [force]      {strong nuclear force (color)};
+  \node at(4.85,-1.5) [force]    {electromagnetic force (charge)};
+  \node at(5.45,-2.4) [force] {weak nuclear force (weak isospin)};
+  \node at(6.75,-2.5) [force]        {gravitational force (mass)};
+
+  \draw [<-] (2.5,0.3)   -- (2.7,0.3)          node [legend] {charge};
+  \draw [<-] (2.5,0.15)  -- (2.7,0.15)         node [legend] {colors};
+  \draw [<-] (2.05,0.25) -- (2.3,0) -- (2.7,0) node [legend]   {mass};
+  \draw [<-] (2.5,-0.3)  -- (2.7,-0.3)         node [legend]   {spin};
+
+  \draw [mbrace] (-0.8,0.5)  -- (-0.8,-1.5)
+                 node[leftlabel] {6 quarks\\(+6 anti-quarks)};
+  \draw [mbrace] (-0.8,-1.5) -- (-0.8,-3.5)
+                 node[leftlabel] {6 leptons\\(+6 anti-leptons)};
+  \draw [mbrace] (-0.5,-3.6) -- (2.5,-3.6)
+                 node[bottomlabel]
+                 {12 fermions\\(+12 anti-fermions)\\increasing mass $\to$};
+  \draw [mbrace] (2.5,-3.6) -- (5.5,-3.6)
+                 node[bottomlabel] {5 bosons\\(+1 opposite charge $W$)};
+
+  \draw [brace] (-0.5,.8) -- (0.5,.8) node[toplabel]         {standard matter};
+  \draw [brace] (0.5,.8)  -- (2.5,.8) node[toplabel]         {unstable matter};
+  \draw [brace] (2.5,.8)  -- (4.5,.8) node[toplabel]          {force carriers};
+  \draw [brace] (4.5,.8)  -- (5.5,.8) node[toplabel]       {Goldstone\\bosons};
+  \draw [brace] (5.5,.8)  -- (7,.8)   node[toplabel] {outside\\standard model};
+
+  \node at (0,1.2)   [generation] {1\tiny st};
+  \node at (1,1.2)   [generation] {2\tiny nd};
+  \node at (2,1.2)   [generation] {3\tiny rd};
+  \node at (2.8,1.2) [generation] {\tiny generation};
+\end{tikzpicture}
+\caption{A diagram of the standard model of particle physics. A comprehensive overview of the current understanding of the universe \cite{davidG}}
+\end{figure}
+
+The twelve fermions with spin $s = 1/2$ that exist in the framework of the SM
+form the mentioned fundamental components of matter and are listed in
+xxx. According to xxx the twelve fermions are categorized into three different
+generations of fermions and quarks. A lepton generation consists of a particle
+with a charge of $q = -e$ and a corresponding neutralino. The quark generations
+each contain a positive quark with charge $q = 2/3 e$ and a negative quark with
+charge $q = - 1/3 e$. The individual generations are sorted according to their
+masses. Besides the charge and the spin, the fermions have other quantum
+numbers, like the weak isospin or the quarks have an additional color
+charge. The color charge is subdivided into red, green and blue, it expresses
+the coupling of the quarks to the strong interaction. Similarly, the coupling to
+the weak interaction is associated with the weak isospin. The weak isospin is
+correlated to the characteristic of chirality which characterizes the handiness
+of a fermion corresponding to a left-handed and right-handed
+projection. Corresponding to the introduced quantum numbers, each of the twelve
+fermions has a corresponding antiparticle, which results from the conjunction of
+charge and parity and time.
+
+** Fundamental Interactions
+
+The electromagnetic, weak and strong interactions described by the SM can be
+represented mathematically by an $U(1)_{Y}, SU(2)_{T}$ and $SU(3)_{C}$
+symmetry. These are called gauge groups or gauge symmetries. The gauge bosons
+resulting from the linear combination of the respective generators of the gauge
+groups are the photon, the W- and Z-boson and eight gluons. The photon
+represents the alternating particle of the electromagnetic interaction and
+couples to the electric charge q. Electromagnetism is described by quantum
+electrodynamics (QED).
+
+The W- and Z-boson are the interaction particles of the weak interaction and
+couple to the weak isospin T. Within the framework of the weak interaction,
+coupling to the W-boson allows a transition between quark generations and also
+lepton generations. The weak and electromagnetic interaction can be combined via
+$U(1)_{Y} \otimes SU(2)_{T}$ to the electroweak interaction. The gluons couple
+to the color charge C and represent the interaction particles of the strong
+interaction. The explicit couplings and processes are described in quantum
+chromodynamics (QCD).  It follows from the formulation of the interactions by
+gauge groups that gauge bosons must represent massless particles in order to
+guarantee the required local gauge invariance of the Lagrangian density of the
+SM. 
+
+** Beyond The Standard Model
+The standard model very successfully describes three of the four fundamental
+interactions and is very well confirmed by various precision measurements and
+finally by the experimental detection of the Higgs boson.  Despite these
+successes, it is not possible to combine the electromagnetic, weak and strong
+interaction within the SM. Furthermore, the SM does not postulate any suitable
+candidates for dark matter, so that a large part of the matter making up the
+universe cannot be explained. Also the mass of neurtrinos is not described by
+the Higgs mechanism. In addition, a measured mass of the Higgs boson of $m_{H} =
+125.7 \pm 0.4$ GeV in comparison to the Planck scale in the SM cannot be
+justified in the context of radiation and loop corrections without an unnatural
+fine-tuning, so that an extension of the SM is needed.
+
+** Jets
+
+The high-energy phenomena of quantum chromodynamics are described by the
+color-charged particles, the quarks and the gluons. These particles cannot be
+observed in isolation. Rather, the process of hadronization causes directional
+bundles of color-neutral hadrons, known as jets, to form. It is difficult to
+draw conclusions from jets about their parton sources, but it is possible.  In
+the case of the LHC, protons are brought into collision, but strictly speaking
+the individual partons from the protons collide with each other. Depending on
+the momentum of the protons, individual partons interact with different
+probabilities. To some extent, the effects involved can be described by the
+probability density of the partons shown in Figure xx. The parton distribution
+density indicates the probability of finding a parton of type i with a certain
+longitudinal distance x in a hadron. Often the distribution function is
+noted with the argument of the momentum transfer mutated as f. As a rule, PDFs
+are measured in high-energy experiments. Using the proton as an example, it
+becomes clear that it is more likely to find quarks for higher distances
+x. In contrast, the gluons predominate with small distance.
+
+#+CAPTION: Representation of the distribution of the momentum fraction x of a parton multiplied by its parton distribution function f(x). The two graphs show the distribution at different energy transfers \cite{PhysRevD.98.030001}.
+#+ATTR_LATEX: :width 0.8 \textwidth
+[[./images/partondensity.jpeg]]
+label:bremsstrahlung
+
+
+The new parton created during the collision will typically radiate further
+partons, resulting in a so-called parton shower. Partons bind together during
+the hadronization process to form hadrons which are observable. Many hadrons
+have a short lifetime and decay again. For this reason, a jet in the detector
+consists of relatively few particle types, which together allow conclusions to
+be drawn about the original parton.
+* Calorimetry
+  
+This chapter discusses the fundamental interactions between particles and
+matter.  Building on this, the principles of
+electromagnetic and hadronic calorimeters are explained.
+
+** Energy Loss Due To Ionisation
+
+Charged particles moving through a medium lose energy through
+individual, stochastically occurring collisions with the atoms of the
+material. The collisions cause ionization, excitation of the atom, or
+collective excitation of the medium.  The energy loss in a collision
+is usually low. In rare cases, a larger energy loss is part of the
+energy of the particle.
+
+The Bethe formula indicates the average energy loss of heavy charged particles
+
+\begin{align}
+-\expval{\dv{E}{x}} = K z^2 \frac{Z}{A} \frac{1}{\beta^{2}} \left[ \frac{1}{2} \ln{\frac{2 m_{e} c^{2} \beta^{2} \gamma^{2} T_{\text{max}}}{I^{2}}}-\beta^{2} - \frac{\delta(\beta\gamma)}{2}\right].
+\end{align}
+
+For small particle energies, the $1/\beta^2$ term in the Bethe formula
+dominates. As a result, particles that deposit their energy only
+through ionization processes in the material have a fixed range and
+their energy deposition is greatest when this range is reached. The
+characteristic peak in the energy deposition distribution is called
+the Bragg peak.
+
+** Interactions Of Electrons
+
+When passing through a material, electrons can deposit their energy in
+two different ways cite:kolanoski16. On the one hand electrons
+deposit their energy through the ionization of the medium, on the
+other hand electrons lose their energy through the generation of
+Bremsstrahlung.  The energy loss of electrons through ionization
+differs slightly from the ionization loss of heavy charged
+particles. The reason for this deviation is the kinematics, the spin,
+the charge and the fact that the scattering observed in ionization is
+the scattering of two identical particles cite:PhysRevD.98.030001.
+Bremsstrahlung is the loss of energy of charged particles in the
+Coulomb field of an atomic nucleus by the radiation of a photon. The
+bremsstrahlung thus runs analogously to a Rutherford scattering under
+radiation of a photon.  The mean energy loss due to bremsstrahlung can
+be approximately expressed by
+
+\begin{align}
+\left( \dv{E}{x} \right) \simeq - \frac{E}{X_0}
+\end{align}
+
+over the radiation length $X_0$ cite:wigman18. 
+
+Since the energy losses due to ionization grow logarithmically with
+the energy, while the Bremsstrahlung losses increase linearly with the
+energy cite:PhysRevD.98.030001, the dominant factor is bremsstrahlung
+for high energies. With decreasing electron energy, the losses due to
+ionization begin to dominate. This is shown in Figure
+ref:bremsstrahlung.
+
+#+CAPTION:  Illustration of the different fractions of energy loss of electrons and positrons when passing through lead \cite{PhysRevD.98.030001}.
+#+ATTR_LATEX: :width 0.8 \textwidth
+[[./images/bremsstrahlung.png]]
+label:bremsstrahlung
+
+** Hadronic Interactions With Matter
+
+The development of hadronic showers is much more complicated than
+electromagnetic showers cite:wigman18. This is because only a few processes play a role
+in electromagnetic showers.  Due to the more diverse strong interaction, more
+diverse processes occur in the development of hadronic showers. Another aspect
+that contributes to the complexity of hadronic showers is that a struck nucleus
+experiences nuclear interactions. In electromagnetic showers, on the other hand,
+the target only serves to scatter the particles involved in the shower cite:wigman18.
+
+Charged hadrons deposit part of their energy via the ionization of the
+medium. Until they produce high-energy secondary particles in an
+absorption process.  In contrast, neutral hadrons deposit their energy
+only by absorption cite:wigman18,fabjan03. The mean free path between
+two hadronic interactions is given by the hadronic absorption length
+$\lambda_{\text{had}} = 35 A 1/3 g cm^{-2}$ cite:fabjan03. A denotes
+the mass number of the material passed through. The hadrons produced
+in the absorption process propagate further through the detector until
+they are absorbed themselves.
+
+The production of secondary hadrons in the nucleus takes place via the
+process of Spallation. The Spallation is divided into two phases
+cite:wigman18, the intranuclear cascade and evaporation.  At the
+intranuclear cascade the incident hadron scatters on quasi-free
+nucleons in the nucleus. These nucleons propagate further through the
+nucleus and scatter to other nucleons. It forms a cascade of particles
+in the core. During the formation of the intranuclear cascade, pions
+and other unstable hadrons form. Some of the particles generated
+escape from the nucleus and propagate further through the medium. Thus
+contribute to the development of the hadronic shower. The energies of
+the particles, which propagate further through the medium are in the
+GeV range cite:fabjan03. Particles that do not escape from the nucleus
+lead to a stimulus of the core. By emitting free nucleons, α particles
+or heavier particles, the nucleus loses this excitation energy
+again. The energy left in the core is radiated via photons. The energy
+radiated from the nucleus in these two processes is in the order of
+magnitude of some MeV cite:fabjan03.
+
+The particles that lead to the development of the hadronic cascade are
+protons, neutrons, and charged and neutral mesons cite:fabjan03. Most
+of them are pions. One third of all pions produced are neutral pions
+that electromagnetically decay into two photons. This decay occurs
+before the neutral pions can interact hadronically and results in a
+fraction of the energy of the hadronic shower being converted into a
+electromagnetic sub-shower cite:fabjan03. Because the transmitted
+energy portion is no longer available for hadronic interactions, the
+proportion of the electromagnetic sub-shower increases with the energy
+of the of incoming hadrons.
+
+The electromagnetic part of a single shower fluctuates strongly, since
+the electromagnetic fraction depends on the processes that take place
+at the beginning of the shower cite:wigman18. In contrast to
+electromagnetic showers the energy of a hadronic showers is not
+completely detectable cite:wigman18. The reason is, that delayed
+photons, soft neutrons, and the binding energy of hadrons and nucleons
+are invisible for energy measurement cite:fabjan03. Due to differences
+in the cross sections of the electromagnetic and the strong
+interaction, hadronic showers have a significantly larger spatial
+expansion cite:wigman18.
+
+** Calorimeter
+
+Calorimeters are used for destructive energy measurement by showers of
+incident particles. Depending on the type of particle measured, they
+are subdivided into electromagnetic and hadronic
+calorimeters. Calorimeters are divided into homogeneous and sampling
+calorimeters. Homogeneous calorimeters consist of a material that both
+acts as an absorber for the particles and simultaneously generates the
+signal that can be measured. They consist of inorganic, heavy
+scintillation crystals or non-scintillating Cherenkov radiators
+cite:PhysRevD.98.030001. Sampling calorimeters consist of a sequence
+of active and passive layers. In the passive layers the particles are
+absorbed and in the active layers the signal is generated by
+ionization or scintillation. Materials used in passive layers are
+lead, iron, copper and uranium. Liquid noble gases, organic or
+inorganic scintillators are used in active layers
+cite:PhysRevD.98.030001. The following two subsections deal with the
+properties of electromagnetic and hadronic calorimeters.
+
+*** Electromagnetic Calorimeter
+
+The relative energy resolution of electromagnetic calorimeters is
+given by 
+
+\begin{align}
+\frac{\sigma}{E} = \frac{a}{\sqrt{E}} \otimes b \otimes \frac{c}{E}\ \cite{fabjan03,PhysRevD.98.030001}
+\end{align}
+
+The symbol $\otimes$ stands for the square sum of the individual
+terms. The first term is the stochastic term, the second the constant
+term and the third the noise term.  The stochastic term is caused by
+fluctuations of the number of charged tracks in the active
+medium. According to Amaldi cite:amaldi81 the stochastic term in
+sampling calorimeters is proportional to
+
+\begin{align}
+\frac{\sigma}{E}\propto \sqrt{\frac{t}{E}}.
+\end{align}
+
+Here $t$ describes the thickness of the absorber in units of the
+radiation length $X_0$ and $E$ is the energy of the incident
+particle. In order to obtain this proportionality, it is necessary to
+assume that the numbers of charged traces in the individual layers are
+independently distributed and shaped in Gaussian form cite:amaldi81. The
+noise term is caused by electrical noise in the signal processing and
+the selection of the detector cite:fabjan03. The constant term is due to
+energy-independent effects, such as inhomogeneities in the structure
+of the detector, inaccuracies in fabrication, temperature gradients or
+radiation damage cite:fabjan03.
+
+*** Hadronic Calorimeter
+
+Since part of the energy deposited in a hadronic shower is not
+detectable, a calorimeter generally provides a smaller signal for
+hadrons than for electrons cite:fabjan03. A quantitative description
+is given by the ratio e / h , which is therefore generally greater
+than one cite:wigman18.
+
+A calorimeter that delivers the same signals for a hadron and an
+electron and thus has a ratio of $e / h = 1$ is called a compensating
+calorimeter cite:wigman18. Compensation is an internal property of a
+calorimeter cite:kolanoski16. and cannot be measured directly
+cite:wigman18. The $e / h$ ratio is determined by measuring the $e /
+\pi$ ratio cite:wigman18. The $e / \pi$ ratio indicates the ratio of
+the signals of an electron and a pion and is defined by
+
+\begin{align}
+\frac{e}{\pi}=\frac{e/h}{1-f_{\text{em}} - e/h}. \cite{wigman18}
+\end{align}
+
+Therefore, the e / π ratio of the electromagnetic shower fraction
+$f_{\text{em}}$ depends on the energy of the incident pion. The $e /
+\pi$ ratio becomes independent for large energies from the
+compensation of the calorimeter and strives towards one.
+
+Compensation improves the linearity and resolution of a hadronic
+calorimeter cite:wigman18,kolanoski16,fabjan03, The response of
+non-compensating calorimeters is not linear, since the electromagnetic
+part of the shower increases with the increasing energy of the
+incident particle. Since the electromagnetic component is a stronger
+signal, the response of a non-compensating calorimeter to particles of
+higher energy is larger. The resolution of the calorimeter also
+improves if compensation is present. The proportion of the
+electromagnetic shower component fluctuates strongly. If a calorimeter
+is not compensating, signals of of different magnitudes are generated
+from event by the same energy and the resolution deteriorates.
+
+Compensation is therefore a design criterion for hadronic
+calorimeters. In general, $e / h > 1$ applies. Therefore, a reduction
+of the electromagnetic signal while simultaneously increasing the
+hadronic signal leads to compensation. The Reduction of the
+electromagnetic signal can be achieved by using absorber materials
+with high numbers of nuclear charges. A large part of the energy
+deposition of electromagnetic showers takes place by absorption of
+low-energy photons in the absorber. In these processes, electrons are
+released that cannot reach the active medium in absorbers with high
+nuclear masses and can therefore no longer contribute to the
+signal. The magnification of the hadronic fraction is achieved by the
+improved detection of cold evaporation neutrons. The energy transfer
+of neutrons is inverse proportional to the molar mass of the
+material. Therefore neutrons cross the passive medium without losing
+energy and transfer their energy in the active medium via elastic
+scattering to protons. These protons have a short range and therefore
+do not reach the passive medium. The increase of the signal emitted by
+the nuclear component of the shower can thus be achieved by variation
+of the layer thicknesses of active and passive medium against each
+other or by enrichment of the active medium with hydrogen.
+
+* Geant4
+
+The basics of simulating a detector with /Geant4/  cite:geant_simul_toolk are discussed in this
+chapter. The first section deals with the structure and sequence of a Geant4
+application. The following two sections deal with the operation of particle
+tracking by the detector and the simulation mechanisms. The last section of the
+chapter deals with the definition of a detector geometry.
+
+
+** The Structure Of A Simulation
+
+Each Geant4 application passes through different states during a
+simulation. These are the =preInit= state, a state during initialization, a
+state from which a run is started, in which the application is during the run,
+and a state that is passed through while leaving the application. The first step
+in the simulation process is to create an instance of the =RunManager= class
+that controls the entire process cite:geant4-doc . Creating the =RunManager=
+instance sets Geant4 to =preInit= state. The classes, which are used to describe
+the components, are transferred to the =RunManager= from this state
+cite:geant4-doc . There are three required and five optional classes. The
+required classes are the =G4VUserDetectorConstruction= class, a physics list,
+and a =G4PrimaryGeneratorAction= class, which is used to generate primary
+particles and vertices. The used detector geometry is defined by the
+=G4VUserDetectorConstruction= class. The =G4PrimaryGeneratorAction= class is
+used to generate the initial state of the simulation. The initial state can be
+made available by the interface to a framework cite:geant_simul_toolk . On the
+other hand, the =G4ParticleGun= class provides the possibility to generate
+primary particles and vertices. It allows the selection of a primary particle
+and the setting of dynamic properties such as momentum, kinetic energy, location
+and flight direction. Furthermore, there is the option to generate several
+particles at once or to assign a polarization direction to the particle
+cite:geant4-doc . After the submission of the classes to the =RunManager= the
+initialization of the kernel takes place. It starts with calling the
+=Initialize()= method of the =RunManager=. During the initialization the
+application is in the initialization state and changes to the standby state
+after successful execution cite:geant4-doc . From this state the start of a
+simulation run takes place by calling the =BeamOn= method of the =RunManager=
+class. As argument it expects the number of events to be simulated.  The
+simulation is divided into different simulation units, which are hierarchically
+structured. The individual units represent smaller and smaller building blocks
+of the simulation.  The largest simulation unit is a run. A run consists of
+several events and is started by calling the =BeamOn= method
+cite:geant4-doc,geant4-rec-dev . An event consists of the decay or interaction of
+the primary particle or particles cite:geant4-rec-dev . At the beginning of the
+simulation the event contains information about the primary particle and the
+primary vertex. These are converted during the simulation and after the
+simulation the event contains information about the trajectories of the
+particles by the detector as well as about hits registered in the detector
+cite:geant_simul_toolk . The next smaller simulation unit is a track. A track
+represents a particle moving through the detector cite:geant4-doc . It consists
+of several steps. A track contains static information about the transported
+particle, such as the charge or mass of the particle, as well as dynamic
+properties that change during simulation. Dynamic properties include momentum,
+kinetic energy, and the location of the particle. The trace of the particle
+exists until the particle comes to rest or decays cite:geant4-doc . A step
+contains information about the beginning and the end point cite:geant4-doc . The
+length of a step is limited by the distance to the next volume, the energy loss
+by continuous processes or by its limitation in the =G4UserLimit= class
+cite:geant_simul_toolk . The five additional classes with which the kernel can be
+initialized allow to interfere with the tracking of the particle by the detector
+at the transition between the simulation units. There is a class for
+manipulating each simulation unit, as well as a class with which the priority of
+tracking a particular track by the detector can be changed. This is the
+=G4UserStackingAction= class. The two classes =G4UserRunAction= and
+=G4UserEventAction= can be used to intervene in the simulation at the beginning
+and end of a run or event. These classes are usually used for the analysis of a
+run or event cite:geant4-doc . The class =G4UserTrackingAction= is used to
+manipulate the tracking of the particle at the beginning and end of a track. The
+=G4UserSteppingAction= class handles the sequence of a step.
+
+** Integration Of Physical Interactions
+
+The integration of physical interactions into a simulation is done via the
+physics list. It determines the particles that occur in the simulation and which
+interactions they experience. It can be completely defined by the user. In
+addition, there is the possibility of using and extending a predefined reference
+physics list cite:geant4-rec-dev . The definition of the physics list corresponds
+to the assignment of all processes that a particle can experience
+cite:geant_simul_toolk . The representation of physical interactions is done by
+the Geant4 class =G4VProcess= cite:geant_simul_toolk . The term process stands
+for the physical interactions and is managed by the class =G4VProcess=. The
+interfaces of all processes are identical.  This enables a general handling of
+all processes by tracking. The abstraction of the processes leads to a simple
+possibility to add new processes to a simulation or to extend existing processes
+in order to improve the accuracy of the simulation cite:geant4-doc . Processes
+are divided into seven different categories. These are electromagnetic,
+hadronic, optical, decay and photoleptonic hadron processes. In addition, the
+two categories of transport processes and parameterization exist. A further
+subdivision of the processes takes place according to the type of interaction. A
+distinction is made between processes for particles at rest that take place
+along the entire step and processes that occur locally at the end of the step
+cite:geant_simul_toolk .
+
+** Tracking
+
+The abstraction of physical interactions in processes with identical interfaces
+makes it possible to describe the transport of any particle through the detector
+with an algorithm. The tracking of a particle by the detector is thus
+independent of the observed particles and physical interactions.  In Geant4, the
+transport of the particles through the detector takes place step by step
+cite:geant_simul_toolk .  At the beginning of the step, each process from the
+list of the observed particle suggests a step length via its
+=GetPhysicalInteractionLength= method cite:geant_simul_toolk . If the particle
+is at rest, only decay processes are considered. All process types compete for
+particles in flight. In order to improve the accuracy of the simulation, there
+are several mechanisms that additionally limit the step length of a particle. On
+the one hand, processes that describe a continuous energy loss also suggest a
+step length. This is necessary in order to keep the change of the cross section
+due to energy loss during one step to a minimum cite:geant4-phys-ref
+. Furthermore, the shortest distance of the present location to the next volume
+boundary limits the step length.  This ensures that the particle does not pass
+into any different volume during the step cite:geant4-rec-dev . The smallest
+proposed step length determines the process being performed. Processes
+associated with a loss of energy or a change of direction of the particle can
+force their execution and take place even if their proposed step length is not
+the shortest cite:geant_simul_toolk .
+
+** Geometry
+
+The requirements for the definition of geometry are manifold. They range from
+basic analyses of calorimeters up to complex detector assemblies at large-scale
+experiments such as the Large Hadron Collider cite:geant4_geom . The definition
+of the geometric objects that a detector contains is done in Geant4 in three
+stages.  The first stage is the definition of a body. A Body is defined by its
+shape and dimensions. The construction of the body is done by selecting the
+appropriate shape from the available =Constructed Solid Geometries (CSG)=
+cite:geant4_geom . The second level of the geometry definition is done by adding
+physical properties to already defined volumes. The resulting object is called
+logical volume and is represented by the class =G4LogicalVolume=. The logical
+volume contains its physical properties by the material it is made of. Also the
+definition of the electromagnetic fields and the user-defined limitations belong
+to a logical volume cite:geant4-doc . The third and last stage of the definition
+of a detector is the positioning of the logical volumes in the room. A placed
+volume is called physical volume. In order to to describe the detector
+completely, it is necessary for volumes to be inserted into each other.  The
+world volume represents the largest volume in the definition of a detector. It
+contains all other volumes, which describe the detector. The placed volumes are
+called daughter volume and are surrounded by the mother volume.  The position of
+the subsidiary volume is relatively to the center of the mother volume
+cite:geant4-doc .
+
+** Materials 
+
+The structure of the materials in Geant4 replicates the structure of materials
+in nature. Materials are composed of molecules or elements, which in turn are
+composed of isotopes cite:geant_simul_toolk . The defining properties of an isotope are the name
+of the isotope, the nuclear charge number, the nucleon number and the molar
+mass. An element has the properties of name, nuclear charge, effective nucleon
+number, effective molar mass and cross section per atom cite:geant4-doc . An element is
+accessed via its symbol in the periodic table of the elements.  An element is
+defined either by the composition of the isotopes or directly by defining the
+effective quantities. The effective cross section per atom is calculated from
+the nuclear charge, the nucleon number and the molar mass cite:geant4-doc . Analogous to
+the definition of an element from isotopes, the definition of a material takes
+place.  Either a new element with the effective values is generated or different
+elements are combined to a material. A material is defined by its properties
+such as density, state of aggregation, temperature and pressure. Geant4
+calculates the mean free path length, radiation length, hadronic interaction
+length and the mean energy loss per radiation length, which is given by the
+Bethe equation cite:geant4-doc . The values of the physical quantities must be defined in
+the program code. Furthermore, there is the ability to define materials from the
+internal database. This simplifies the definition of materials, since all
+physical quantities of a material can be isotops, elements or materials are
+provided.
+
+* Experimental Setup
+** The Large Hadron Collider
+The /Large Hadron Collider/ (LHC) cite:lhc_machine is the most powerful particle
+accelerator in the world in terms of centre-of-mass energy and the frequency of
+particle collisions. It is located at the European Organization for Nuclear
+Research (Conseil européen pour la recherche nucléaire, CERN) near Geneva in
+Switzerland. The storage ring itself was built in the tunnel of the former Large
+Electron Positron Collider (LEP). The tunnel tube has a circumference of 26.7 km
+and is located between 45m and 175m underground. The objectives of the LHC are
+the investigation of physics beyond the standard model as well as precision
+measurements. One of the greatest tasks and achievements of the LHC was the
+discovery of the Higgs Boson in 2012 cite:higgs_cms,higgs_atlas. For this
+purpose it was designed with a centre-of-mass energy of $\sqrt{s} = 14$ TeV and
+the associated luminosity of $L = 10^{34} cm^{-2}s^{-1}$. 
+
+
+#+CAPTION: The graph shows the four main experiments (ALICE, ATLAS, CMS and LHCb) at the LHC \cite{lhcmap}
+#+ATTR_LATEX: :width \textwidth
+label:4experiments
+[[./images/lhc.jpeg]]
+
+
+
+Luminosity describes the particle reactions per time and per area and is defined
+as
+
+\begin{align}
+\dv{N}{t} = L \sigma.
+\end{align}
+
+Here $\dv{N}{t}$ is the number of reactions per time unit and sigma is the cross
+section.  The luminosity is used especially for the characterization of
+accelerators and gives information about the expected particle rate. It can be
+calculated for a collision experiment as
+
+\begin{align}
+L = f \frac{N_{a}N_{b}}{4 \pi \sigma_{x} \sigma_{y}}
+\end{align}
+
+Here it is assumed that the radiation packets have a Gaussian density profile
+with widths $\sigma_{x,y}$ perpendicular to their flight directions.  $N_{a}$
+and $N_{b}$ represent the number of particles in the two colliding particle
+bunches which repeatedly collide at the frequency $f$ in the experiment.  In the
+storage ring, protons are accelerated in two adjacent vacuum tubes and collided
+in the centres of four experiments. Figure ref:4experiments shows the LHC with its four
+experiments: ALICE(A large Ion Collider Experiment) cite:alice, ATLAS(A Toroidal LHC
+ApparatuS) cite:atlas, CMS(Compact Muon Solenoid) cite:cms and LHCb(LHC beauty) cite:lhcb.
+
+** The CMS Experiment
+   :PROPERTIES:
+   :ORDERED:  t
+   :END:
+
+The Compact Muon Solenoid Detector was specially developed to characterize the
+proton-proton collisions at a center-of-mass energy of 14 TeV. The CMS detector
+is cylindrical around the beam axis with a radius of 15m and a length of
+21.6m. The basic setup with the subcomponents of the CMS detector is shown in
+Figure 4 in the transverse plane.  From the inside out, the detector consists of
+a track detector, an electromagnetic calorimeter (ECAL), a hadronic calorimeter
+(HCAL) and a muon system.  
+Inside the muon system there is a superconducting
+solenoid magnet with a diameter of about 6 m and a field strength of up to 4 T,
+which includes the calorimeters and trace detectors.
+#+CAPTION:  Illustration of a tranverse slice of the CMS detector. Also specific particle interactions are shown cite:sirunyan17
+#+ATTR_LATEX: :width 0.8 \textwidth 
+[[./images/cms_detector.png]]
+
+*** Coordinate System And Conventions
+
+For a precise description of the functionality and the construction of the
+subcomponents, the coordinate system used in the CMS experiment is introduced in
+advance. In addition, further physical conventions are introduced.
+
+The CMS experiment uses a right-handed Cartesian coordinate system which
+originates at the collision point of both proton beams. Accordingly, the z-axis
+points in the beam direction, the y-axis points upwards and the x-axis points in
+the direction of the accelerator center. In addition to a Cartesian coordinate
+system, polar coordinates are used for a simpler representation. Here the
+azimuth half-angle $\phi$ denotes the spanned angle in the x-y-plane and the polar
+angle $\theta$, starting from the z-axis, denotes the spanned angle in the
+z-y-plane.
+According to the use of both coordinate systems, the momentum in the transversal
+plane of the detector, $p_T$, is defined as
+
+\begin{align}
+p_T = \sqrt{p_x^2 + p_y^2} = p \cdot \sin(\theta)
+\end{align}
+
+The invariance of the transverse pulse with respect to the Lorentz
+transformation along the z-axis results in the angle size of the pseudorapidity
+$\eta$, which is also invariant under such transformations
+
+\begin{align}
+\eta = - \ln(\tan(\theta/2))
+\end{align}
+
+Assuming a negligible mass compared to the energy of the physical objects under
+consideration, an identity to rapidity is obtained 
+
+\begin{align}
+ y = \frac{1}{2} \ln(\frac{E+p_z}{E-p_z}).
+\end{align}
+
+On the basis of the pseudorapidity $\eta$ and the azumuthal angle $\phi$, a
+formulation of the spatial angle distance $\Delta R$, which is invariant with
+respect to the Lorentz transformation along the z-axis, follows
+
+\begin{align}
+\Delta R = \sqrt{(\Delta \eta)^{2} + (\Delta \phi)^{2}}.
+\end{align}
+
+In combination with the energy $E$, $\phi$, $\eta$ and $p_{T}$ describe all components of
+the four-vector $p_{\mu}$ of a particle. The invariant mass of the corresponding
+particle is calculated from the four-vector
+
+\begin{align}
+m^{2} = p^{\mu}p_{\mu}.
+\end{align}
+
+*** Tracking Systems
+The inner trace detector is dedicated to the identification of charged particles
+and the reconstruction of associated trajectories. 
+
+It consists of 1440 pixel and 15148 silicon strip detectors and covers a solid
+angle range of up to $\abs{\eta} = 2.5$. The individual pixel and strip
+detectors each have an extension of $150\mu \text{m} \times 100 \mu \text{m}$ or
+$80\mu \text{m} \times 10 \text{cm}$ and $180\mu \text{m} \times 25 \text{cm}$.
+This enables a spatial resolution of $10\mu \text{m}$ for the pixel detectors
+and $23\mu \text{m}$ for the stripe detectors in the x-y plane and $20\mu
+\text{m}$ and $230\mu \text{m}$ respectively along the beam axis.
+
+*** Electromagnetic Calorimeter
+
+The electromagnetic calorimeter (ECAL) consists of 75848 homogeneous PbWO4
+crystals and has a solid angle granularity of $0.0174 \abs{\eta} \times 0.0174
+\abs{\phi}$, providing a very good, homogeneous resolution. Furthermore, the
+ECAL covers a solid angle range of up to $\abs{\eta} = 3$. The lack of
+instrumentation from $1.479 < \abs{\eta} < 1.653$ is pointed out, so that this
+region is unsuitable for the reconstruction of electrons and photons.  If the
+trajectory of an electron or photon is directed through ECAL, such a particle
+emits energy in the form of emitted photons and electrons from bremsstrahlung
+and pair production. The emitted photons are measured by photodiodes with a
+relative energy resolution $\left( \frac{\sigma}{E} \right)^{2}$, where sigma is
+the resolution of the measured energy
+
+\begin{align}
+\left( \frac{\sigma}{E} \right)^{2} = \left( \frac{2.8}{\sqrt{E}} \right)^{2} + \left( \frac{0.12}{E} \right)^{2}+(0.3)^{2}.
+\end{align}
+
+
+*** Hadron Calorimeter
+In contrast to ECAL, the hadronic calorimeter (HCAL) primarily detects hadrons
+due to its higher material density. These interact via the strong interaction
+with the detector material resulting in inelastic reactions.  The energy
+deposited here is absorbed by scintillators. Due to the high interaction length,
+the HCAL is more extensive than the ECAL and therefore further away from the
+beam axis. It is divided into a central region (HB), an outer central region
+(HF), an end cap region (HE) and a forward region (HF) as shown in Figure X. The
+HCAL is also divided into a central region (HB), an outer central region (HF),
+an end cap region (HE) and a forward region (HF). HB, HO and HE have a spatial
+angle granularity of $0.087[\eta] \times 0.087 [\phi]$, whereas the HF with
+$0.0175 [\eta] \times 0.0175 [\phi]$ has a much better angular resolution.
+
+Compared to the ECAL, the HCAL has a significantly inferior energy resolution
+
+\begin{align}
+\left( \frac{\sigma}{E} \right) = \left( \frac{115.3}{\sqrt{E}} \right) + (5.5).
+\end{align}
+
+*** Solenoid
+The CMS detector has a superconducting solenoid magnet, which consists of a
+cylindrical magnet coil with a diameter of 6 m and a length of 12.5 m.  The
+magnet is designed to generate a magnetic field of up to 4T inside the coil. The
+traces of charged particles are strongly curved in the transversal plane,
+enabling the detector to measure their momenta. 
+
+*** The Muon System
+
+Most of the observed muons originate from the decay of heavier particles and
+therefore indicate interesting physical processes. At 150.7 MeV they have a
+comparably low mass and hardly interact with the calorimeters. Therefore, the
+muons pass almost undisturbed through the inner detector components into the
+muon spectrometer, which is the outermost detector layer. Most other particles
+decay or are absorbed beforehand, so that almost every particle observed in this
+detector system is a muon. The muon system serves both the identification and
+the momentum measurement of muons and consists of several subsystems.
+
+The muon spectrometer functions in interaction with the magnet. The strong
+magnetic field it generates bends the particle path of the muons in the
+transverse plane. The momentum of the muons is one of the best measured
+quantities of the entire CMS detector, since the particle is measured once in
+the inner trace detector and once in the muon chamber. The blue curve in Figure
+xx shows a possible trajectory of a muon which is first bent in a 4 T magnetic
+field in the inner trace detector and then deflected in the opposite direction
+in a 2 T magnetic field. The muon spectrometer detects muons in the range of
+$\abs{\eta} < 2.4$. In addition, after all transverse pulses of the directly
+detectable particles have been determined in the last detector system, neutrinos
+can be indirectly detected via the missing transverse momentum due to the
+conservation of the entire transverse momentum. 
+
+*** The Trigger System
+The proton bunches collide at the LHC at a rate of about 40 MHz, with up to 100
+proton pairs interacting simultaneously. Since the amounts of data produced are
+too large to be stored unfiltered by current storage systems, a preselection is
+made. This process is performed by the trigger system. It should be noted that
+it is basically not necessary to evaluate all events because many of them are
+so-called soft events. These, for example, carry a small transverse impulse and
+have been investigated in other experiments in the past. Here it is sufficient
+if only every Nth event is recorded. Likewise a trigger system can select its
+events after the identification of particle signatures. Thus, the information
+that muons have been identified in the muon system can be used as a trigger
+criterion. CMS uses a two-stage trigger system. First the up to O(100 kHz) fast
+Level-1 trigger from programmable hardware processors and then the high-level
+trigger is used. The Level-1 trigger compares the recorded data with the desired
+detection characteristics and forwards the data to the high-level trigger if the
+characteristics are successfully recognized. This performs a complete
+reconstruction with the information from all detector components. The
+reconstruction algorithm is similar to the algorithm used for later data
+analysis. Only when events meet the requirements of this selection level are
+they written to storage media for later data analysis. Overall, the rate at
+which the CMS triggers is between 200 Hz and 1 kHz.
+
+** Particle Flow
+
+The particle flow reconstruction algorithm is used in the CMS experiment. The
+identification and reconstruction of individual particles from the proton-proton
+collisions at the LHC is achieved by combining the information from the
+different detector systems. By combining the energy deposition in the
+calorimeters with the data measured by the trace detector and the muon system,
+very small uncertainties on the measured particle four-vectors are achieved. The
+combination of the information is carried out with a view to an optimal
+determination of the direction and energy of the particles. Due to the different
+interactions in the detector, the observed particle type can be determined with
+high probability.  The CMS detector is ideally suited for the use of this
+algorithm as it has a precise tracker. As shown in Figure xx, the muons traverse
+all detector components and then leave signals in the inner source detector and
+in the muon chambers. Photons deposit most of their energy in the ECAL, whereas
+the charged leptons leave additional traces in the trace detector. The pulse of
+the charged hadrons is recorded in all positions up to HCAL. While neutral
+hadrons can only be measured in the HCAL.
+
+In the first step, the PF algorithm reconstructs the detected muons and elctrons
+and subtracts them from the measured signals for further processing in order to
+separate them from the possible candidates of the charged hadrons. The algorithm
+merges the remaining traces with the energy depositions from the calorimeter. If
+the measured energy in the calorimeter is compatible with the associated
+reconstructed pulse of the trace, the associated signals are used to determine
+the four-momentum of the hadron. However, if the energy deposited in ECAL or
+HCAL is significantly higher than the corresponding values of the track, an
+additional overlapping photon in ECAL or a neutral hadron in HCAL is
+reconstructed along the track.
+
+** Jet Clustering
+
+A jet algorithm defines the rule for clustering individual particles into
+jets. Jet algorithms normally have a resolution parameter that determines how
+close two particles may be without being part of the same jet.
+
+A large group of clustering algorithms can be defined by the general distance
+metrics
+
+\begin{align}
+d_{ij} = \min(p^{2k}_{T,i}, p^{2k}_{T,j}) \cdot \frac{\Delta^{2}_{ij}}{R^{2}}
+\end{align}
+label:jet_algo
+
+ Here pt is the transverse momentum of a part l. delta describes the
+distance between particles i and j in eta-phi space via
+
+ \begin{align}
+\Delta_{ij}^{2} = (\eta_{i} - \eta_{j})^{2} + (\phi_{i} - \phi_{j})^{2}
+\end{align}
+
+and R specifies the maximum radius if the shape of the jet is assumed to be a
+cone in r-eta-phi space. The factor k determines the behavior of the
+algorithm. For k=1 the equation eqref:jet_algo describes the
+so-called k_t algorithm, for k=-1 the anti k_t algorithm and for k=0 the
+Cambridge/Aachen algorithm. Figure \todo{bild einfügen} shows how the different
+algorithms differ from each other.
+
+These algorithms fulfill two essential properties. They provide collinear and
+infrared security. A jet algorithm is referred to as infrared safe if the
+algorithm is stable against additional energetically weak radiation in the
+jet. If the jet does not change its direction or its reconstructed energy when a
+particle is split up in the jet, it is a jet algorithm with collinear
+safety. CMS usually uses the anti-k_t algorithm.
+
+** Jet Energy Corrections
+
+Due to detector defects, the energy of the reconstructed jets does not
+match the true energy of the jets. The true energy is defined by the
+energy of the original parton. Therefore, it is necessary to align the
+energies of the jets with the true energies of the jets using jet
+energy corrections. To assign the corrected energies to the
+reconstructed jets, the differences between the reconstructed jets and
+true jet energies are determined. In this way, detector-specific
+effects, such as interactions in the material, are eliminated.  The
+jet corrections in CMS follow a fixed procedure.
+
+The Level 1 (L1) correction reduces the shift of energy by
+"pile-up". The term "pile-up" describes the effects of events of
+additional proton-proton interactions, whereby additional energy
+deposition in the detector reconstructs a different energy than just
+the energy of the jets from the interesting process. These corrections
+are determined by comparing identical events from Monte Carlo
+simulations with and without pile-up events. The resulting correction
+factor depends on the transverse momentum of the jet pT, the
+pseudorapidity of the jet eta, the jet area A and the mean density of
+the transverse momentum rho, which are calculated using the kT
+algorithm for R=0.6.
+
+The L2L3 correction improves the energy of the reconstructed jets so
+that it corresponds on average to the energy of the generated
+jets. This is achieved by forming the ratio of the reconstructed
+transverse momentum ptreco to the generated transverse momentum
+ptgen. The ratio is referred to as the detector response
+
+\begin{align}
+\mathcal{R} = \frac{p^{\text{reco}}_T}{p^{\text{gen}}_T}.
+\end{align}
+
+
+The moments $p^{\text{reco}}_T$ and $p^{\text{gen}}_T$ that belong
+together are combined as responses in narrow bins of the generated
+transversal moment $p^{\text{gen}}_T$ or the pseudorapidity of the
+generated jets $\eta^{text{gen}}$. In order to apply the correction
+factor to the data, the inverse of the mean response is expressed as a
+function of $p^{\text{reco}}_T$. The L1 and L2L3 corrections are both
+applied to the data and the simulated events.  The L2L3res corrections
+are subsequently applied to the data to handle residual differences
+between the data and the simulation. The correction factor is
+determined on the jet energy scale from events with a jet and a photon
+or a Z boson. The measurement of the transverse moments of the
+Z-bosons pTz and the photons $p_T^{\gamma}$ are performed in the well
+understood detector range $\eta < \abs{1.3}$ and have much lower
+uncertainties compared to the transverse moments of the jets
+$p_T^{\text{jet}}$. Thus the momentum of the jet can be balanced with
+the momentum of the photon or the Z-boson. In this case the response
+is according to
+
+\begin{align}
+\mathcal{R}_{\text{Balance}}=\frac{p_T^{\text{jet}}}{p_T^{\gamma,Z}}.
+\end{align}
+
+* Deep Learning
+
+In many areas of /machine learning/, the individual features had to be designed by
+hand. Therefore, expertise in the domain was necessary and the procedure was
+individual for each case of application.  /Deep learning/, on the other hand, is a
+type of representation learning where the raw data is presented to the machine
+and it automatically discovers the representation needed. In the case of deep
+learning this representation is obtained by composing non-linear layers which
+transform the representation in increasingly higher levels of abstraction.  With
+this composition, very manifold functions can be learned, which maps the
+raw input data into the desired solution. The core aspect of Deep Learning is
+that the features of the layers are not designed by humans but are learned from
+the machine. \todo{"in a universal learning procedure." ist das so?}
+
+\todo{bayesian perspective anwendungen hinzufügen}
+
+Deep learning made major breakthroughs in a wide variety of fields. The most
+prominent example would be the recognition of images
+cite:szegedy15,NIPS2014_5573,farabet13,krizhevsky17 or speech-to-text synthesis
+cite:mikolov11_strat,hinton-speech,sainath13_deep . However, impressive success
+has also been achieved in completely different areas such as generating faces
+cite:karras17_progr_growin_gans_improv_qualit_stabil_variat or predicting new
+drugs cite:ma15_deep_neural_nets_as_method.
+
+** Multilayer Perceptron
+
+In general machine learning constructs a predictor $F$ of an output $Y$ given an
+input $X$. This machine resembles an input-output mapping
+
+\begin{align}
+ F : X \mapsto Y.
+\end{align}
+
+There are lots of ways to construct such a predictor. In deep learning this
+multivariate function, here denoted as the /deep predictor/ $\hat{Y}(X)$, is
+constructed by blocks of hidden layers. Let $\sigma^{[1]},...,\sigma^{[L]}$ be vectors of
+univariate non-linear activation functions. A semi-affine activation rule for
+each layer is given by
+
+\begin{align}
+\sigma^{[l]}_{W,b}(z) \coloneqq \sigma^{[l]}\left(W^{[l]} z + b^{[l]} \right)
+\end{align}
+
+Here $W^{[l]}$ and $b^{[l]}$ are the weight matrix and the bias or threshold of
+the $l\text{th}$ layer.  This defines a deep predictor as a composite map
+
+\begin{align}
+\hat{Y}(X) \coloneqq \left( \sigma^{[L]}_{W,b} \circ ... \circ \sigma^{[1]}_{W,b}  \right) (X).
+\end{align}
+
+It can be synthesized that with a deep predictor a high dimensional mapping, $F$, is
+modeled via the composition of non-linear univariate semi-affine functions. This
+is analog to a classical basis decomposition.
+
+The deep predictor can also be defined as a computation graph, where the
+$i\text{th}$ node in the $l\text{th}$ layer is given by
+
+\begin{align}
+&a^{[0]} \coloneqq X, \\
+&z^{[l]}_{i} \coloneqq \sum_{j=1}^{N^{[l]}} W^{[l]}_{ij} a^{[l-1]}_{j} + b^{[l]}_{i}, \label{z-def}\\
+&a^{[l]}_{i} \coloneqq \left(\sigma^{[l]}_{W,b}(a^{[l-1]})\right)_{i} = \sigma^{[l]}_{i}(z^{[l]}_{i}), \label{forward}\\
+&\hat{Y}(X) \coloneqq a^{[L]}.
+\end{align}
+
+\todo{Visualisierung des Computation-Graphs plus Satz der auf die Grafik hinweist}
+
+
+This method to make machine learns was first developed by /Frank Rosenblatt/
+cite:rosenblatt58_percep. He build his work on the model for neuron proposed by
+/Warren McCulloch/ and /Walter Pitts/ cite:mcculloch43, who showed that a neuron
+can be modeled as the summation of binary inputs and outputs a one or zero in
+dependence of an internal threshold. /Rosenblatt's/ /Perceptron/ contained one
+/input layer/, one /hidden layer/ and one /output layer/. He contributed to the
+idea of /McCulloch/ and /Pitts/ by describing a learning mechanics for the
+computational neuron. This algorithm starts with random inialized weighs and a
+training set. The output of the perceptron for the training set is computed. If
+the output is below the label the weights are increased. If the output is above
+the label the weights are decreased. This is iterated until outputs an labels
+are equal. The abstraction from the model of /McCulloch/ and /Pitts/ gives the
+predictor the name neural net.
+
+The limitation of this approach was shown by /Marvin Minsky/ and /Seymour
+Papert/ cite:newell69_percep. They discussed that it is impossible for the
+perceptron to learn the /XOR/ function, since it is not linearly separable. The
+learning algorithm proposed by /Rosenblatt/ was not extendable to multiple
+hidden layers, a /multilayer perceptron/, which are necessary for learning
+non-linearly separable functions. It was eaven proven that a multilayer
+perceptron is an universal approximator, which means that it is able to
+approximate any borel measurable function from one to finite dimensional space
+cite:hornik89. To compensate for this learning inability the /backpropagation/
+algorithm was developed.
+
+** Backpropagation
+
+Let the function $\mathcal{L}$ be a metric
+
+\begin{align}
+\mathcal{L}: \left(\hat{Y}(X), Y\right) \mapsto [0, \infty),
+\end{align}
+
+which returns the distance between the output of the predictor and the
+labels. This objective function is refered to as the /loss function/ in
+optimization theory, because a loss is associated with the event $X$, which
+should be minimized.  The loss function can be seen as a landscape in a
+hyperdimensional space spanned by the parameters of the predictor. To optimize
+the neural net, the minimum of the loss function has to be found.
+
+
+If $p$ is the set of parameters of the neural net, than the Taylor series
+expansion in first order of the Loss function is given by
+
+\begin{align}
+\mathcal{L}(p + \Delta p) \approx \mathcal{L}(p) + \pdv{\mathcal{L}(p)}{p} \Delta p.
+\end{align}
+
+To minimize $\mathcal{L}$ the first order term has to be as negative as possible. 
+
+\begin{align}
+\abs{\pdv{\mathcal{L}(p)}{p} \Delta p} \leq \abs{\pdv{\mathcal{L}(p)}{p}} \abs{\Delta p} \quad &(\text{Cauchy-Schwarz}) \\
+\Rightarrow \Delta p = \eta \pdv{\mathcal{L}(p)}{p} \quad &(\text{maximum})\\
+\Leftrightarrow p \rightarrow p - \eta \pdv{\mathcal{L}(p)}{p}.
+\end{align}
+
+Here $\eta$ is known as the learning rate, which is a hyperparameter, which
+value is not apriory distiguishable. The parameters $p$ are updated until a
+minimization criterium is reached. The presented minimization technique is known
+as the /steepest descent/ or /gradient descent/ method cite:cauchy.
+
+For computing this gradient  the /error/ in the $j\text{th}$ neuron at layer $l$ is introduced,
+
+\begin{align}
+\delta^{[l]}_{j}  &\coloneqq \pdv{\mathcal{L}}{z^{[l]}_{j}}.
+\end{align}
+
+It is than straighforward to compute the derivation between the loss function and the parameters,
+
+\begin{align}
+ \pdv{\mathcal{L}}{W^{[l]}_{jk}} &= \delta^{[l]}_{j} a_{k}^{[l-1]}, \\
+ \pdv{\mathcal{L}}{b^{[l]}_{j}} &= \delta^{[l]}_{j}.
+\end{align}
+
+\begin{align}  \label{error-prop}
+\delta^{[l]}_{j}  = \pdv{\mathcal{L}}{z^{l}_{j}} = \sum^{N^{[l+1]}}_{k=1} \pdv{\mathcal{L}}{z_{k}^{[l+1]}}\pdv{{z_{k}^{[l+1]}}}{z_{j}^{[l]}} = \sum^{N^{[l+1]}}_{k=1} \delta^{[l+1]}_{k} \pdv{{z_{k}^{[l+1]}}}{z_{j}^{[l]}}.
+\end{align}
+
+With eqref:z-def the connection between $z_{k}^{[l+1]}$ and $z_{j}^{[l]}$,
+
+\begin{align}
+z^{[l+1]}_{k} &= \sum_{s=1}^{N^{[l]}} W^{[l+1]}_{ks} \sigma(z^{[l]}_{s}) + b^{[l+1]}_{k}, \\
+\Rightarrow \quad \pdv{{z_{k}^{[l+1]}}}{z_{j}^{[l]}} &= W^{[l+1]}_{kj} \sigma^{[l]}_{i}'(z^{[l]}_{j}).
+\end{align}
+
+In eqref:error-prop this gives
+
+\begin{align}
+\delta^{[l]}_{j} = \sum^{N^{[l+1]}}_{k=1} \delta^{[l+1]}_{k} W^{[l+1]}_{kj} \sigma'(z^{[l]}_{j}).
+\end{align}
+
+To conclude this discussion, as defined in eqref:forward, for computing
+$a^{[l]}$ $a^{[l-1]}$ is needed, so the whole computation of the predictor can
+be done in a /forward pass/ through the network. In opposition to that to
+compute the gradients for layer $l$, the gradient of layer $l+1$ is needed, so
+the computation of the gradients is a /backward pass/ through the network.
+This algorithm of computing the gradients is known as /backpropagation/.
+
+Since the beginning of 1960s error minimisation through gradient descent in
+systems related to deep learning were discussed
+cite:Kelley1960,bryson1961,BRYSON-DENHAM-61A,PONTRYAGIN61A,dreyfus1962,Wilkinson1965,Amari1967TAP,bryson1969applied.
+These algorithms were already efficient, as their derivative calculation was not
+more expensive than the forward computation of the system's evolution
+cite:schmidhuber15_deep_learn_neural_networ.  The first description of efficient
+error backpropagation in possibly arbitrary networks was presented by Seppo
+Linnainmaa cite:Linnainmaa:1970,Linnainmaa:1976. Though the first application of
+the backpropagation algorithms to neural networks was performed by Werbos in 1981
+cite:Werbos:81sensitivity.
+
+** Convolutional Neural Networks
+
+In this section a special form of a neural net, which is called the
+/convolutional neural net/ is described. The basic idea behind this algorith is
+that for data types like pictures features next to each other are more important
+than features far away from each other.
+
+A /convolution/ is a mathematical operation on two functions
+
+\begin{align}
+ (x * w)(t) = \int x(a) w(t-a)\dd t.
+\end{align}
+
+So the convolution for a given $t$ is the average of $x$ weighted by $w$ around
+$t$. The input space for a neural net would be the nodes of the last layer which
+are discrete by construction. The discretisation of a integration is a summation
+
+\begin{align}
+ (x * w)(t) = \sum^{\infty}_{a=-\infty} x(a) w(t-a).
+\end{align}
+
+It is also convenient for picture like data types that the input is
+multidimensional.
+
+\begin{align}
+ (K * I)(i,j) = \sum_{m} \sum_{n} I(i-m,j-n) K(m,n).
+\end{align}
+
+The discrete convolution operation can be viewed as a matrix multiplication with a
+sparse matrix.
+
+Traditional neural networks treat every input of a the last layer appriori the
+same, while a convolutional neural network has sparse connections by
+multipication with a smaller kernel. This leads also to smaller memory
+requirements for addional layers, because the weight sharing between the matrices.
+Another key feature is that by parameter sharing a property called
+/equivariance/ is introduced.  Which means objects inside the data are processed
+translational invariant.
+
+In a typical application a convolutional filter is composed by three components.
+At first multiple convolutions are applied to the previous layer. Their output
+is than feed to an activation function, analog to a traditional neural net.  In
+the last stage the output is modified by a /pooling/ layer. A pooling function
+is a function which returns a statistics of an local area. A typical variant
+would be the maximum of a view adjacent data points. This modification is
+applied to reduce the dependence on small statistical fluctuations.
+
+The idea of convolutional filters is grouded in the paper of Hubel and Wiesel
+published in 1959 cite:hubel59. They showed that the visual cortex of cats
+containes neurons that responds to small regions of the visual space. They
+proposed a cascading model between this type of cells and more complex cells for
+pattern recognition. The first convolutional neural net ever implemented was
+based on this work and introduced by Fukushima in 1980 cite:neocognitron. Their
+/Neocognitron/ implemented all fundamental ideas behind ConvNets.  The first
+convolutional network trained by the backpropagation algoritm was the /Time
+delay neural net/ by Waibel et al. cite:hampshire89,waibel90 for speech
+recognition purposes. Also the work by LeCun et al. has to be mentioned, they
+demonstrated the application of a backpropagating ConvNet to the recognition of
+handwritting zip code digits cite:lecun89.
+
+** Recurrent Neural Networks
+
+Recurrent Neural Networs are an deep learning architecture for sequential
+data. It is specialized to process a sequence of values
+$x^{(1)},...,x^{(\tau)}$. For a RNN each output is a function of the previous
+output. These outputs are computes by the same algorithmic structure, sharing
+identical weigths. 
+
+\todo{Kapitel zuende schreiben}
+* Energy Regression in Calorimetry
+** Inhalt [1/13]
+- [X] Aufbau Calorimeter Simulation
+- [ ] Linearer Fit Standard
+- [ ] Aufbau Neuronales Netz
+- [ ] Resultat
+- [ ] Overfitting
+- [ ] Data Augmentation
+- [ ] Results
+- [ ] Shift to higher Values
+- [ ] Results of different loss functions
+- [ ] Kink Border Problem
+- [ ] Adversarial Training
+- [ ] Custom Loss Function
+- [ ] Zusammenfassung
+** Calorimeter Simulation
+
+Geant4 cite:geant_simul_toolk was used to simulate a calorimeter with a layer structure similar to that
+of the CMS hadron calorimeter. The calorimeter has a length of 931.5 mm and a
+height and width of 300 mm. The layer structure is listed in table x. The first
+layer consists of a 9mm thick scintillator layer and a 40mm thick stainless
+steel layer. The steel layers in CMS HCAL are the carriers holding the
+calorimeter. The first layer is followed by 8 layers, each consisting of a 3.7
+mm thick scintillator and a 50.5 mm thick brass absorber. This is followed by
+layers of 3.7 mm thick scintillators, but 56.5 mm thick brass plates.  The last
+two layers consist of a 3.7 mm scintillator, followed by a 75 mm steel holder,
+completed with a 9 mm scintillator. Each scintillator layer consists of 64
+equal-sized scintillator tiles with a height and width of 75 mm. 
+
+   | layer | scint in mm | abs in mm | abs material |
+   |-------+-------------+-----------+--------------|
+   |     0 |           9 |        40 | steel        |
+   |   1-8 |         3.7 |      50.5 | brass        |
+   |  9-14 |         3.7 |      56.5 | brass        |
+   |    15 |         3.7 |        75 | steel        |
+   |    16 |           9 |           |              |
+
+\todo{tabelle beschriften}
+
+In the simulation, the paths of incoming particles and their resulting particles
+are simulated. The incoming particles were initially electrons and then pions.
+The momentum of the incoming particles is randomly initialized between 0 and 10
+GeV following a flat distribution. The point of arrival of the particles is
+always the exact center of the first detector layer.
+
+
+After the trajectories of the particles had been simulated, for each event the
+number of traces in each scintillator cell are counted.  These 1088 values are
+then stored as data points for further analysis.  
+
+#+CAPTION: Visualization of a typical  event simulation inside the detector.
+#+ATTR_LATEX: :width 1.1 \textwidth 
+[[./images/front-side.pdf]]
+
+
+** Energy Regression By Linear Fitting
+
+#+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
+#+NAME: e-vs-sum_n
+label:e-vs-sum_n
+[[../master-thesis/e-vs-sum_n.pdf]]
+
+A \todo{zitieren oder ändern} traditional way of calibrating the energy of the calorimeter, would be to sum
+over the number of tracks in each scintillator cells as shown in ref:e-vs-sum_n
+a linear fit to the energy \[E = c_0\sum_i n_i + c_1\] This is done with the
+method of least squares.
+
+
+The traditional method of determining the energy of a particle shower is to sum
+up the energies of the individual scintillator cells. This summation can still
+be influenced by weights to compensate for detector effects.  The simulation did
+not determine the energy in the individual cells but the number of charged
+traces. This should be linear to the deposited energy. Detector effects can also
+be neglected in a simulation.
+
+To calibrate the calorimeter, the straight line with the smallest mean square
+deviation from the data points was determined. Here, the weights $c_0, c_1$ of the
+function
+
+\begin{align}
+N(E) = c_0 \cdot E + c_1
+\end{align}
+
+ were determined and the straight line was then inverted. This
+procedure is necessary to prevent distortions due to the restricted
+distribution. The result is shown in Figure ref:e-vs-sum_n_fit.
+
+CAPTION: The graph is the same as in ref:e-vs-sum_n. The black straight is the result of the fit described above.
+#+NAME: e-vs-sum_n_fit
+label:e-vs-sum_n_fit
+[[../master-thesis/e-vs-sum_n_fit.pdf]]
+
+** Neural Net
+
+#+CAPTION: The three-dimensional structure of a data sample is visulaized by an example event of an incoming eletrcon with 9.14172 GeV
+#+NAME: e-vs-sum_n
+label:data_display
+[[../master-thesis/data_display.pdf]]
+
+\todo{nahelegen warum ref:data_display ein conv net nahelegt bilder etc}
+\todo{Describe Architecture}
+\todo{Erläutern warum kein Pooling verwendet wird}
+
+
+
+
+* Energy Regression with Particle Flow Jets
+* Conclusion
+
+\include{_eidversicherung}
+
+bibliographystyle:unsrt
+bibliography:bibliography.bib

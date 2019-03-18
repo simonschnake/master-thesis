@@ -1,2 +1,0 @@
-* Calorimetry
-* Deep Learning
