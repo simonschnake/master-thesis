@@ -4,6 +4,7 @@
 #+LATEX_HEADER: \usepackage{amssymb}
 #+OPTIONS: toc:nil
 
+
 * Planning                                                         :noexport:
 
 ** 
@@ -50,94 +51,6 @@ Here are the needed packages. Also to config matplotlib for latex export
 :RESULTS:
 # Out[7]:
 :END:
-
-* Experimental Setup
-
-
-#+CAPTION: Visualization of an event in the calorimeter simulation. On the left, the side view is shown. On the right, the front view is shown.
-#+ATTR_LATEX: :width 1.25\textwidth
-[[./images/front-side.pdf]]
-#+NAME: e-vs-sum_n
-
-Comparing different models
-- Results charged particles in each scintialor cell
-- true energy
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  import numpy as np
-  sum_n = np.sum(X_test[:10000], axis=1)
-  energies = np.transpose(Y_test[:10000])[0]
-
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum_i n_i$')
-  plt.savefig('images/e-vs-sum_n.pdf')
-#+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[8]:
-[[file:./obipy-resources/4vm5Oa.png]]
-:END:
-
-#+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
-#+NAME: e-vs-sum_n
-[[./images/e-vs-sum_n.pdf]]
-
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  from mpl_toolkits.mplot3d import Axes3D
-  from matplotlib.colors import ListedColormap
-
-  # Choose data sample
-
-  id = 7
-  test_sample = X_test[id].reshape(17, 8, 8)
-  maximum = np.amax(test_sample)
-
-
-  # Choose colormap
-  cmap = plt.cm.Reds
-
-  # Get the colormap colors
-  my_cmap = cmap(np.arange(cmap.N))
-
-  # Set alpha
-  my_cmap[:,-1] = np.linspace(0, 1, cmap.N)
-
-  # Create new colormap
-  my_cmap = ListedColormap(my_cmap)
-
-  # create grid
-
-  Y, Z = np.meshgrid(np.arange(test_sample.shape[1])+1, np.arange(test_sample.shape[2])+1)
-
-
-  # create the figure
-  fig = plt.figure()
-  ax = fig.add_subplot(111, projection='3d')
-
-  for i in range(test_sample.shape[0]):
-      ax.plot_surface(Z, i*np.ones(Y.shape)+1, Y, rstride=1, cstride=1, facecolors=my_cmap(np.sqrt(np.sqrt(test_sample[i]/maximum))), shade=False)
-
-  ax.set_xlabel('Y')
-  ax.set_ylabel('X')
-  ax.set_zlabel('Z')
-  # ax.text(5, 0, -4, str(Y_test[id][0])+' GeV')
-  plt.savefig('images/data_display.pdf')
-#+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[6]:
-[[file:./obipy-resources/wQqKa1.png]]
-:END:
-
-#+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
-#+NAME: e-vs-sum_n
-[[./images/data_display.pdf]]
-
-
 
 * Linear Fit
 A traditional way  of calibrating the neural net would  be to sum over
@@ -404,7 +317,6 @@ physics. Also
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
 #+NAME: first
 [[./images/first.pdf]]
-
 
 * Data Augmentation
 One of the biggest issues with the setup is that it
@@ -739,7 +651,6 @@ plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
 #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
 #+NAME: likelihood_res
 [[./images/likelihood_res.pdf]]
-
 
 * Adversarial Solution                                             :noexport:
 
