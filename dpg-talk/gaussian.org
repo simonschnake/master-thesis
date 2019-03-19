@@ -5,13 +5,8 @@
 #+OPTIONS: toc:nil
 
 
-* Planning                                                         :noexport:
-  
-* 
-* Setup                                                            :noexport:
-Here are the needed packages. Also to config matplotlib for latex export
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  !cd /home/schnakes/master-thesis
+  import numpy as np
   import matplotlib as mpl
   import matplotlib.pyplot as plt
   mpl.rcParams['text.usetex'] = True
@@ -22,273 +17,56 @@ Here are the needed packages. Also to config matplotlib for latex export
   mpl.rcParams['axes.labelsize'] = 15
 
   %matplotlib inline
-#+END_SRC
 
-#+RESULTS:
-:RESULTS:
-
-<<<<<<< HEAD
-# Out[4]:
-=======
-# Out[3]:
->>>>>>> origin/master
-:END:
-
-* Loading Data                                                     :noexport:
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  import h5py
-
-  try:
-      data = h5py.File('../data/electron.h5', 'r')
-  except IOError:
-      try:
-	      data = h5py.File('data/electron.h5', 'r')
-      except IOError:
-	      print('Data not found')
-
-  X_test = data['test']['X']
-  Y_test = data['test']['Y']
-  X_train = data['train']['X']
-  Y_train = data['train']['Y']
-#+END_SRC
-
-* Experimental Setup
-
-
-#+CAPTION: Visualization of an event in the calorimeter simulation. On the left, the side view is shown. On the right, the front view is shown.
-#+ATTR_LATEX: :width 1.25\textwidth
-[[./front-side.pdf]]
-#+NAME: e-vs-sum_n
-
-Comparing different models
-- Results charged particles in each scintialor cell
-- true energy
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  import numpy as np
-  sum_n = np.sum(X_test[:10000], axis=1)
-  energies = np.transpose(Y_test[:10000])[0]
-
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum_i n_i$')
-  plt.savefig('e-vs-sum_n.pdf')
-#+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[6]:
-[[file:./obipy-resources/0xdr3r.png]]
-:END:
-
-#+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
-#+NAME: e-vs-sum_n
-[[./e-vs-sum_n.pdf]]
-
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  from mpl_toolkits.mplot3d import Axes3D
-  from matplotlib.colors import ListedColormap
-
-  # Choose data sample
-
-  id = 7
-  test_sample = X_test[id].reshape(17, 8, 8)
-  maximum = np.amax(test_sample)
-
-
-  # Choose colormap
-  cmap = plt.cm.Reds
-
-  # Get the colormap colors
-  my_cmap = cmap(np.arange(cmap.N))
-
-  # Set alpha
-  my_cmap[:,-1] = np.linspace(0, 1, cmap.N)
-
-  # Create new colormap
-  my_cmap = ListedColormap(my_cmap)
-
-  # create grid
-
-  Y, Z = np.meshgrid(np.arange(test_sample.shape[1])+1, np.arange(test_sample.shape[2])+1)
-
-
-  # create the figure
-  fig = plt.figure()
-  ax = fig.add_subplot(111, projection='3d')
-
-  for i in range(test_sample.shape[0]):
-      ax.plot_surface(Z, i*np.ones(Y.shape)+1, Y, rstride=1, cstride=1, facecolors=my_cmap(np.sqrt(np.sqrt(test_sample[i]/maximum))), shade=False)
-
-  ax.set_xlabel('Y')
-  ax.set_ylabel('X')
-  ax.set_zlabel('Z')
-  ax.text(5, 0, -4, str(Y_test[id][0])+' GeV')
-  plt.savefig('data_display.pdf')
-#+END_SRC
-
-* Linear Fit
-A traditional way  of calibrating the neural net would  be to sum over
-all scintillator cells as shown in  [cite:figure1] a linear fit to the
-energy \[E  = c_0\sum_i n_i  + c_1\] This is  done with the  method of
-least squares.
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  from scipy.optimize import leastsq
-  # function to fit
-  inv_fitfunc = lambda c , x: (x-c[1])/c[0]
-
-  fitfunc = lambda c , x: x*c[0]+c[1]
-  errfunc = lambda c , x, y: (y - fitfunc(c, x))
-  out = leastsq(errfunc, [0.1, 0.0], args=(energies, sum_n), full_output=1)
-
-  c_fit1 = out[0]
-  covar = out[1]
-
-  n = np.arange(0, 250, 0.5)
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, inv_fitfunc(c_fit1, n), 'k-')     # Fit
-
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum_i n_i$')
-
-  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit1[0], ha='left')
-  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit1[1], ha='left')
-  plt.savefig('images/e-vs-sum_n_fit.pdf')
-#+END_SRC
-
-#+RESULTS:
-:RESULTS:
-<<<<<<< HEAD
-# Out[8]:
-[[file:./obipy-resources/HOeyUM.png]]
-=======
-# Out[5]:
-[[file:./obipy-resources/9F9A3Q.png]]
->>>>>>> origin/master
-:END:
-#+
-CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
-#+NAME: e-vs-sum_n_fit
-[[./images/e-vs-sum_n_fit.pdf]]
-
-
-The relation is bijectiv so the solution can be found by swapping the axes.
-
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  from scipy.optimize import leastsq
-  # function to fit
-  fitfunc = lambda c , x: (x-c[1])/(abs(c[0])+0.0001)
-  errfunc = lambda c , x, y: (y - fitfunc(c, x))
-  out = leastsq(errfunc, [0., 0.0], args=(energies, sum_n), full_output=1)
-
-  c_fit = out[0]
-  covar = out[1]
-  
-  fitfunc = lambda c , x: c[0]*x+c[1]+c[0]
-  n = np.arange(0, 250, 0.5)
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
-  # plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
-
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum_i n_i$')
-
-#  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
-#  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
-#+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[9]:
-: Text(0.5,0,'$\\sum_i n_i$')
-[[file:./obipy-resources/7gKPol.png]]
-:END:
-
-\[
-   \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} 
-\]
-\[
-\text{likelihood} = \prod_{i} \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))}
-\]
-
-\[
-\text{cost} = - \sum_{i} \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
-\]
-
-\[
-\text{loss} = - \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
-\]
-\[
-\text{loss} = - \ln(e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}})-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
-\]
-\[
-\text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
-\]
-
-\[
-\text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}+\ln(\sqrt{\frac{\pi}{2}} \sigma_i\left(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})\right))
-\]
-
-For stability reasons we use the results of the leastsquares fit as
-the start parameters of our minimum likelihood fit.  The minimizing
-method is "L-BFGS-B"[CITE]. $\mu_i$ is the prediction of our model in
-this case the result of the linear fit.  The number of charged
-particles in the scintillators is poisson distributed. So the
-estimator the energy has a standard deviance of $\sqrt{\mu}$.
-
-Which is 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   from scipy.special import erf
   from scipy.stats import norm
   from scipy import optimize
 
-  def likelihood(par):
+  a=-1
+  b=1.5
+  mu=1
+  sigma=1
+  def likelihood(n, mu, sigma):
       epsilon = 0.0000001
-      mu = sum_n*par[0]+par[1]
-      sigma = np.sqrt(np.abs(mu)) # 2/par[0] 
-      elements = norm.pdf(energies, mu, sigma)
-      a = np.divide(mu-lower_border, np.sqrt(2)*sigma+epsilon)
-      b = np.divide(mu-upper_border, np.sqrt(2)*sigma+epsilon)
-      norms = np.abs(erf(a)- erf(b))
-      return -np.sum(np.log(np.divide(elements, norms + epsilon)+epsilon))
+      elements = norm.pdf(n, mu, sigma)
+      x1 = np.divide(mu-a, np.sqrt(2)*sigma+epsilon)
+      x2 = np.divide(mu-b, np.sqrt(2)*sigma+epsilon)
+      norms = np.abs(erf(x1)- erf(x2))/2
+      return np.divide(elements, norms + epsilon)
 
-  lower_border = 0  
-  upper_border = 10
-  out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
+  fig, ax = plt.subplots()
 
-  c_like = out['x']
+  n = np.arange(-2, 3.01, 0.1)
+  plt.plot(n, norm.pdf(n, mu, sigma), 'k-')
+  plt.plot(n, likelihood(n, mu+0.6, sigma), 'k--')
+  n = np.arange(a, b+0.01, 0.1)
+  plt.plot(n, likelihood(n, mu+0.6, sigma), 'k-')
+  plt.fill_between(n, norm.pdf(n, mu, sigma), likelihood(n, mu+0.6, sigma), color='r', alpha=0.8)
+  plt.fill_between(n, 0, norm.pdf(n, mu, sigma), alpha=0.5)
+  plt.plot([b, b], [0, 1], 'k-')
+  plt.text(b, -0.08, 'b', ha='center', va='center', size=20, color='k')
+  plt.text(a, -0.08, 'a', ha='center', va='center', size=20, color='k')
+  plt.plot([a, a], [0, 1], 'k-')
+  plt.tick_params(axis='both', which='both', bottom=False, top=False,
+                  labelbottom=False, left=False, right=False, labelleft=False)
 
-  n = np.arange(0, 250, 0.5)
-  plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
-  # plt.plot(n, fitfunc(c_like, n), 'b-')     # Fit
-  # plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
+  ax.spines['top'].set_visible(False)
+  ax.spines['bottom'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  ax.spines['left'].set_visible(False)
 
-  # n = np.arange(0, 10.1, 0.1)
-  # plt.plot(energies, sum_n, 'r.', alpha=0.06)
-  # plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
-
-  plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-  plt.xlabel(r'$\sum_i n_i$')
-
-
-  plt.text(1, 9.5, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
-  plt.text(1, 9, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
-
-  plt.savefig('images/e-vs-sum_n_fit.pdf')
+  plt.savefig('gaussian_shift.pdf')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[10]:
-[[file:./obipy-resources/lQRnlA.png]]
+# Out[2]:
+[[file:./obipy-resources/FKtAIg.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
 #+NAME: e-vs-sum_n_fit
-[[./images/e-vs-sum_n_fit.pdf]]
+[[./e-vs-sum_n_fit.pdf]]
 
 * First Network
   
@@ -304,7 +82,7 @@ the true energy values and our predicted energy values. We train the network for
   from keras.models import Model
   import h5py
   import pickle
-  
+
   from src.utils import DataGenerator
 
   inputs = Input(shape=(8, 8, 17,))
@@ -322,7 +100,7 @@ the true energy values and our predicted energy values. We train the network for
 
 #+RESULTS:
 :RESULTS:
-# Out[11]:
+# Out[22]:
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -344,19 +122,19 @@ plt.text(float(epochs[-1])+0.5, history['loss'][-1], 'training loss', ha='left',
 plt.text(float(epochs[-1])+0.5, history['val_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
 plt.xlabel('epochs')
 plt.ylabel('loss')
-plt.savefig('images/first_loss.pdf', bbox_inches = 'tight')
+plt.savefig('first_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[9]:
-[[file:./obipy-resources/wuSvKe.png]]
+# Out[23]:
+[[file:./obipy-resources/uK24pg.png]]
 :END:
 
 
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
 #+NAME: Loss
-[[./images/first_loss.pdf]]
+[[./first_loss.pdf]]
 
 In [cite:Loss] the loss function is shown. While the loss function for
 the training set decreases over time, the loss for the validation set
@@ -391,17 +169,14 @@ physics. Also
 
 #+RESULTS:
 :RESULTS:
-# Out[10]:
-[[file:./obipy-resources/8emw1A.png]]
+# Out[24]:
+[[file:./obipy-resources/nlFpBK.png]]
 :END:
 
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
 #+NAME: first
 [[./first.pdf]]
 
-* Learning the Shape
-
-[[./images/first.pdf]]
 
 * Data Augmentation
 One of the biggest issues with the setup is that it
@@ -444,19 +219,19 @@ plt.text(float(epochs[-1])+1.5, history['val_loss'][-1]-0.015, 'validation loss'
 plt.xlabel('epochs')
 plt.ylabel('loss')
 plt.ylim([0.38, 0.8])
-plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
+plt.savefig('data_augment_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[24]:
-[[file:./obipy-resources/PSQdnI.png]]
+# Out[25]:
+[[file:./obipy-resources/YF1pBc.png]]
 :END:
 
 
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
 #+NAME: Loss
-[[./images/data_augment_loss.pdf]]
+[[./data_augment_loss.pdf]]
 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -481,18 +256,18 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
   ax.spines["right"].set_visible(False)  
   ax.spines["left"].set_visible(False)
   ax.spines["bottom"].set_visible(False)  
-  plt.savefig('images/data_augment.pdf', bbox_inches = 'tight')
+  plt.savefig('data_augment.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[25]:
-[[file:./obipy-resources/qL2YoY.png]]
+# Out[26]:
+[[file:./obipy-resources/8NyeCy.png]]
 :END:
 
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
 #+NAME: first
-[[./images/data_augment.pdf]]
+[[./data_augment.pdf]]
 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -529,18 +304,18 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
   plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1]), 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
   plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1]), 'neural net', ha='left', va='center', size=15)
   plt.ylim([0., 0.5])
-  plt.savefig('images/data_augment_res.pdf', bbox_inches = 'tight')
+  plt.savefig('data_augment_res.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[26]:
-[[file:./obipy-resources/e7svN0.png]]
+# Out[27]:
+[[file:./obipy-resources/yvBCYk.png]]
 :END:
 
 #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
 #+NAME: first_res
-[[./images/data_augment_res.pdf]]
+[[./data_augment_res.pdf]]
 
 * Likelihood Solution
 
@@ -610,18 +385,18 @@ Which is
   plt.text(1, 9, r'$c_0 =$ '+ '%.3f' % c_like[0], ha='left')
   plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_like[1], ha='left')
 
-  plt.savefig('images/e-vs-sum_n_lik.pdf')
+  plt.savefig('e-vs-sum_n_lik.pdf')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[27]:
-[[file:./obipy-resources/PYFVEg.png]]
+# Out[28]:
+[[file:./obipy-resources/uU3oif.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the likelihood fit described above.
 #+NAME: e-vs-sum_n_lik
-[[./images/e-vs-sum_n_lik.pdf]] 
+[[./e-vs-sum_n_lik.pdf]] 
 
 
 To diminish the depency of the distribution of given true labels, the
@@ -646,13 +421,13 @@ plt.text(float(epochs[-1])+0.5, history['loss'][-1], 'training loss', ha='left',
 plt.text(float(epochs[-1])+0.5, history['val_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
 plt.xlabel('epochs')
 plt.ylabel('loss')
-plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
+plt.savefig('likelihood_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[42]:
-[[file:./obipy-resources/t0dt32.png]]
+# Out[29]:
+[[file:./obipy-resources/MRl4L1.png]]
 :END:
 
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
@@ -674,18 +449,18 @@ plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
   ax.spines["right"].set_visible(False)  
   ax.spines["left"].set_visible(False)
   ax.spines["bottom"].set_visible(False)
-  plt.savefig('images/likelihood.pdf', bbox_inches = 'tight')
+  plt.savefig('likelihood.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[43]:
-[[file:./obipy-resources/1W5NnT.png]]
+# Out[30]:
+[[file:./obipy-resources/p1Embu.png]]
 :END:
 
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
 #+NAME: first
-[[./images/likelihood.pdf]]
+[[./likelihood.pdf]]
 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -724,18 +499,19 @@ plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
   plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1])+0.01, 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
   plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1])-0.01, 'neural net', ha='left', va='center', size=15)
   plt.ylim([0.0, 0.5])
-  plt.savefig('images/likelihood_res.pdf', bbox_inches = 'tight')
+  plt.savefig('likelihood_res.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[44]:
-[[file:./obipy-resources/FHdvyt.png]]
+# Out[31]:
+[[file:./obipy-resources/u4yvNA.png]]
 :END:
 
 #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
 #+NAME: likelihood_res
-[[./images/likelihood_res.pdf]]
+[[./likelihood_res.pdf]]
+
 
 * Adversarial Solution                                             :noexport:
 
@@ -758,8 +534,8 @@ plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[45]:
-[[file:./obipy-resources/CTcggA.png]]
+# Out[32]:
+[[file:./obipy-resources/WkPR0v.png]]
 :END:
 
 
@@ -784,17 +560,13 @@ used as a loss function.
   ax.spines["right"].set_visible(False)  
   ax.spines["left"].set_visible(False)
   ax.spines["bottom"].set_visible(False)
-
-  plt.text(7, -3.5, 'neural net', ha='left', va='center', size=17)
-  plt.text(7, 3.5, 'linear fit', ha='left', va='center', size=17, color='#1f77b4')
-
-  plt.savefig('images/adversarial.pdf', bbox_inches = 'tight')
+  plt.savefig('adversarial.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[65]:
-[[file:./obipy-resources/N5x6sJ.png]]
+# Out[33]:
+[[file:./obipy-resources/YOmr91.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -831,13 +603,13 @@ used as a loss function.
   plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1]), 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
   plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1]), 'neural net', ha='left', va='center', size=15)
   plt.ylim([0., 0.5])
-  plt.savefig('images/adversarial_res.pdf', bbox_inches = 'tight')
+  plt.savefig('adversarial_res.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[66]:
-[[file:./obipy-resources/5dcJxi.png]]
+# Out[34]:
+[[file:./obipy-resources/A8g8bY.png]]
 :END:
 
 
@@ -863,9 +635,9 @@ used as a loss function.
 
 #+RESULTS:
 :RESULTS:
-# Out[21]:
+# Out[35]:
 : Text(0,0.5,'loss')
-[[file:./obipy-resources/QS44BU.png]]
+[[file:./obipy-resources/3VQVHJ.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -890,9 +662,9 @@ used as a loss function.
 
 #+RESULTS:
 :RESULTS:
-# Out[22]:
+# Out[36]:
 : Text(0,0.5,'loss')
-[[file:./obipy-resources/DAJxTa.png]]
+[[file:./obipy-resources/9AjhtP.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -958,10 +730,10 @@ used as a loss function.
 
    try:
        data = h5py.File('../data/pion.h5', 'r')
-   except IOError:
+   except OSError:
        try:
 	       data = h5py.File('data/pion.h5', 'r')
-       except IOError:
+       except OSError:
 	       print('Data not found')
 
    X_test = data['test']['X']
@@ -969,11 +741,6 @@ used as a loss function.
    X_train = data['train']['X']
    Y_train = data['train']['Y']
  #+END_SRC
-
- #+RESULTS:
- :RESULTS:
- # Out[6]:
- :END:
 
 ** Polynom Fit
  A traditional way of calibrating the neural net would be to sum over all scintillator cells as shown in [cite:figure1]
@@ -1028,12 +795,12 @@ used as a loss function.
 
   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$\sum_i n_i$')
-  plt.savefig('images/pion_fit.pdf', bbox_inches = 'tight')
+  plt.savefig('pion_fit.pdf', bbox_inches = 'tight')
  #+END_SRC
 
 #+CAPTION: Here a polynom is fitted via an likelihood to the pion data
 #+NAME: pion_fit
-[[./images/pion_fit.pdf]] 
+[[./pion_fit.pdf]] 
 
 ** Neural Net
 
@@ -1055,12 +822,12 @@ plt.text(float(epochs[-1])+1.5, history['loss'][-1], 'training loss', ha='left',
 plt.text(float(epochs[-1])+1.5, history['val_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
 plt.xlabel('epochs')
 plt.ylabel('loss')
-plt.savefig('images/pion_loss.pdf', bbox_inches = 'tight')
+plt.savefig('pion_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
 #+NAME: Loss
-[[./images/pion_loss.pdf]]
+[[./pion_loss.pdf]]
 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -1078,12 +845,12 @@ plt.savefig('images/pion_loss.pdf', bbox_inches = 'tight')
   ax.spines["right"].set_visible(False)  
   ax.spines["left"].set_visible(False)
   ax.spines["bottom"].set_visible(False)
-  plt.savefig('images/pion.pdf', bbox_inches = 'tight')
+  plt.savefig('pion.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation for pions
 #+NAME: pion
-[[./images/pion.pdf]]
+[[./pion.pdf]]
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import sys
@@ -1120,12 +887,12 @@ plt.savefig('images/pion_loss.pdf', bbox_inches = 'tight')
   plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1])+0.01, 'polynom fit', ha='left', va='center', size=15, color='#1f77b4')
   plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1])-0.01, 'neural net', ha='left', va='center', size=15)
   # plt.ylim([0.0, 0.5])
-  plt.savefig('images/pion_res.pdf', bbox_inches = 'tight')
+  plt.savefig('pion_res.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+CAPTION: Results of the polynom fit vs the first neural net width data augmentation
 #+NAME: pion_res
-[[./images/pion_res.pdf]]
+[[./pion_res.pdf]]
 
 * Are we learning the shape?                                       :noexport:
 ** TODO divide the incoming cells by the total sum

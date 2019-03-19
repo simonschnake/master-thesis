@@ -5,7 +5,6 @@
 *.snm
 *.toc
 *.out
-*.pdf
 /obipy-resources/
 data/
 .mypy_cache/

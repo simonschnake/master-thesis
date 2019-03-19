@@ -1,0 +1,95 @@
+%%% packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \usepackage{tgheros}
+% \renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+
+\usepackage[T1]{fontenc}        % euro quality fonts [T1] (togeth. w/ textcomp)
+\usepackage{tgpagella}
+% \usepackage{eulervm}
+\usepackage{textcomp, amssymb}  % additional symbols (there are more packages)
+\usepackage{setspace}           % doublespacing
+\usepackage{anysize}            % margin package sets tighter margins
+\usepackage[all]{xy}            % creating figures within latex
+\usepackage{float}
+\usepackage[tight]{subfigure}% subfigures: figures within figures
+% \usepackage{iflang}
+
+% \marginsize{1.2in}{0.9in}{1.1in}{0.9in} % small margins
+\marginsize{1.2in}{0.9in}{0.5in}{1.5in} % small margins
+
+% \usepackage[plainpages=false, % distinguish roman and arabic pagenumbers
+% linktocpage=true, % toc etc: make page number active (not name)
+% ]{hyperref}        % clickabe references in .dvi
+% purposely included before color package
+\usepackage{color}     % color packages; needed by xy
+\usepackage{graphicx}  % graphics packages
+\usepackage[pages=some]{background}
+\backgroundsetup{scale=1.5, color=black, opacity=0.1, angle=-90, contents={
+    \includegraphics[height=\paperheight]{../images/background3.jpeg}}}
+
+\usepackage{listings}
+\usepackage{physics}
+\usepackage{mathtools}
+\usepackage{amsthm}
+%% Required package.
+\usepackage[ngerman,english]{babel}
+\usepackage{ifthen}
+
+%%% tikz
+\usepackage{tikz}
+\usetikzlibrary{calc,positioning,shadows.blur,decorations.pathreplacing}
+\usepackage{etoolbox}
+
+\tikzset{%
+  brace/.style = { decorate, decoration={brace, amplitude=5pt} },
+  mbrace/.style = { decorate, decoration={brace, amplitude=5pt, mirror} },
+  label/.style = { black, midway, scale=0.5, align=center },
+  toplabel/.style = { label, above=.5em, anchor=south },
+  leftlabel/.style = { label,rotate=-90,left=.5em,anchor=north },   
+  bottomlabel/.style = { label, below=.5em, anchor=north },
+  force/.style = { rotate=-90,scale=0.4 },
+  round/.style = { rounded corners=2mm },
+  legend/.style = { right,scale=0.4 },
+  nosep/.style = { inner sep=0pt },
+  generation/.style = { anchor=base }
+}
+
+\newcommand\particle[7][white]{%
+  \begin{tikzpicture}[x=1cm, y=1cm]
+    \path[fill=#1,blur shadow={shadow blur steps=5}] (0.1,0) -- (0.9,0)
+    arc (90:0:1mm) -- (1.0,-0.9) arc (0:-90:1mm) -- (0.1,-1.0)
+    arc (-90:-180:1mm) -- (0,-0.1) arc(180:90:1mm) -- cycle;
+    \ifstrempty{#7}{}{\path[fill=purple!50!white]
+      (0.6,0) --(0.7,0) -- (1.0,-0.3) -- (1.0,-0.4);}
+    \ifstrempty{#6}{}{\path[fill=green!50!black!50] (0.7,0) -- (0.9,0)
+      arc (90:0:1mm) -- (1.0,-0.3);}
+    \ifstrempty{#5}{}{\path[fill=orange!50!white] (1.0,-0.7) -- (1.0,-0.9)
+      arc (0:-90:1mm) -- (0.7,-1.0);}
+    \draw[\ifstrempty{#2}{dashed}{black}] (0.1,0) -- (0.9,0)
+    arc (90:0:1mm) -- (1.0,-0.9) arc (0:-90:1mm) -- (0.1,-1.0)
+    arc (-90:-180:1mm) -- (0,-0.1) arc(180:90:1mm) -- cycle;
+    \ifstrempty{#7}{}{\node at(0.825,-0.175) [rotate=-45,scale=0.2] {#7};}
+    \ifstrempty{#6}{}{\node at(0.9,-0.1)  [nosep,scale=0.17] {#6};}
+    \ifstrempty{#5}{}{\node at(0.9,-0.9)  [nosep,scale=0.2] {#5};}
+    \ifstrempty{#4}{}{\node at(0.1,-0.1)  [nosep,anchor=west,scale=0.25]{#4};}
+    \ifstrempty{#3}{}{\node at(0.1,-0.85) [nosep,anchor=west,scale=0.3] {#3};}
+    \ifstrempty{#2}{}{\node at(0.1,-0.5)  [nosep,anchor=west,scale=1.5] {#2};}
+  \end{tikzpicture}
+}
+
+
+%% TeX function that generates the language commands.
+\def\localedef#1#2{
+  \ifthenelse{ \equal{\locale}{#1} }{
+    \selectlanguage{#2}
+    \expandafter\def\csname#1\endcsname ##1{##1}
+  }{
+    \expandafter\def\csname#1\endcsname ##1{}
+  }
+}
+
+%%% make red todo notes
+\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}\PackageWarning{TODO:}{#1!}}
+
+
+
+\pagestyle{plain}               % pagestyle: headings, empty, plain

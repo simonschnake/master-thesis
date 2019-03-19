@@ -1,0 +1,96 @@
+#+Title: DPG Abstract 2019
+#+Author: Simon Schnake
+
+
+* Title
+Studies of Energy Reconstruction with Deep Learning at the LHC
+
+* Inhalt
+The higher energies and luminosities in the upcoming LHC phases are
+increasing the requirements on detector and analysis methods. One way
+to achieve this is to apply deep learning to different areas of the
+data analysis. The recent developements in the field make it a
+suitable candidate for exploration. This could significantly increase
+the accuracy and precision of the experiment.
+
+In this talk different approaches of energy reconstruction with deep
+learning are shown. Also some techniques to tackle distribution
+problems are presented.
+
+* Vorbilder
+
+ Studies for Top Quark Reconstruction with Deep Learning — •Tim
+Kallage, Johannes Erdmann, Olaf Nackenhorst, and Kevin Kröninger — TU
+Dortmund, Experimentelle Physik IV Deep learning techniques are
+attracting attention in recent years and show potential in high energy
+physics applications. In analyses of tt processes, a reconstruction of
+the association of measured jets to partons in the decay topology is
+often useful. A deep neural network approach for this goal is
+presented in this talk for semileptonic tt decays. The algorithm is
+trained and tested on pp collisions at √s = 13 TeV using a simplified
+simulation of the ATLAS detector. The performance is studied and
+compared with a commonly used kinematic likelihood fit (KLFitter).
+
+
+In den kommenden Ausbaustufen des LHCs werden Schwerpunktsenergie und
+Luminosität weiter steigen. Die Entwicklung neuer Methoden zur
+Jet-Rekonstruktion in der ersten Stufe des FPGA-basierten
+ATLAS-Triggersystems ist somit essentiell, um eine effiziente
+Selektion gewünschter Ereignisse gewährleisten zu können.  Fasst man
+die Kalorimeter-Informationen als zweidimensionales Bild auf, so sind
+moderne Verfahren der Bilderkennung wie Convolutional Deep Neural
+Networks vielversprechende Kandidaten für diese komplexe
+Aufgabe. Hierbei müssen 40 Millionen Bilder pro Sekunde analysiert
+werden, wobei pro Bild lediglich eine Zeit von max. 125ns zur
+Verfügung steht. Die angestrebte Implementierung auf FPGAs beschränkt
+zudem die Architektur des neuronalen Netzes sowie die verfügbaren
+Aktivierungsfunktionen.  Ziel ist es, ein neuronales Netz zu
+entwickeln, welches die konventionellen Methoden der
+Jet-Rekonstruktion im Level-1 Trigger übertrifft und zugleich eine
+mögliche Implementierung auf FPGAs gestattet. Im Vortrag wird der
+aktuelle Stand der Arbeit präsentiert.
+
+
+KM3NeT/ORCA data analysis using unsupervised Deep Learning — •Stefan
+Reck for the ANTARES-KM3NeT-Erlangen collaboration —
+Friedrich-Alexander-Universität Erlangen-Nürnberg, ECAP KM3NeT/ORCA is
+a water-Cherenkov neutrino detector, currently under construction in
+the Mediterranean Sea at a depth of 2450 meters. Its main goal will be
+to determine the neutrino mass hierarchy by measuring the energy- and
+zenith angle dependency of the oscillation probabilities of
+atmospheric neutrinos after travelling through the Earth.  Deep
+Learning provides a promising method to analyse the signatures
+produced by the particles travelling through the detector. A common
+point of critique of the popular supervised Deep Learning techniques
+is their dependency on simulated data. If this data contains features
+that deviate from measured data, networks can become sensitive to
+them, and their performance on measurements will fall behind
+expectations. Ultimately, the network might fixate on effects only
+present in the simulations, or become unaware of properties of
+measured data. This talk will cover an unsupervised learning approach
+with convolutional autoencoders, which tackles the problem of learning
+unwanted features by making it possible to train large parts of the
+network on measured data.
+
+Deep Learning mit unbalancierten Datensätzen — •Stefan Geißelsöder für
+die ANTARES-KM3NeT-Erlangen Kollaboration —
+Friedrich-Alexander-Universität Erlangen-Nürnberg, ECAP Deep Learning
+bezeichnet eine gegenwärtig in vielen Anwendungsbereichen sehr
+erfolgreiche und flexibel einsetzbare Gruppe von Algorithmen, die
+einen hohen Grad an automatisch erzielter Abstraktion gemeinsam
+haben. Gleichzeitig benötigen moderne Großexperimente in der
+Teilchenphysik oft unerreichte Präzision bei ihren Messungen um auch
+subdominante Effekte beobachten zu können. Die dabei simulierten und
+gemessenen, oft sehr großen Datensätze sind zwar einerseits gut zur
+Verarbeitung mit Deep Learning geeignet, andererseits sind sie häufig
+sehr unbalanciert. Beispielsweise können viele, für eine angestrebte
+Datenanalyse aber unerhebliche Daten enthalten sein, ein
+Energiespektrum resultiert in unterschiedlich vielen Ereignisse für
+verschiedene Energiebereiche oder möglicherweise besonders
+interessante Extremfälle sind selten.  Der Vortrag vergleicht
+Methoden, wie das Training und die Anwendung von Convolutional Neural
+Networks an diese stark unbalancierten Datensätze angepasst werden
+können, um eine möglichst hohe Genauigkeit bei der Datenanalyse zu
+erzielen. Die Vergleiche werden teilweise anhand von Simulationen für
+das KM3NeT Neutrinoteleskop gezeigt, das gegenwärtig am Grund des
+Mittelmeeres im Aufbau ist.
