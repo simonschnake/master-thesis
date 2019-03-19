@@ -40,11 +40,11 @@
     \vfill
     \vspace*{1mm}
     \begin{textblock*}{120pt}(10pt,214pt)
-      \includegraphics[width=\textwidth]{up-uhh-logo-u-2010-u-farbe-u-cmyk.pdf}
+      \includegraphics[width=\textwidth]{../images/up-uhh-logo-u-2010-u-farbe-u-cmyk.pdf}
     \end{textblock*}
 
     \begin{textblock*}{70pt}(280pt,210pt)
-      \includegraphics[width=\textwidth]{BMBF-Logo-gefoe.png}
+      \includegraphics[width=\textwidth]{../images/BMBF-Logo-gefoe.png}
     \end{textblock*}
 \end{minipage}
 }
@@ -56,7 +56,7 @@
 \author{Peter Schleper, \textbf{Simon Schnake}, Hartmut Stadie}
 \institute{Universität Hamburg}
 
-%Document
+% Document
 \begin{document}
 \maketitle
 \tikzstyle{every picture}+=[remember picture]
@@ -64,35 +64,38 @@
 \begin{frame}{Deep Learning}
   \begin{textblock*}{150pt}(200pt,35pt)
     \begin{figure}[htp]
-      \includegraphics[width=\textwidth]{tikz1.png}
+      \includegraphics[width=\textwidth]{../images/tikz1.png}
     \end{figure}
   \end{textblock*}
-  \begin{textblock*}{150pt}(207pt,150pt)
+  \begin{textblock*}{150pt}(215pt,155pt)
     \Huge{$\}$}
   \end{textblock*}
-  \begin{textblock*}{150pt}(225pt,158pt)
+  \begin{textblock*}{150pt}(230pt,164pt)
     \emph{Backpropagation}
   \end{textblock*}
   \begin{itemize}
   \item Pass input $X$ to the network
   \item Calculate output $\hat{Y}$ and difference\\ to true value $Y$ (loss function)
-  \item Calculate gradient of the loss
-  \item Use gradient to update weights $W, b$
+  \item Minimize loss function:
+    \begin{itemize}
+    \item Calculate gradient of the loss
+    \item Use gradient to update weights $W, b$
+    \end{itemize}
   \end{itemize}
   \begin{textblock*}{150pt}(20pt,200pt)
-  \begin{align*}
-    &a^{[0]} \coloneqq X \\
-    &a^{[l]} \coloneqq \sigma^{[l]}(W^{[l]} a^{[l-1]}+ b^{[l]})\\
-    &\hat{Y}(X) \coloneqq a^{[L]}
-  \end{align*}
-\end{textblock*}
+    \begin{align*}
+      &a^{[0]} \coloneqq X \\
+      &a^{[l]} \coloneqq \sigma^{[l]}(W^{[l]} a^{[l-1]}+ b^{[l]})\\
+      &\hat{Y}(X) \coloneqq a^{[L]}
+    \end{align*}
+  \end{textblock*}
 
   \begin{textblock*}{170pt}(160pt,210pt)
-  \begin{align*}
-    &\text{\emph{Example Loss}:}\\
-    &\mathcal{L}(\hat{Y}, Y) = (\hat{Y} - Y)^2
-  \end{align*}
-\end{textblock*}
+    \begin{align*}
+      &\text{\emph{Example Loss}:}\\
+      &\mathcal{L}(\hat{Y}, Y) = (\hat{Y} - Y)^2
+    \end{align*}
+  \end{textblock*}
 \end{frame}
 
 \begin{frame}{Electromagnetic Calorimeter}
@@ -131,7 +134,7 @@
         \filldraw[fill=brown!30!white, draw=brown!30!white] (4.0, 1.70) rectangle (4.45, -3.45);
         
         \draw[electron] (0,0) -- (1,0);
-        \draw (-0.15, 0) node {$e$};
+        \draw (-0.15, 0.1) node {$e^{-}$};
         \draw[photon] (1,0) -- (1.7, -1.25);
         \draw[electron] (1,0) -- (2, 0.55);
         \draw[electron] (1.7, -1.25) -- (2.5, -1);
@@ -141,26 +144,26 @@
         \draw[photon] (2.5, -2.05) -- (3.1, -2.);
         
         \draw[electron] (3, 0.75) -- (3.7, 1.25);
-        \draw (3.85, 1.25) node {$e$};
+        \draw (3.95, 1.35) node {$e^{-}$};
         \draw[electron] (3, 0.75) -- (3.7, 0.45);
-        \draw (3.85, 0.45) node {$e$};
+        \draw (3.95, 0.5) node {$e^{+}$};
         \draw[photon] (2.7, 0) -- (3.7, 0.1);
         \draw (3.85, 0.1) node {$\gamma$};
         \draw[electron] (2.7, 0) -- (3.7, -0.5);
-        \draw (3.85, -0.5) node {$e$};
+        \draw (3.95, -0.4) node {$e^{-}$};
         \draw[electron] (2.5, -1) -- (3.7, -0.8);
-        \draw (3.85, -0.8) node {$e$};
+        \draw (3.95, -0.75) node {$e^{-}$};
         \draw[photon] (2.5, -1) -- (3.7, -1.2);
         \draw (3.85, -1.2) node {$\gamma$};
         \draw[electron] (3.1, -2.) -- (3.7, -1.5);
-        \draw (3.85, -1.5) node {$e$};
+        \draw (3.95, -1.4) node {$e^{+}$};
         \draw[photon] (3.3, -2.15) -- (3.7, -2);
         \draw (3.85, -2) node {$\gamma$};
 
         \draw[electron] (3.1, -2.) -- (3.7, -2.5);
-        \draw (3.85, -2.5) node {$e$};
+        \draw (3.95, -2.45) node {$e^{-}$};
         \draw[electron] (2.5, -2.05) -- (3.7, -3.);
-        \draw (3.85, -3.) node {$e$};
+        \draw (3.95, -2.95) node {$e^{+}$};
       \end{tikzpicture}
 
     \end{figure}
@@ -170,7 +173,7 @@
 
 \begin{frame}{Simulation Setup}
   \begin{textblock*}{220pt}(150pt, 40pt)
-    \includegraphics[width=\textwidth]{side.png}
+    \includegraphics[width=\textwidth]{../images/side.png}
   \end{textblock*}
 
   \begin{textblock*}{150pt}(2pt,100pt)
@@ -199,12 +202,12 @@
     \column{0.5\textwidth}
     Visualization of the data:
     \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../data_display.pdf}
+      \includegraphics[width=1.1\textwidth]{../images/data_display.pdf}
     \end{figure}
     \column{0.5\textwidth}
     Standard method of a linear fit through the data points:
     \begin{figure}[htp]
-      \includegraphics[width=\textwidth]{../e-vs-sum_n_fit.pdf}
+      \includegraphics[width=\textwidth]{../images/e-vs-sum_n_fit.pdf}
     \end{figure}
   \end{columns}
   \begin{textblock*}{250pt}(100pt, 230pt)
@@ -214,13 +217,18 @@
 
 \begin{frame}{Neural Net}
   \centering
-  \begin{tabular}{l|l|l}
-    Layer & Type                                & Activation \\ \hline
-    1-3     & Conv3D(32, (3,3,3), strides = (1, 1, 1)) & ReLu       \\
-    4     & Flatten()                           &            \\
-    5-8   & Dense(128)                          & ReLu       \\
-    9     & Dense(10)                           & ReLu       \\
-    10     & Dense(1)                            & Linear    
+  \begin{tabular}{l|l|l|l|l}
+    Layer & Type  & Activation & Output Shape & \# Parameter \\
+    \hline
+    0     & Input &            & (8, 8, 17, 1) &  \\
+    1   & Conv3D(32, (3,3,3)) & ReLU & (8, 8, 17, 32)   & 896   \\
+    2   & Conv3D(10, (3,3,3)) & ReLU & (6, 6, 15, 10)   & 8650  \\
+    3   &  Conv3D(5, (5, 5, 5)) & ReLU & (2, 2, 11, 5)  & 6255  \\
+    4     & Flatten()  & & 220 &               \\
+    5   & Dense(128)                          & ReLU & 128 & 28288          \\
+    6-7 & Dense(128)  & ReLU & 128 & 16512 \\
+    8     & Dense(10)                           & ReLU & 10 & 1290         \\
+    10     & Dense(1)                            & Linear   & 1 & 11 
   \end{tabular}
   \begin{itemize}
   \item Loss = Mean Squared Error
@@ -233,31 +241,21 @@
   \begin{columns}
     \column{0.5\textwidth}
     \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../data_augment.pdf}
+      \includegraphics[width=1.1\textwidth]{../images/data_augment.pdf}
     \end{figure}
     \column{0.5\textwidth}
     \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../data_augment_res.pdf}
+      \includegraphics[width=1.1\textwidth]{../images/data_augment_res.pdf}
     \end{figure}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Maximum Likelihood To Mean Squared Error}
-Assumption: true values are gaussian distributed with const std $\sigma$
-  \begin{align*}
-    \text{max log likelihood} &= \text{max} \ln( \prod \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}) \\
-                              & =\text{max} \sum -\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2} - \ln(\sqrt{2\pi \sigma^2}) \\
-                              & =-\text{max} \sum\frac{(y_{\text{true}}-y_{\text{pred}})^2}{\cancel{2 \sigma^2}} + \cancel{\ln(\sqrt{2\pi \sigma^2})} \\
-                              & = \text{min} \sum (y_{\text{true}}-y_{\text{pred}})^2
-  \end{align*}
-\end{frame}
-
 \begin{frame}{Maximum Likelihood Loss}
   \begin{textblock*}{150pt}(30pt,35pt)
-      \includegraphics[width=\textwidth]{../e-vs-sum_n.pdf}
+      \includegraphics[width=\textwidth]{../images/e-vs-sum_n.pdf}
   \end{textblock*}
   \begin{textblock*}{150pt}(175pt,35pt)
-    \includegraphics[width=\textwidth]{./gaussian_shift.pdf}
+    \includegraphics[width=\textwidth]{../images/gaussian_shift.pdf}
   \end{textblock*}
 
   \begin{textblock*}{150pt}(5pt,140pt)
@@ -276,11 +274,11 @@ Assumption: true values are gaussian distributed with const std $\sigma$
   \begin{columns}
     \column{0.5\textwidth}
     \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../likelihood.pdf}
+      \includegraphics[width=1.1\textwidth]{../images/likelihood.pdf}
     \end{figure}
     \column{0.5\textwidth}
     \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../likelihood_res.pdf}
+      \includegraphics[width=1.1\textwidth]{../images/likelihood_res.pdf}
     \end{figure}
   \end{columns}
 \end{frame}
