@@ -11,7 +11,7 @@
 #                            |___/                           #
 ##############################################################
 
-from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, Activation
+from keras.layers import Input, Dense, Conv3D, Flatten, BatchNormalization, Activation
 from keras.models import Model
 import h5py
 import pickle
@@ -50,10 +50,12 @@ history = {'loss': [], 'val_loss': []}
 #      \/    \/\___/ \__,_|\___|_|                           #
 ##############################################################
 
-inputs = Input(shape=(8, 8, 17,))
-Dx = Conv2D(32, (2, 2), strides = (1, 1), name = 'conv0')(inputs)
-# Dx = BatchNormalization(axis = 3, name = 'bn0')(Dx)
+inputs = Input(shape=(8, 8, 17, 1))
+Dx = Conv3D(32, (2, 2, 2), strides = (1, 1, 1), name = 'conv0')(inputs)
 Dx = Activation('relu')(Dx)
+Dx = Conv3D(5, (3, 3, 3), strides = (1, 1, 1), name = 'conv')(Dx)
+Dx = Activation('relu')(Dx)
+
 Dx = Flatten()(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)

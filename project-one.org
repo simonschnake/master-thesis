@@ -5,7 +5,7 @@
 #+OPTIONS: toc:nil
 
 * Planning                                                         :noexport:
-
+  
 ** 
 * Setup                                                            :noexport:
 Here are the needed packages. Also to config matplotlib for latex export
@@ -25,7 +25,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[1]:
+# Out[4]:
 :END:
 
 * Loading Data                                                     :noexport:
@@ -48,7 +48,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[2]:
+# Out[5]:
 :END:
 
 * Experimental Setup
@@ -76,8 +76,8 @@ Comparing different models
 
 #+RESULTS:
 :RESULTS:
-# Out[3]:
-[[file:./obipy-resources/h3xlUT.png]]
+# Out[6]:
+[[file:./obipy-resources/0xdr3r.png]]
 :END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
@@ -129,8 +129,8 @@ Comparing different models
 
 #+RESULTS:
 :RESULTS:
-# Out[4]:
-[[file:./obipy-resources/SW1M4t.png]]
+# Out[7]:
+[[file:./obipy-resources/MS3cHT.png]]
 :END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
@@ -171,8 +171,8 @@ This is done with the method of least squares.
 
 #+RESULTS:
 :RESULTS:
-# Out[5]:
-[[file:./obipy-resources/CTQhJr.png]]
+# Out[8]:
+[[file:./obipy-resources/HOeyUM.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
@@ -207,9 +207,9 @@ The relation is bijectiv so the solution can be found by swapping the axixes.
 
 #+RESULTS:
 :RESULTS:
-# Out[34]:
+# Out[9]:
 : Text(0.5,0,'$\\sum_i n_i$')
-[[file:./obipy-resources/oKEKqX.png]]
+[[file:./obipy-resources/7gKPol.png]]
 :END:
 
 \[
@@ -288,8 +288,8 @@ Which is
 
 #+RESULTS:
 :RESULTS:
-# Out[55]:
-[[file:./obipy-resources/VS7mL2.png]]
+# Out[10]:
+[[file:./obipy-resources/lQRnlA.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
@@ -328,7 +328,7 @@ the true energy values and our predicted energy values. We train the network for
 
 #+RESULTS:
 :RESULTS:
-# Out[8]:
+# Out[11]:
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -404,6 +404,9 @@ physics. Also
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
 #+NAME: first
 [[./first.pdf]]
+
+* Learning the Shape
+
 
 
 * Data Augmentation
