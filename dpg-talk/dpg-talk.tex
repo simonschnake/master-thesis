@@ -100,15 +100,14 @@
 
 \begin{frame}{Electromagnetic Calorimeter}
   \begin{columns}
-    \column{0.5\textwidth}
+    \column{0.65\textwidth}
     \begin{itemize}
-    \item shower building
+    \item leading processes in shower development
       \begin{itemize}
       \item bremsstrahlung
       \item pair production
       \end{itemize}
     \item measure the energy of the particle shower (destructive)
-    \item sampling or homogenous
     \item resolution of a calorimeter
       $\frac{\sigma}{E} = \frac{a}{\sqrt{E}} \otimes b \otimes \frac{c}{E} $
     \end{itemize}
@@ -198,19 +197,23 @@
 \end{frame}
 
 \begin{frame}{Resulting Data}
-  \begin{columns}
-    \column{0.5\textwidth}
-    Visualization of the data:
-    \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../images/data_display.pdf}
-    \end{figure}
-    \column{0.5\textwidth}
-    Standard method of a linear fit through the data points:
+  \begin{textblock*}{250pt}(20pt, 75pt)
+    Calibration by linear fitting:
+  \end{textblock*}
+  \begin{textblock*}{150pt}(150pt, 20pt)
     \begin{figure}[htp]
       \includegraphics[width=\textwidth]{../images/e-vs-sum_n_fit.pdf}
     \end{figure}
-  \end{columns}
-  \begin{textblock*}{250pt}(100pt, 230pt)
+  \end{textblock*}
+  \begin{textblock*}{250pt}(20pt, 175pt)
+    Visualization of the data:
+  \end{textblock*}
+  \begin{textblock*}{135pt}(150pt, 120pt)
+    \begin{figure}[htp]
+      \includegraphics[width=1.1\textwidth]{../images/data_display.pdf}
+    \end{figure}
+  \end{textblock*}
+  \begin{textblock*}{250pt}(150pt, 240pt)
     $\Rightarrow$ data structure suggest 3D conv. net
   \end{textblock*}
 \end{frame}
@@ -252,19 +255,27 @@
 
 \begin{frame}{Maximum Likelihood Loss}
   \begin{textblock*}{150pt}(30pt,35pt)
-      \includegraphics[width=\textwidth]{../images/e-vs-sum_n.pdf}
+      \includegraphics[width=\textwidth]{../images/gaussian_shift.pdf}
   \end{textblock*}
   \begin{textblock*}{150pt}(175pt,35pt)
-    \includegraphics[width=\textwidth]{../images/gaussian_shift.pdf}
+      \includegraphics[width=\textwidth]{../images/e-vs-sum_n.pdf}
   \end{textblock*}
 
   \begin{textblock*}{150pt}(5pt,140pt)
     \begin{align*}
-      \Rightarrow \text{max log likelihood} &= -\text{min} \sum \ln(\frac{\text{Norm}(y_{\text{true}} | y_{\text{pred}}, \sigma)}{\int^b_a \text{Norm}(y_{\text{true}} | y_{\text{pred}}, \sigma)})\\
-                                            &=\ \text{min} \sum \frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}\\
-   &\qquad \qquad +\ln(\frac{1}{2} \left(\text{erf}(\frac{y_{\text{pred}}-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{y_{\text{pred}}-b}{\sqrt{2}\sigma})\right))
+      &\text{max log likelihood} = -\text{min} \sum \ln(\frac{\text{Norm}(y_{\text{true}} | y_{\text{pred}}, \sigma)}{\int^b_a \text{Norm}(y_{\text{true}} | y_{\text{pred}}, \sigma)})\\ \\
+                                            &=\ \text{min} \sum \underbrace{\frac{(y_{\text{true}}-y_{\text{pred}})^2}{\sigma^2}}_{\text{\textcolor{blue}{Mean Squared Weighted Error}}} +\underbrace{\ln(\frac{\pi \sigma^2}{2} \left(\text{erf}(\frac{y_{\text{pred}}-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{y_{\text{pred}}-b}{\sqrt{2}\sigma})\right)^2)}_{\text{\textcolor{red}{border correction term}}}
     \end{align*}
   \end{textblock*}
+
+    \begin{textblock*}{300pt}(150pt, 42pt)
+      \begin{tikzpicture}
+        \draw (6,1) rectangle (6.1, 4);
+        \draw [<-] (2, 3) .. controls (3.5, 3.5) .. (6,2.5);
+
+      \end{tikzpicture}
+      
+    \end{textblock*}
 \end{frame}
 
 \begin{frame}{Maximum Likelihood Loss}

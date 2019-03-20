@@ -22,10 +22,11 @@
   from scipy.stats import norm
   from scipy import optimize
 
-  a=-1
+  a=-3
   b=1.5
   mu=1
-  sigma=1
+  sigma=0.3
+
   def likelihood(n, mu, sigma):
       epsilon = 0.0000001
       elements = norm.pdf(n, mu, sigma)
@@ -37,16 +38,21 @@
   fig, ax = plt.subplots()
 
   n = np.arange(-2, 3.01, 0.1)
-  plt.plot(n, norm.pdf(n, mu, sigma), 'k-')
-  plt.plot(n, likelihood(n, mu+0.6, sigma), 'k--')
+  plt.plot(n, norm.pdf(n, mu+0.4, sigma), 'k-')
+  plt.plot(n, likelihood(n, mu+0.7, sigma), 'k--')
   n = np.arange(a, b+0.01, 0.1)
-  plt.plot(n, likelihood(n, mu+0.6, sigma), 'k-')
-  plt.fill_between(n, norm.pdf(n, mu, sigma), likelihood(n, mu+0.6, sigma), color='r', alpha=0.8)
-  plt.fill_between(n, 0, norm.pdf(n, mu, sigma), alpha=0.5)
-  plt.plot([b, b], [0, 1], 'k-')
-  plt.text(b, -0.08, 'b', ha='center', va='center', size=20, color='k')
-  plt.text(a, -0.08, 'a', ha='center', va='center', size=20, color='k')
-  plt.plot([a, a], [0, 1], 'k-')
+  plt.plot(n, likelihood(n, mu+0.7, sigma), 'k-')
+  plt.fill_between(n, norm.pdf(n, mu+0.4, sigma), likelihood(n, mu+0.7
+, sigma), color='r', alpha=0.8)
+  plt.fill_between(n, 0, norm.pdf(n, mu+0.4, sigma), alpha=0.5)
+
+  # set labels
+  plt.text(a, -0.5, '0 GeV', ha='center', va='center', size=15, color='k')
+  plt.text(b, -0.5, '10 GeV', ha='center', va='center', size=15, color='k')
+
+  # set borders
+  plt.plot([a, a], [0, 5], 'k-')
+  plt.plot([b, b], [0, 5], 'k-')
   plt.tick_params(axis='both', which='both', bottom=False, top=False,
                   labelbottom=False, left=False, right=False, labelleft=False)
 
@@ -55,13 +61,13 @@
   ax.spines['right'].set_visible(False)
   ax.spines['left'].set_visible(False)
 
-  plt.savefig('gaussian_shift.pdf')
+  plt.savefig('../images/gaussian_shift.pdf')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[2]:
-[[file:./obipy-resources/FKtAIg.png]]
+# Out[36]:
+[[file:./obipy-resources/5GCTzs.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
