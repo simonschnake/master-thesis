@@ -1184,6 +1184,9 @@ output. These outputs are computes by the same algorithmic structure, sharing
 identical weigths. 
 
 \todo{Kapitel zuende schreiben}
+
+
+\todo{D.O. Hebb 1940 (Hebbian learning by modified synaptic strength) nachschlagen}
 * Energy Regression in Calorimetry
 ** Inhalt [1/13]
 - [X] Aufbau Calorimeter Simulation
