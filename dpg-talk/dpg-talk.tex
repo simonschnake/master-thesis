@@ -1,7 +1,7 @@
 \documentclass[10pt]{beamer}
 \usetheme[outer/progressbar=foot]{metropolis}
 \usepackage{booktabs}
-%\usepackage[scale=2]{ccicons}
+% \usepackage[scale=2]{ccicons}
 \usepackage{pgfplots}
 \usepackage{cancel}
 \usepackage[ngerman]{babel}
@@ -40,23 +40,23 @@
     \vfill
     \vspace*{1mm}
     \begin{textblock*}{120pt}(10pt,214pt)
-      \includegraphics[width=\textwidth]{up-uhh-logo-u-2010-u-farbe-u-cmyk.pdf}
+      \includegraphics[width=\textwidth]{../images/up-uhh-logo-u-2010-u-farbe-u-cmyk.pdf}
     \end{textblock*}
 
     \begin{textblock*}{70pt}(280pt,210pt)
-      \includegraphics[width=\textwidth]{BMBF-Logo-gefoe.png}
+      \includegraphics[width=\textwidth]{../images/BMBF-Logo-gefoe.png}
     \end{textblock*}
-\end{minipage}
+  \end{minipage}
 }
 
 
-%Frontpage
+% Frontpage
 \title{Boundary Errors In Calorimetry}
 \date{\today}
 \author{Peter Schleper, \textbf{Simon Schnake}, Hartmut Stadie}
 \institute{Universität Hamburg}
 
-%Document
+% Document
 \begin{document}
 \maketitle
 \tikzstyle{every picture}+=[remember picture]
@@ -64,7 +64,7 @@
 \begin{frame}{Deep Learning}
   \begin{textblock*}{150pt}(200pt,35pt)
     \begin{figure}[htp]
-      \includegraphics[width=\textwidth]{tikz1.png}
+      \includegraphics[width=\textwidth]{../images/tikz1.png}
     \end{figure}
   \end{textblock*}
   \begin{textblock*}{150pt}(207pt,150pt)
@@ -80,19 +80,19 @@
   \item Use gradient to update weights $W, b$
   \end{itemize}
   \begin{textblock*}{150pt}(20pt,200pt)
-  \begin{align*}
-    &a^{[0]} \coloneqq X \\
-    &a^{[l]} \coloneqq \sigma^{[l]}(W^{[l]} a^{[l-1]}+ b^{[l]})\\
-    &\hat{Y}(X) \coloneqq a^{[L]}
-  \end{align*}
-\end{textblock*}
+    \begin{align*}
+      &a^{[0]} \coloneqq X \\
+      &a^{[l]} \coloneqq \sigma^{[l]}(W^{[l]} a^{[l-1]}+ b^{[l]})\\
+      &\hat{Y}(X) \coloneqq a^{[L]}
+    \end{align*}
+  \end{textblock*}
 
   \begin{textblock*}{170pt}(160pt,210pt)
-  \begin{align*}
-    &\text{\emph{Example Loss}:}\\
-    &\mathcal{L}(\hat{Y}, Y) = (\hat{Y} - Y)^2
-  \end{align*}
-\end{textblock*}
+    \begin{align*}
+      &\text{\emph{Example Loss}:}\\
+      &\mathcal{L}(\hat{Y}, Y) = (\hat{Y} - Y)^2
+    \end{align*}
+  \end{textblock*}
 \end{frame}
 
 \begin{frame}{Electromagnetic Calorimeter}
@@ -170,9 +170,8 @@
 
 \begin{frame}{Simulation Setup}
   \begin{textblock*}{220pt}(150pt, 40pt)
-    \includegraphics[width=\textwidth]{side.png}
+    \includegraphics[width=\textwidth]{../images/side.png}
   \end{textblock*}
-
   \begin{textblock*}{150pt}(2pt,100pt)
     \begin{itemize}
     \item Simulation with Geant4\small{}
@@ -199,12 +198,12 @@
     \column{0.5\textwidth}
     Visualization of the data:
     \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../data_display.pdf}
+      \includegraphics[width=1.1\textwidth]{../images/data_display.pdf}
     \end{figure}
     \column{0.5\textwidth}
     Standard method of a linear fit through the data points:
     \begin{figure}[htp]
-      \includegraphics[width=\textwidth]{../e-vs-sum_n_fit.pdf}
+      \includegraphics[width=\textwidth]{../images/e-vs-sum_n_fit.pdf}
     \end{figure}
   \end{columns}
   \begin{textblock*}{250pt}(100pt, 230pt)
@@ -233,17 +232,17 @@
   \begin{columns}
     \column{0.5\textwidth}
     \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../data_augment.pdf}
+      \includegraphics[width=1.1\textwidth]{../images/data_augment.pdf}
     \end{figure}
     \column{0.5\textwidth}
     \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../data_augment_res.pdf}
+      \includegraphics[width=1.1\textwidth]{../images/data_augment_res.pdf}
     \end{figure}
   \end{columns}
 \end{frame}
 
 \begin{frame}{Maximum Likelihood To Mean Squared Error}
-Assumption: true values are gaussian distributed with const std $\sigma$
+  Assumption: true values are gaussian distributed with const std $\sigma$
   \begin{align*}
     \text{max log likelihood} &= \text{max} \ln( \prod \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}) \\
                               & =\text{max} \sum -\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2} - \ln(\sqrt{2\pi \sigma^2}) \\
@@ -254,17 +253,17 @@ Assumption: true values are gaussian distributed with const std $\sigma$
 
 \begin{frame}{Maximum Likelihood Loss}
   \begin{textblock*}{150pt}(30pt,35pt)
-      \includegraphics[width=\textwidth]{../e-vs-sum_n.pdf}
+    \includegraphics[width=\textwidth]{../images/e-vs-sum_n.pdf}
   \end{textblock*}
   \begin{textblock*}{150pt}(175pt,35pt)
-    \includegraphics[width=\textwidth]{./gaussian_shift.pdf}
+    \includegraphics[width=\textwidth]{./images/gaussian_shift.pdf}
   \end{textblock*}
 
   \begin{textblock*}{150pt}(5pt,140pt)
     \begin{align*}
       \Rightarrow \text{max log likelihood} &= -\text{min} \sum \ln(\frac{\text{Norm}(y_{\text{true}} | y_{\text{pred}}, \sigma)}{\int^b_a \text{Norm}(y_{\text{true}} | y_{\text{pred}}, \sigma)})\\
                                             &=\ \text{min} \sum \frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}\\
-   &\qquad \qquad +\ln(\frac{1}{2} \left(\text{erf}(\frac{y_{\text{pred}}-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{y_{\text{pred}}-b}{\sqrt{2}\sigma})\right))
+                                            &\qquad \qquad +\ln(\frac{1}{2} \left(\text{erf}(\frac{y_{\text{pred}}-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{y_{\text{pred}}-b}{\sqrt{2}\sigma})\right))
     \end{align*}
   \end{textblock*}
 \end{frame}
@@ -276,11 +275,11 @@ Assumption: true values are gaussian distributed with const std $\sigma$
   \begin{columns}
     \column{0.5\textwidth}
     \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../likelihood.pdf}
+      \includegraphics[width=1.1\textwidth]{../images/likelihood.pdf}
     \end{figure}
     \column{0.5\textwidth}
     \begin{figure}[htp]
-      \includegraphics[width=1.1\textwidth]{../likelihood_res.pdf}
+      \includegraphics[width=1.1\textwidth]{../images/likelihood_res.pdf}
     \end{figure}
   \end{columns}
 \end{frame}
