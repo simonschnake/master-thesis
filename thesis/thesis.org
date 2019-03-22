@@ -1188,13 +1188,13 @@ identical weigths.
 
 \todo{D.O. Hebb 1940 (Hebbian learning by modified synaptic strength) nachschlagen}
 * Energy Regression in Calorimetry
-** Inhalt [2/13]
+** Inhalt [6/13]
 - [X] Aufbau Calorimeter Simulation
 - [X] Linearer Fit Standard
-- [ ] Aufbau Neuronales Netz
-- [ ] Resultat
-- [ ] Overfitting
-- [ ] Data Augmentation
+- [X] Aufbau Neuronales Netz
+- [X] Resultat
+- [X] Overfitting
+- [X] Data Augmentation
 - [ ] Results
 - [ ] Shift to higher Values
 - [ ] Results of different loss functions
@@ -1323,7 +1323,7 @@ distribution. The result is shown in Figure ref:e-vs-sum_n_fit.
 label:e-vs-sum_n_fit
 [[../images/e-vs-sum_n_fit.pdf]]
 
-** TODO Deep Learning Setup
+** DONE Deep Learning Setup
 
  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
    import h5py
@@ -1362,117 +1362,12 @@ ist in table xx zu sehen.
 Falls nicht anders expliziert wurde dieses Netzwerk für die
 weitergehende Analyse verwendet.
 
-
-
-
-** TODO Linear Fit with different version
-
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   from scipy.optimize import leastsq
-   # function to fit
-   fitfunc = lambda c , x: (x-c[1])/(abs(c[0])+0.0001)
-   errfunc = lambda c , x, y: (y - fitfunc(c, x))
-   out = leastsq(errfunc, [0., 0.0], args=(energies, sum_n), full_output=1)
-
-   c_fit = out[0]
-   covar = out[1]
-  
-   fitfunc = lambda c , x: c[0]*x+c[1]+c[0]
-   n = np.arange(0, 250, 0.5)
-   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-   plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
-   # plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
-
-   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$\sum_i n_i$')
-
- #  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
- #  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
- #+END_SRC
-
- \[
-    \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} 
- \]
- \[
- \text{likelihood} = \prod_{i} \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))}
- \]
-
- \[
- \text{cost} = - \sum_{i} \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
- \]
-
- \[
- \text{loss} = - \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
- \]
- \[
- \text{loss} = - \ln(e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}})-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
- \]
- \[
- \text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
- \]
-
- \[
- \text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}+\ln(\sqrt{\frac{\pi}{2}} \sigma_i\left(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})\right))
- \]
-
- For stability reasons we use the results of the leastsquares fit as
- the start parameters of our minimum likelihood fit.  The minimizing
- method is "L-BFGS-B"[CITE]. $\mu_i$ is the prediction of our model in
- this case the result of the linear fit.  The number of charged
- particles in the scintillators is poisson distributed. So the
- estimator the energy has a standard deviance of $\sqrt{\mu}$.
-
- Which is 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   from scipy.special import erf
-   from scipy.stats import norm
-   from scipy import optimize
-
-   def likelihood(par):
-       epsilon = 0.0000001
-       mu = sum_n*par[0]+par[1]
-       sigma = np.sqrt(np.abs(mu)) # 2/par[0] 
-       elements = norm.pdf(energies, mu, sigma)
-       a = np.divide(mu-lower_border, np.sqrt(2)*sigma+epsilon)
-       b = np.divide(mu-upper_border, np.sqrt(2)*sigma+epsilon)
-       norms = np.abs(erf(a)- erf(b))
-       return -np.sum(np.log(np.divide(elements, norms + epsilon)+epsilon))
-
-   lower_border = 0  
-   upper_border = 10
-   out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
-
-   c_like = out['x']
-
-   n = np.arange(0, 250, 0.5)
-   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-   plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
-   # plt.plot(n, fitfunc(c_like, n), 'b-')     # Fit
-   # plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
-
-   # n = np.arange(0, 10.1, 0.1)
-   # plt.plot(energies, sum_n, 'r.', alpha=0.06)
-   # plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
-
-   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$\sum_i n_i$')
-
-
-   plt.text(1, 9.5, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
-   plt.text(1, 9, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
-
-   plt.savefig('../images/e-vs-sum_n_fit.pdf')
- #+END_SRC
-
- #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
- #+NAME: e-vs-sum_n_fit
- [[../images/e-vs-sum_n_fit.pdf]]
-
 ** TODO First Network
 
- We are starting with a fully connected neural network. It is build out of 4 layers with 64 neurons each. The activation function of each layer is ReLu.
- Our output layer is one neuron with a linear activation. We train the network with the rmsprop optimizer and our loss function is the mean squared error between
- the true energy values and our predicted energy values. We train the network for 10 epochs with a batch size of 128.
+The network is trained with the RMSprop optimizer and our loss
+function is the mean squared error between the true energy values and
+our predicted energy values. We train the network for 250 epochs with a
+batch size of 128.
 
  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
    from keras.models import Model
@@ -1523,13 +1418,14 @@ weitergehende Analyse verwendet.
 
  #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
  #+NAME: Loss
+label:first_loss
  [[../images/first_loss.pdf]]
 
- In xx the loss function is shown. While the loss function for
- the training set decreases over time, the loss for the validation set
- increases. This implies that our model is overfitting, which means
- that the model learns the data and nothing about the underlying
- physics. Also 
+ In figure ref:first_loss the loss function is shown. While the loss
+ function for the training set decreases over time, the loss for the
+ validation set increases. This implies that our model is overfitting,
+ which means that the model uses the amount of parameters to remember
+ each point of the data set and not the structure of the data.
 
  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
    D.load_weights('src/first_weights.h5')
@@ -1556,30 +1452,19 @@ weitergehende Analyse verwendet.
    plt.savefig('first.pdf', bbox_inches = 'tight')
  #+END_SRC
 
- #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
- #+NAME: first
- [[../images/first.pdf]]
-
 ** TODO Data Augmentation
- One of the biggest issues with the setup is that it
- leads to fast overfitting models. To compensate this, there are
- different ways. One way is to artificially increase the dataset by
- data augmentation. Data Augmentation means generating new data by transformation of the given data.
-\todo{BESSER ERKLÄREN}.
- An easy to understand example is shown in the image of the cat.  Examples
- of data augmentation are every form of flipping, rotations or
- cutting. In the perspective of a physicist, data augmentation could be
- interpreted as a form of making the data invariant under symmetry
- transformations. This is of course only a subset of the possible ways
- of data augmentation, but it should be enough for our
- application. Calorimeter events should be invariant under rotations
- perpendicular to the direction of the incoming particle. Our image of
- the physical process is processed in rectangular structures, which
- makes only rotations around $\frac{\pi}{2}$ valid transformations.  To
- reduce computation and data costs we randomly apply this
- transformations on incoming data into our network. So we do not
- tranform data we are not training on and we are not storing additional
- transformed datasets.
+Um das overfitting problem zu beheben, wurde die Technik der Data
+Augmentation angewandt.  Data Augmentation in dieser Anwendung meint
+das wir alle gültigen Symmetrietransformationen ausnutzen um die
+Anzahl der Datepunkte zu erhöhen. Jedes Datenpunkt wird zufällig um
+bis zu 3 mal um 90 Grad gedreht und zufällig die gesamten Datenpunkte
+gespiegelt. Dies verachtfacht die möglichen Datenpunkte und soll das
+Netzwerk dazu befähigen die Symmetrien im System zu lernen.
+Anschließend wurden die Datenpunkte noch in allen Richtungen
+verschoben um die Daten unabhängig ihres Eintreffpunktes zu machen.
+An dieser Stelle sei bemerkt das dieses Transformationen nur gültig
+sind, da unsere Simulation absolut homogen und symmetrisch ist. Bei
+realen Detektorpunkten ist dies nicht gegeben.
 
  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
  import pickle
@@ -1607,8 +1492,15 @@ weitergehende Analyse verwendet.
 
  #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
  #+NAME: Loss
+label:data_augment_loss
  [[../images/data_augment_loss.pdf]]
 
+Wie in Abbildung ref:data_augment_loss zu sehen, kann das Overfitting
+für unseren Datensatz mit dieser Methode komplett reduziert werden.
+Die Fluktuationen in den Werten der Loss Funktion für das validation
+sample entstehen durch die höhere statistische Fluktuation einer
+kleineren Datenmenge. Der globale Verlauf folgt asymptotischer dem der
+loss für das trainingsset.
 
  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
    D.load_weights('src/data_augment_weights.h5')
@@ -1680,6 +1572,95 @@ weitergehende Analyse verwendet.
  #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
  #+NAME: first_res
  [[../images/data_augment_res.pdf]]
+
+
+
+** TODO Linear Fit with different version
+
+ #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+   from scipy.optimize import leastsq
+   # function to fit
+   fitfunc = lambda c , x: (x-c[1])/(abs(c[0])+0.0001)
+   errfunc = lambda c , x, y: (y - fitfunc(c, x))
+   out = leastsq(errfunc, [0., 0.0], args=(energies, sum_n), full_output=1)
+
+   c_fit = out[0]
+   covar = out[1]
+  
+   fitfunc = lambda c , x: c[0]*x+c[1]+c[0]
+   n = np.arange(0, 250, 0.5)
+   plt.plot(sum_n, energies, 'r.', alpha=0.06)
+   plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
+   # plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
+
+   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
+   plt.xlabel(r'$\sum_i n_i$')
+
+ #  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
+ #  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
+ #+END_SRC
+\begin{align}
+ \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} \\
+ \text{likelihood} = \prod_{i} \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))}\\
+ \text{cost} = - \sum_{i} \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})\\
+ \text{loss} = - \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})\\
+ \text{loss} = - \ln(e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}})-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))\\
+ \text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))\\
+ \text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}+\ln(\sqrt{\frac{\pi}{2}} \sigma_i\left(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})\right))
+\end{align}
+
+ For stability reasons we use the results of the leastsquares fit as
+ the start parameters of our minimum likelihood fit.  The minimizing
+ method is "L-BFGS-B"[CITE]. $\mu_i$ is the prediction of our model in
+ this case the result of the linear fit.  The number of charged
+ particles in the scintillators is poisson distributed. So the
+ estimator the energy has a standard deviance of $\sqrt{\mu}$.
+
+ Which is 
+ #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+   from scipy.special import erf
+   from scipy.stats import norm
+   from scipy import optimize
+
+   def likelihood(par):
+       epsilon = 0.0000001
+       mu = sum_n*par[0]+par[1]
+       sigma = np.sqrt(np.abs(mu)) # 2/par[0] 
+       elements = norm.pdf(energies, mu, sigma)
+       a = np.divide(mu-lower_border, np.sqrt(2)*sigma+epsilon)
+       b = np.divide(mu-upper_border, np.sqrt(2)*sigma+epsilon)
+       norms = np.abs(erf(a)- erf(b))
+       return -np.sum(np.log(np.divide(elements, norms + epsilon)+epsilon))
+
+   lower_border = 0  
+   upper_border = 10
+   out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
+
+   c_like = out['x']
+
+   n = np.arange(0, 250, 0.5)
+   plt.plot(sum_n, energies, 'r.', alpha=0.06)
+   plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
+   # plt.plot(n, fitfunc(c_like, n), 'b-')     # Fit
+   # plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
+
+   # n = np.arange(0, 10.1, 0.1)
+   # plt.plot(energies, sum_n, 'r.', alpha=0.06)
+   # plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
+
+   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
+   plt.xlabel(r'$\sum_i n_i$')
+
+
+   plt.text(1, 9.5, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
+   plt.text(1, 9, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
+
+   plt.savefig('../images/e-vs-sum_n_fit.pdf')
+ #+END_SRC
+
+ #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
+ #+NAME: e-vs-sum_n_fit
+ [[../images/e-vs-sum_n_fit.pdf]]
 
 ** TODO Likelihood Solution
 
