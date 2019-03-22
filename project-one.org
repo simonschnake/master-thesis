@@ -7,11 +7,10 @@
 
 * Planning                                                         :noexport:
   
-* 
 * Setup                                                            :noexport:
 Here are the needed packages. Also to config matplotlib for latex export
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  !cd /home/schnakes/master-thesis
+  # !cd /home/schnakes/master-thesis
   import matplotlib as mpl
   import matplotlib.pyplot as plt
   mpl.rcParams['text.usetex'] = True
@@ -23,11 +22,6 @@ Here are the needed packages. Also to config matplotlib for latex export
 
   %matplotlib inline
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[8]:
-:END:
 
 * Loading Data                                                     :noexport:
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -46,11 +40,6 @@ Here are the needed packages. Also to config matplotlib for latex export
   X_train = data['train']['X']
   Y_train = data['train']['Y']
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[9]:
-:END:
 
 * Experimental Setup
 
@@ -74,12 +63,6 @@ Comparing different models
   plt.xlabel(r'$\sum_i n_i$')
   plt.savefig('e-vs-sum_n.pdf')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[10]:
-[[file:./obipy-resources/CeqrFM.png]]
-:END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
 #+NAME: e-vs-sum_n
@@ -128,12 +111,6 @@ Comparing different models
   plt.savefig('data_display.pdf')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[11]:
-[[file:./obipy-resources/snjKS4.png]]
-:END:
-
 * Linear Fit
 A traditional way  of calibrating the neural net would  be to sum over
 all scintillator cells as shown in  [cite:figure1] a linear fit to the
@@ -163,12 +140,6 @@ least squares.
   plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit1[1], ha='left')
   plt.savefig('images/e-vs-sum_n_fit.pdf')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[12]:
-[[file:./obipy-resources/6u0krF.png]]
-:END:
 #+
 CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
 #+NAME: e-vs-sum_n_fit
@@ -199,13 +170,6 @@ The relation is bijectiv so the solution can be found by swapping the axes.
 #  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
 #  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[13]:
-: Text(0.5,0,'$\\sum_i n_i$')
-[[file:./obipy-resources/TI4qcH.png]]
-:END:
 
 \[
    \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} 
@@ -281,12 +245,6 @@ Which is
   plt.savefig('images/e-vs-sum_n_fit.pdf')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[14]:
-[[file:./obipy-resources/WlrSDU.png]]
-:END:
-
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
 #+NAME: e-vs-sum_n_fit
 [[./images/e-vs-sum_n_fit.pdf]]
@@ -323,11 +281,6 @@ the true energy values and our predicted energy values. We train the network for
 
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[15]:
-:END:
-
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import pickle
 
@@ -349,12 +302,6 @@ plt.xlabel('epochs')
 plt.ylabel('loss')
 plt.savefig('images/shape_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[16]:
-[[file:./obipy-resources/ziOUMO.png]]
-:END:
 
 
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
@@ -392,12 +339,6 @@ physics. Also
   plt.savefig('first.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[10]:
-[[file:./obipy-resources/8emw1A.png]]
-:END:
-
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
 #+NAME: first
 [[./first.pdf]]
@@ -433,11 +374,6 @@ the true energy values and our predicted energy values. We train the network for
 
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[11]:
-:END:
-
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
 import pickle
 
@@ -459,13 +395,6 @@ plt.xlabel('epochs')
 plt.ylabel('loss')
 plt.savefig('images/first_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
-
-
-#+RESULTS:
-:RESULTS:
-# Out[9]:
-[[file:./obipy-resources/wuSvKe.png]]
-:END:
 
 
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
@@ -502,12 +431,6 @@ physics. Also
   ax.spines["bottom"].set_visible(False)  
   plt.savefig('first.pdf', bbox_inches = 'tight')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[10]:
-[[file:./obipy-resources/8emw1A.png]]
-:END:
 
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
 #+NAME: first
@@ -558,12 +481,6 @@ plt.ylim([0.38, 0.8])
 plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[24]:
-[[file:./obipy-resources/PSQdnI.png]]
-:END:
-
 
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
 #+NAME: Loss
@@ -594,12 +511,6 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
   ax.spines["bottom"].set_visible(False)  
   plt.savefig('images/data_augment.pdf', bbox_inches = 'tight')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[25]:
-[[file:./obipy-resources/qL2YoY.png]]
-:END:
 
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
 #+NAME: first
@@ -643,15 +554,10 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
   plt.savefig('images/data_augment_res.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[26]:
-[[file:./obipy-resources/e7svN0.png]]
-:END:
-
 #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
 #+NAME: first_res
 [[./images/data_augment_res.pdf]]
+
 
 * Likelihood Solution
 
@@ -724,12 +630,6 @@ Which is
   plt.savefig('images/e-vs-sum_n_lik.pdf')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[27]:
-[[file:./obipy-resources/PYFVEg.png]]
-:END:
-
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the likelihood fit described above.
 #+NAME: e-vs-sum_n_lik
 [[./images/e-vs-sum_n_lik.pdf]] 
@@ -760,12 +660,6 @@ plt.ylabel('loss')
 plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[42]:
-[[file:./obipy-resources/t0dt32.png]]
-:END:
-
 #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
 #+NAME: Loss
 [[./likelihood_loss.pdf]]
@@ -787,12 +681,6 @@ plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
   ax.spines["bottom"].set_visible(False)
   plt.savefig('images/likelihood.pdf', bbox_inches = 'tight')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[43]:
-[[file:./obipy-resources/1W5NnT.png]]
-:END:
 
 #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
 #+NAME: first
@@ -838,12 +726,6 @@ plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
   plt.savefig('images/likelihood_res.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[44]:
-[[file:./obipy-resources/FHdvyt.png]]
-:END:
-
 #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
 #+NAME: likelihood_res
 [[./images/likelihood_res.pdf]]
@@ -866,12 +748,6 @@ plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
   ax.spines["left"].set_visible(False)
   ax.spines["bottom"].set_visible(False)  
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[45]:
-[[file:./obipy-resources/CTcggA.png]]
-:END:
 
 
 
@@ -901,12 +777,6 @@ used as a loss function.
 
   plt.savefig('images/adversarial.pdf', bbox_inches = 'tight')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[65]:
-[[file:./obipy-resources/N5x6sJ.png]]
-:END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import sys
@@ -945,12 +815,6 @@ used as a loss function.
   plt.savefig('images/adversarial_res.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[66]:
-[[file:./obipy-resources/5dcJxi.png]]
-:END:
-
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import pickle
@@ -972,13 +836,6 @@ used as a loss function.
   plt.ylabel('loss')
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-# Out[21]:
-: Text(0,0.5,'loss')
-[[file:./obipy-resources/QS44BU.png]]
-:END:
-
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   import pickle
   history = pickle.load(open('src/adversarial_history.p', 'rb'))
@@ -998,13 +855,6 @@ used as a loss function.
   plt.xlabel('epochs')
   plt.ylabel('loss')
 #+END_SRC
-
-#+RESULTS:
-:RESULTS:
-# Out[22]:
-: Text(0,0.5,'loss')
-[[file:./obipy-resources/DAJxTa.png]]
-:END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
   D.load_weights('src/adversarial_weights.h5')
@@ -1080,11 +930,6 @@ used as a loss function.
    X_train = data['train']['X']
    Y_train = data['train']['Y']
  #+END_SRC
-
- #+RESULTS:
- :RESULTS:
- # Out[6]:
- :END:
 
 ** Polynom Fit
  A traditional way of calibrating the neural net would be to sum over all scintillator cells as shown in [cite:figure1]
