@@ -51,15 +51,22 @@ history = {'loss': [], 'val_loss': []}
 #      \/    \/\___/ \__,_|\___|_|                           #
 ##############################################################
 
-
 inputs = Input(shape=(8, 8, 17, 1))
-Dx = Flatten()(inputs)
+Dx = Conv3D(32, (3, 3, 3), padding='same')(inputs)
+Dx = Activation('relu')(Dx)
+Dx = Conv3D(10, (3, 3, 3))(Dx)
+Dx = Activation('relu')(Dx)
+Dx = Conv3D(5, (5, 5, 5), strides = (1, 1, 1), name = 'conv')(Dx)
+
+Dx = Flatten()(Dx)
 Dx = Dense(128, activation="relu")(Dx)
+Dx = Dropout(0.25)(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
+
 D.summary()
 
 def likelihood_loss(y_true, y_pred):
@@ -75,7 +82,7 @@ def likelihood_loss(y_true, y_pred):
     return tf.reduce_mean(loss)
 
 D.compile(loss=likelihood_loss, optimizer='adadelta')
-D.load_weights('data_augment_weights.h5')
+D.load_weights('data_augment_conv_weights.h5')
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -102,5 +109,5 @@ history.update([('loss',
                  history['val_loss'] + hist_update['val_loss'])])
 
 
-D.save_weights("likelihood_weights.h5")
-pickle.dump(history, open("likelihood_history.p", "wb"))
+D.save_weights("likelihood__conv_weights.h5")
+pickle.dump(history, open("likelihood_conv_history.p", "wb"))

@@ -10,9 +10,8 @@
 # \/    \__,_|\___|_|\_\__,_|\__, |\___||___/                #
 #                            |___/                           #
 ##############################################################
-import tensorflow as tf
-import numpy as np
-from keras.layers import Input, Dense, Conv2D, Flatten, Activation
+
+from keras.layers import Input, Dense, Conv3D, Flatten, Activation, Dropout
 from keras.models import Model
 import h5py
 import pickle
@@ -51,31 +50,23 @@ history = {'loss': [], 'val_loss': []}
 #      \/    \/\___/ \__,_|\___|_|                           #
 ##############################################################
 
-
 inputs = Input(shape=(8, 8, 17, 1))
-Dx = Flatten()(inputs)
+Dx = Conv3D(32, (3, 3, 3), padding='same')(inputs)
+Dx = Activation('relu')(Dx)
+Dx = Conv3D(10, (3, 3, 3))(Dx)
+Dx = Activation('relu')(Dx)
+Dx = Conv3D(5, (5, 5, 5), strides = (1, 1, 1), name = 'conv')(Dx)
+
+Dx = Flatten()(Dx)
 Dx = Dense(128, activation="relu")(Dx)
+Dx = Dropout(0.25)(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
-D.summary()
 
-def likelihood_loss(y_true, y_pred):
-    epsilon = tf.constant(0.0000001)
-    mu = y_pred
-    sigma = 0.32*tf.sqrt(y_true)
-    first_part = tf.divide(tf.square(mu - y_true),
-                           2.*tf.square(sigma)+epsilon)
-    a = tf.divide(10.-mu, tf.sqrt(2.)*sigma+epsilon)
-    b = tf.divide(0.-mu, tf.sqrt(2.)*sigma+epsilon)
-    penalty = tf.erf(a) - tf.erf(b)
-    loss = first_part + tf.log(penalty+epsilon) + tf.log(tf.sqrt(2.*np.pi)*sigma+epsilon)
-    return tf.reduce_mean(loss)
-
-D.compile(loss=likelihood_loss, optimizer='adadelta')
-D.load_weights('data_augment_weights.h5')
+D.compile(loss='mse', optimizer='rmsprop')
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -86,21 +77,19 @@ D.load_weights('data_augment_weights.h5')
 #                                  |___/                    #
 #############################################################
 
-epochs = 25
+epochs = 250
 
 hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
                                             batch_size=128,
-                                            data_augment=True),
-                              epochs=epochs,
+                                            data_augment=True), epochs=epochs,
                               validation_data=DataGenerator(X_test,
                                                             Y_test, batch_size=1000,
-                                                            data_augment=False)).history
+                                                            data_augment=False), validation_steps=1).history
 
 history.update([('loss',
                  history['loss'] + hist_update['loss']),
                 ('val_loss',
                  history['val_loss'] + hist_update['val_loss'])])
 
-
-D.save_weights("likelihood_weights.h5")
-pickle.dump(history, open("likelihood_history.p", "wb"))
+D.save_weights("data_augment_conv_weights.h5")
+pickle.dump(history, open("data_augment_conv_history.p", "wb"))

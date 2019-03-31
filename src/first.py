@@ -51,21 +51,15 @@ history = {'loss': [], 'val_loss': []}
 ##############################################################
 
 inputs = Input(shape=(8, 8, 17, 1))
-Dx = Conv3D(32, (3, 3, 3), padding='same')(inputs)
-Dx = Activation('relu')(Dx)
-Dx = Conv3D(10, (3, 3, 3))(Dx)
-Dx = Activation('relu')(Dx)
-Dx = Conv3D(5, (5, 5, 5), strides = (1, 1, 1), name = 'conv')(Dx)
-
-Dx = Flatten()(Dx)
+Dx = Flatten()(inputs)
 Dx = Dense(128, activation="relu")(Dx)
-Dx = Dropout(0.25)(Dx)
+Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
-
+D.summary()
 D.compile(loss='mse', optimizer='rmsprop')
 
 #############################################################
