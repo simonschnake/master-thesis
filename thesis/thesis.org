@@ -1612,183 +1612,187 @@ diskutiert.
 
 ** TODO Adversarial Solution                                       :noexport:
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   D.load_weights('src/data_augment_weights.h5')
-   func = lambda c, x: c[0]*x+c[1] 
-   fig, ax = plt.subplots()
-   plt.plot(energies, (func(c_like, sum_n)-energies)/np.sqrt(energies), '.', alpha=0.25, markersize=3, color='#1f77b4')
-   results = D.predict_generator(DataGenerator(X_test, Y_test,
-					       batch_size=128,
-					       data_augment=False))
-   plt.plot(Y_test[:10000], (results[:10000] - np.array(Y_test[:10000], dtype=np.float32))/np.sqrt(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
-   plt.xlim([0.,10])
+*** Gute Fragen [/]
+- [ ] was habe ich eigentlich gemacht?
+- [ ] wie stellen wir das da?
 
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)  
-   ax.spines["left"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)  
- #+END_SRC
+  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+    D.load_weights('src/data_augment_weights.h5')
+    func = lambda c, x: c[0]*x+c[1] 
+    fig, ax = plt.subplots()
+    plt.plot(energies, (func(c_like, sum_n)-energies)/np.sqrt(energies), '.', alpha=0.25, markersize=3, color='#1f77b4')
+    results = D.predict_generator(DataGenerator(X_test, Y_test,
+						batch_size=128,
+						data_augment=False))
+    plt.plot(Y_test[:10000], (results[:10000] - np.array(Y_test[:10000], dtype=np.float32))/np.sqrt(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
+    plt.xlim([0.,10])
 
- To diminish the depency of the distribution of given true labels, the
- maximum likelihood fit, developed in the previous chapter, will be
- used as a loss function.
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)  
+    ax.spines["left"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)  
+  #+END_SRC
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   D.load_weights('src/adversarial_weights.h5')
-   fig, ax = plt.subplots()
-   plt.plot(energies, func(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-   results = D.predict_generator(DataGenerator(X_test, Y_test,
-					       batch_size = 32))
-   plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
-   # plt.ylim([-5., 5])
-   plt.xlim([0.,10])
-   plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+  To diminish the depency of the distribution of given true labels, the
+  maximum likelihood fit, developed in the previous chapter, will be
+  used as a loss function.
 
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)  
-   ax.spines["left"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)
+  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+    D.load_weights('src/adversarial_weights.h5')
+    fig, ax = plt.subplots()
+    plt.plot(energies, func(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
+    results = D.predict_generator(DataGenerator(X_test, Y_test,
+						batch_size = 32))
+    plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
+    # plt.ylim([-5., 5])
+    plt.xlim([0.,10])
+    plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
+    plt.xlabel(r'$E_{\text{true}}$ [GeV]')
 
-   plt.text(7, -3.5, 'neural net', ha='left', va='center', size=17)
-   plt.text(7, 3.5, 'linear fit', ha='left', va='center', size=17, color='#1f77b4')
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)  
+    ax.spines["left"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)
 
-   plt.savefig('images/adversarial.pdf', bbox_inches = 'tight')
- #+END_SRC
+    plt.text(7, -3.5, 'neural net', ha='left', va='center', size=17)
+    plt.text(7, 3.5, 'linear fit', ha='left', va='center', size=17, color='#1f77b4')
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   import sys
-   sys.path.append('../src')
-   from utils import *
-   y_true = np.array(Y_test)[:len(results)].reshape(len(results),)
-   y_pred = results.reshape(len(results),)
-   y_fit = func(c_fit, np.sum(X_test[:len(results)], axis=1)).reshape(len(results),)
-   n = 20
-   y_f, mu_f, sigma_f = sliced_statistics(y_true, y_fit, n) 
-   y_nn, mu_nn, sigma_nn = sliced_statistics(y_true , y_pred, n) 
+    plt.savefig('images/adversarial.pdf', bbox_inches = 'tight')
+  #+END_SRC
+
+  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+    import sys
+    sys.path.append('../src')
+    from utils import *
+    y_true = np.array(Y_test)[:len(results)].reshape(len(results),)
+    y_pred = results.reshape(len(results),)
+    y_fit = func(c_fit, np.sum(X_test[:len(results)], axis=1)).reshape(len(results),)
+    n = 20
+    y_f, mu_f, sigma_f = sliced_statistics(y_true, y_fit, n) 
+    y_nn, mu_nn, sigma_nn = sliced_statistics(y_true , y_pred, n) 
   
-   fig = plt.figure()
-   ax = fig.add_subplot(2,1,1)
+    fig = plt.figure()
+    ax = fig.add_subplot(2,1,1)
 
-   ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
-   ax.plot(y_nn, mu_nn - y_nn, 'k-')
-   plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1], 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
-   plt.text(y_nn[-1] + 0.1, mu_nn[-1] - y_nn[-1], 'neural net', ha='left', va='center', size=15)
-   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
-   ax.xaxis.set_ticks([])
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)
+    ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
+    ax.plot(y_nn, mu_nn - y_nn, 'k-')
+    plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1], 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
+    plt.text(y_nn[-1] + 0.1, mu_nn[-1] - y_nn[-1], 'neural net', ha='left', va='center', size=15)
+    plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
+    ax.xaxis.set_ticks([])
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)
 
-   ax = fig.add_subplot(2,1,2)
-   ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
-   ax.plot(y_nn, sigma_nn / np.sqrt(y_nn), 'k-')
-   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
-   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)
-   plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1]), 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
-   plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1]), 'neural net', ha='left', va='center', size=15)
-   plt.ylim([0., 0.5])
-   plt.savefig('images/adversarial_res.pdf', bbox_inches = 'tight')
- #+END_SRC
+    ax = fig.add_subplot(2,1,2)
+    ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
+    ax.plot(y_nn, sigma_nn / np.sqrt(y_nn), 'k-')
+    plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
+    plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1]), 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
+    plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1]), 'neural net', ha='left', va='center', size=15)
+    plt.ylim([0., 0.5])
+    plt.savefig('images/adversarial_res.pdf', bbox_inches = 'tight')
+  #+END_SRC
 
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   import pickle
-   history = pickle.load(open('src/adversarial_history.p', 'rb'))
-   epochs = range(len(history['D_loss']))
-   fig, ax = plt.subplots()
-   ax.spines['top'].set_visible(False)
-   ax.spines['bottom'].set_visible(False)
-   ax.spines['right'].set_visible(False)
-   ax.spines['left'].set_visible(False)
-   plt.tick_params(axis='both', which='both', bottom=False, top=False,
-                   labelbottom=True, left=True, right=False, labelleft=True)
-   ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
-   plt.plot(epochs, history['D_loss'], 'k-')
-   plt.plot(epochs, history['val_D_loss'], '-', color='#1f77b4')
-   plt.text(float(epochs[-1])+0.2, history['D_loss'][-1], 'training loss', ha='left', va='center', size=15)
-   plt.text(float(epochs[-1])+0.2, history['val_D_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
-   plt.xlabel('epochs')
-   plt.ylabel('loss')
- #+END_SRC
+  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+    import pickle
+    history = pickle.load(open('src/adversarial_history.p', 'rb'))
+    epochs = range(len(history['D_loss']))
+    fig, ax = plt.subplots()
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    plt.tick_params(axis='both', which='both', bottom=False, top=False,
+                    labelbottom=True, left=True, right=False, labelleft=True)
+    ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
+    plt.plot(epochs, history['D_loss'], 'k-')
+    plt.plot(epochs, history['val_D_loss'], '-', color='#1f77b4')
+    plt.text(float(epochs[-1])+0.2, history['D_loss'][-1], 'training loss', ha='left', va='center', size=15)
+    plt.text(float(epochs[-1])+0.2, history['val_D_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
+    plt.xlabel('epochs')
+    plt.ylabel('loss')
+  #+END_SRC
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   import pickle
-   history = pickle.load(open('src/adversarial_history.p', 'rb'))
-   epochs_R = range(len(history['R_loss']))
-   fig, ax = plt.subplots()
-   ax.spines['top'].set_visible(False)
-   ax.spines['bottom'].set_visible(False)
-   ax.spines['right'].set_visible(False)
-   ax.spines['left'].set_visible(False)
-   plt.tick_params(axis='both', which='both', bottom=False, top=False,
-		   labelbottom=True, left=True, right=False, labelleft=True)
-   ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
-   plt.plot(np.array(epochs_R), np.abs(history['R_loss']), 'k-')
-   plt.plot(np.array(epochs_R), np.abs(history['val_R_loss']), '-', color='#1f77b4')
-   plt.text(np.array(epochs_R)[-1]+0.2, np.abs(history['R_loss'])[-1], 'training loss', ha='left', va='center', size=15)
-   plt.text(np.array(epochs_R)[-1]+0.2, np.abs(history['val_R_loss'])[-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
-   plt.xlabel('epochs')
-   plt.ylabel('loss')
- #+END_SRC
+  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+    import pickle
+    history = pickle.load(open('src/adversarial_history.p', 'rb'))
+    epochs_R = range(len(history['R_loss']))
+    fig, ax = plt.subplots()
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    plt.tick_params(axis='both', which='both', bottom=False, top=False,
+		    labelbottom=True, left=True, right=False, labelleft=True)
+    ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
+    plt.plot(np.array(epochs_R), np.abs(history['R_loss']), 'k-')
+    plt.plot(np.array(epochs_R), np.abs(history['val_R_loss']), '-', color='#1f77b4')
+    plt.text(np.array(epochs_R)[-1]+0.2, np.abs(history['R_loss'])[-1], 'training loss', ha='left', va='center', size=15)
+    plt.text(np.array(epochs_R)[-1]+0.2, np.abs(history['val_R_loss'])[-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
+    plt.xlabel('epochs')
+    plt.ylabel('loss')
+  #+END_SRC
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   D.load_weights('src/adversarial_weights.h5')
-   fig, ax = plt.subplots()
-   plt.plot(energies, fitfunc(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-   plt.plot(Y_test[:10000], (D.predict(X_test[:10000])-Y_test[:10000]), 'k.', alpha=0.25, markersize=3)
-   # plt.ylim([-6., 6])
-   plt.xlim([0.,10])
-   plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+    D.load_weights('src/adversarial_weights.h5')
+    fig, ax = plt.subplots()
+    plt.plot(energies, fitfunc(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
+    plt.plot(Y_test[:10000], (D.predict(X_test[:10000])-Y_test[:10000]), 'k.', alpha=0.25, markersize=3)
+    # plt.ylim([-6., 6])
+    plt.xlim([0.,10])
+    plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
+    plt.xlabel(r'$E_{\text{true}}$ [GeV]')
 
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)  
-   ax.spines["left"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)  
- #+END_SRC
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)  
+    ax.spines["left"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)  
+  #+END_SRC
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   n = 20
+  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+    n = 20
 
-   y_true = np.array(Y_test).reshape(len(Y_test),)
-   D.load_weights('src/adversarial_weights.h5')
-   y_pred = D.predict(X_test).reshape(len(y_true),)
-   y_adv, mu_adv, sigma_adv = sliced_statistics(y_true , y_pred, n) 
+    y_true = np.array(Y_test).reshape(len(Y_test),)
+    D.load_weights('src/adversarial_weights.h5')
+    y_pred = D.predict(X_test).reshape(len(y_true),)
+    y_adv, mu_adv, sigma_adv = sliced_statistics(y_true , y_pred, n) 
 
-   D.load_weights('src/first_weights.h5')
-   y_pred = D.predict(X_test).reshape(len(y_true),)
-   y_nn, mu_nn, sigma_nn = sliced_statistics(y_true , y_pred, n) 
+    D.load_weights('src/first_weights.h5')
+    y_pred = D.predict(X_test).reshape(len(y_true),)
+    y_nn, mu_nn, sigma_nn = sliced_statistics(y_true , y_pred, n) 
 
-   y_fit = fitfunc(c_fit, np.sum(X_test, axis=1))
-   n = 10
-   y_f, mu_f, sigma_f = sliced_statistics(y_true , y_fit, n) 
+    y_fit = fitfunc(c_fit, np.sum(X_test, axis=1))
+    n = 10
+    y_f, mu_f, sigma_f = sliced_statistics(y_true , y_fit, n) 
 
-   fig = plt.figure()
-   ax = fig.add_subplot(2,1,1)
+    fig = plt.figure()
+    ax = fig.add_subplot(2,1,1)
 
-   ax.plot(y_nn, mu_nn - y_nn, '-', color='#1f77b4')
-   ax.plot(y_f, mu_f - mu_f, 'k-')
-   ax.plot(y_adv, mu_adv - y_adv, 'r-', alpha=0.8)
+    ax.plot(y_nn, mu_nn - y_nn, '-', color='#1f77b4')
+    ax.plot(y_f, mu_f - mu_f, 'k-')
+    ax.plot(y_adv, mu_adv - y_adv, 'r-', alpha=0.8)
   
-   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
-   ax.xaxis.set_ticks([])
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)
+    plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
+    ax.xaxis.set_ticks([])
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)
 
-   ax = fig.add_subplot(2,1,2)
-   ax.plot(y_nn, sigma_nn/ np.sqrt(y_nn), '-', color='#1f77b4')
-   ax.plot(y_f, sigma_f/np.sqrt(y_f), 'k-')
-   ax.plot(y_adv, sigma_adv/np.sqrt(y_adv), 'r-', alpha=0.8)
-   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
-   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)
-   plt.ylim([0., 0.5])
- #+END_SRC
+    ax = fig.add_subplot(2,1,2)
+    ax.plot(y_nn, sigma_nn/ np.sqrt(y_nn), '-', color='#1f77b4')
+    ax.plot(y_f, sigma_f/np.sqrt(y_f), 'k-')
+    ax.plot(y_adv, sigma_adv/np.sqrt(y_adv), 'r-', alpha=0.8)
+    plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
+    plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    plt.ylim([0., 0.5])
+  #+END_SRC
 
 ** TODO Linear Fit with different version
 

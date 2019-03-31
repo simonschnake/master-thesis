@@ -553,7 +553,6 @@ physics. Also
 #+NAME: first
 [[./first.pdf]]
 
-
 * Data Augmentation
 One of the biggest issues with the setup is that it
 leads to fast overfitting models. To compensate this, there are
@@ -674,7 +673,6 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
 #+NAME: first_res
 [[./images/data_augment_res.pdf]]
-
 
 * Likelihood Solution
 
