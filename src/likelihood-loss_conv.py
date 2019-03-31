@@ -12,7 +12,7 @@
 ##############################################################
 import tensorflow as tf
 import numpy as np
-from keras.layers import Input, Dense, Conv2D, Flatten, Activation
+from keras.layers import Input, Dense, Conv3D, Flatten, Activation, Dropout
 from keras.models import Model
 import h5py
 import pickle
@@ -60,7 +60,6 @@ Dx = Conv3D(5, (5, 5, 5), strides = (1, 1, 1), name = 'conv')(Dx)
 
 Dx = Flatten()(Dx)
 Dx = Dense(128, activation="relu")(Dx)
-Dx = Dropout(0.25)(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(10, activation="relu")(Dx)
@@ -93,6 +92,7 @@ D.load_weights('data_augment_conv_weights.h5')
 #                                  |___/                    #
 #############################################################
 
+
 epochs = 25
 
 hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
@@ -101,13 +101,12 @@ hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
                               epochs=epochs,
                               validation_data=DataGenerator(X_test,
                                                             Y_test, batch_size=1000,
-                                                            data_augment=False)).history
+                                                            data_augment=False), validation_steps=1).history
 
 history.update([('loss',
                  history['loss'] + hist_update['loss']),
                 ('val_loss',
                  history['val_loss'] + hist_update['val_loss'])])
 
-
-D.save_weights("likelihood__conv_weights.h5")
+D.save_weights("likelihood_conv_weights.h5")
 pickle.dump(history, open("likelihood_conv_history.p", "wb"))

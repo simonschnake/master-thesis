@@ -51,9 +51,10 @@ history = {'loss': [], 'val_loss': []}
 #      \/    \/\___/ \__,_|\___|_|                           #
 ##############################################################
 
-
 inputs = Input(shape=(8, 8, 17, 1))
 Dx = Flatten()(inputs)
+Dx = Dense(500, activation="relu")(Dx)
+Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
@@ -61,6 +62,7 @@ Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 D.summary()
+D.compile(loss='mse', optimizer='rmsprop')
 
 def likelihood_loss(y_true, y_pred):
     epsilon = tf.constant(0.0000001)
@@ -94,7 +96,7 @@ hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
                               epochs=epochs,
                               validation_data=DataGenerator(X_test,
                                                             Y_test, batch_size=1000,
-                                                            data_augment=False)).history
+                                                            data_augment=False), validation_steps=1).history
 
 history.update([('loss',
                  history['loss'] + hist_update['loss']),

@@ -59,7 +59,6 @@ Dx = Conv3D(5, (5, 5, 5), strides = (1, 1, 1), name = 'conv')(Dx)
 
 Dx = Flatten()(Dx)
 Dx = Dense(128, activation="relu")(Dx)
-Dx = Dropout(0.25)(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(10, activation="relu")(Dx)
