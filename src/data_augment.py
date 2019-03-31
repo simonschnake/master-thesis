@@ -52,6 +52,7 @@ history = {'loss': [], 'val_loss': []}
 
 inputs = Input(shape=(8, 8, 17, 1))
 Dx = Flatten()(inputs)
+Dx = Dense(500, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
@@ -71,7 +72,7 @@ D.compile(loss='mse', optimizer='rmsprop')
 #                                  |___/                    #
 #############################################################
 
-epochs = 100
+epochs = 250
 
 hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
                                             batch_size=128,
