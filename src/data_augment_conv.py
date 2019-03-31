@@ -77,7 +77,7 @@ D.compile(loss='mse', optimizer='rmsprop')
 #                                  |___/                    #
 #############################################################
 
-epochs = 250
+epochs = 100
 
 hist_update = D.fit_generator(DataGenerator(X_train, Y_train,
                                             batch_size=128,
