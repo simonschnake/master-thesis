@@ -96,12 +96,12 @@ def make_loss(c):
 
 def weighted_loss(y_true, y_pred):
     epsilon = tf.constant(0.0000001)
-        mu = y_pred
-        sigma = c*tf.sqrt(y_true)
-        first_part = tf.divide(tf.square(mu - y_true),
-                               2.*tf.square(sigma)+epsilon)
-        return tf.reduce_mean(first_part)
-
+    mu = y_pred
+    sigma = tf.sqrt(y_true)
+    first_part = tf.divide(tf.square(mu - y_true),
+                           2.*tf.square(sigma)+epsilon)
+    return tf.reduce_mean(first_part)
+    
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -202,7 +202,7 @@ y['likeli'], mu['likeli'], sigma['likeli'] = sliced_statistics(y_true['likeli'],
 # the net with data augmentation
 #############################################################
 
-D.compile(loss='mse', optimizer='rmsprop')
+D.compile(loss=weighted_loss, optimizer='rmsprop')
 
 # D.set_weights(initial_weights)
 
