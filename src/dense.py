@@ -94,6 +94,14 @@ def make_loss(c):
         return tf.reduce_mean(loss)
     return likelihood_loss
 
+def weighted_loss(y_true, y_pred):
+    epsilon = tf.constant(0.0000001)
+        mu = y_pred
+        sigma = c*tf.sqrt(y_true)
+        first_part = tf.divide(tf.square(mu - y_true),
+                               2.*tf.square(sigma)+epsilon)
+        return tf.reduce_mean(first_part)
+
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -113,7 +121,7 @@ D.compile(loss='mse', optimizer='rmsprop')
 
 initial_weights = D.get_weights()
 
-epochs = 250
+epochs = 5
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train, batch_size=128, data_augment=False), epochs=epochs,
@@ -130,18 +138,46 @@ y_pred['raw'] = D.predict_generator(DataGenerator(X_test, Y_test, batch_size=128
 y_pred['raw'] = y_pred['raw'].reshape(len(y_pred['raw']), )
 y_true['raw'] = np.array(Y_test)[:len(y_pred['raw'])].reshape(len(y_pred['raw']), )
 y['raw'], mu['raw'], sigma['raw'] = sliced_statistics(y_true['raw'], y_pred['raw'], n)
- 
+
+#############################################################
+# train 
+# the net with weighted loss
+#############################################################
+
+D.compile(loss=weighted_loss, optimizer='rmsprop')
+
+# initial_weights = D.get_weights()
+
+epochs = 5
+
+hist_update = D.fit_generator(
+    DataGenerator(X_train, Y_train, batch_size=128, data_augment=False), epochs=epochs,
+    validation_data=DataGenerator(X_test, Y_test, batch_size=128,
+                                  data_augment=False), validation_steps=1).history
+
+history.update([('loss', history['loss'] + hist_update['loss']),
+                ('val_loss', history['val_loss'] +
+                 hist_update['val_loss'])])
+weights = D.get_weights()
+
+n = 20
+y_pred['weighted'] = D.predict_generator(DataGenerator(X_test, Y_test, batch_size=128, data_augment=False))
+y_pred['weighted'] = y_pred['weighted'].reshape(len(y_pred['weighted']), )
+y_true['weighted'] = np.array(Y_test)[:len(y_pred['weighted'])].reshape(len(y_pred['weighted']), )
+y['weighted'], mu['weighted'], sigma['weighted'] = sliced_statistics(y_true['weighted'], y_pred['weighted'], n)
+
+
 #############################################################
 # train 
 # train net with likelihood loss
 #############################################################
 
 # calculate factor for likelihood_loss
-c = np.mean(sigma['raw']/np.sqrt(mu['raw']))
+c = np.mean(sigma['weighted']/np.sqrt(mu['weighted']))
 print('c is ' + str(c))
 D.compile(loss=make_loss(c), optimizer='rmsprop')
 
-epochs = 25
+epochs = 5
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
@@ -168,9 +204,9 @@ y['likeli'], mu['likeli'], sigma['likeli'] = sliced_statistics(y_true['likeli'],
 
 D.compile(loss='mse', optimizer='rmsprop')
 
-D.set_weights(initial_weights)
+# D.set_weights(initial_weights)
 
-epochs = 250
+epochs = 5
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
@@ -201,7 +237,7 @@ c = np.mean(sigma['da']/np.sqrt(mu['da']))
 print('c is ' + str(c))
 D.compile(loss=make_loss(c), optimizer='rmsprop')
 
-epochs = 25
+epochs = 5
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
