@@ -113,7 +113,7 @@ D.compile(loss='mse', optimizer='rmsprop')
 
 initial_weights = D.get_weights()
 
-epochs = 25
+epochs = 250
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train, batch_size=128, data_augment=False), epochs=epochs,
@@ -137,11 +137,11 @@ y['raw'], mu['raw'], sigma['raw'] = sliced_statistics(y_true['raw'], y_pred['raw
 #############################################################
 
 # calculate factor for likelihood_loss
-c = sigma['raw'][10]/np.sqrt(mu['raw'][10])
-print('c is ' + c)
+c = np.mean(sigma['raw']/np.sqrt(mu['raw']))
+print('c is ' + str(c))
 D.compile(loss=make_loss(c), optimizer='rmsprop')
 
-epochs = 10
+epochs = 25
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
@@ -170,7 +170,7 @@ D.compile(loss='mse', optimizer='rmsprop')
 
 D.set_weights(initial_weights)
 
-epochs = 25
+epochs = 250
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
@@ -197,11 +197,11 @@ y['da'], mu['da'], sigma['da'] = sliced_statistics(y_true['da'], y_pred['da'], n
 n = 20
 
 # calculate factor for likelihood_loss
-c = sigma['da'][10]/np.sqrt(mu['da'][10])
-print('c is ' + c)
+c = np.mean(sigma['da']/np.sqrt(mu['da']))
+print('c is ' + str(c))
 D.compile(loss=make_loss(c), optimizer='rmsprop')
 
-epochs = 10
+epochs = 25
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
