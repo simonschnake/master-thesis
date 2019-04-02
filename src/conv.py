@@ -234,4 +234,4 @@ results = {'y_pred': y_pred,
            'sigma': sigma,
            'history': history}
 
-pickle.dump(results, open("conv_results.p", "wb"))
+pickle.dump(results, open("../results/conv_results.p", "wb"))

@@ -113,7 +113,7 @@ D.compile(loss='mse', optimizer='rmsprop')
 
 initial_weights = D.get_weights()
 
-epochs = 1
+epochs = 100
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train, batch_size=128, data_augment=False), epochs=epochs,
@@ -141,7 +141,7 @@ c = sigma['raw'][10]/np.sqrt(mu['raw'][10])
 
 D.compile(loss=make_loss(c), optimizer='rmsprop')
 
-epochs = 1
+epochs = 25
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
@@ -170,7 +170,7 @@ D.compile(loss='mse', optimizer='rmsprop')
 
 D.set_weights(initial_weights)
 
-epochs = 1
+epochs = 100
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
@@ -201,7 +201,7 @@ c = sigma['da'][10]/np.sqrt(mu['da'][10])
 
 D.compile(loss=make_loss(c), optimizer='rmsprop')
 
-epochs = 1
+epochs = 25
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
@@ -231,4 +231,4 @@ results = {'y_pred': y_pred,
            'sigma': sigma,
            'history': history}
 
-pickle.dump(results, open("dense_results.p", "wb"))
+pickle.dump(results, open("../results/dense_results.p", "wb"))
