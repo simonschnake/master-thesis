@@ -121,7 +121,7 @@ D.compile(loss='mse', optimizer='rmsprop')
 
 initial_weights = D.get_weights()
 
-epochs = 25
+epochs = 250
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train, batch_size=128, data_augment=False), epochs=epochs,
@@ -148,7 +148,7 @@ D.compile(loss=weighted_loss, optimizer='rmsprop')
 
 # initial_weights = D.get_weights()
 
-epochs = 25
+epochs= 250
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train, batch_size=128, data_augment=False), epochs=epochs,
@@ -177,7 +177,7 @@ c = np.mean(sigma['weighted']/np.sqrt(mu['weighted']))
 print('c is ' + str(c))
 D.compile(loss=make_loss(c), optimizer='rmsprop')
 
-epochs = 25
+epochs = 250
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
@@ -206,7 +206,7 @@ D.compile(loss=weighted_loss, optimizer='rmsprop')
 
 # D.set_weights(initial_weights)
 
-epochs = 25
+epochs = 250
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
@@ -237,7 +237,7 @@ c = np.mean(sigma['da']/np.sqrt(mu['da']))
 print('c is ' + str(c))
 D.compile(loss=make_loss(c), optimizer='rmsprop')
 
-epochs = 25
+epochs = 250
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
