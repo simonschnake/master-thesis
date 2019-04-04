@@ -43,6 +43,8 @@ Y_train = data['train']['Y']
 
 history = {'D_loss': [], 'val_D_loss': [], 'R_loss': [], 'val_R_loss': []}
 
+y_pred = []
+
 ##############################################################
 #                        _      _                            #
 #        /\/\   ___   __| | ___| |                           #
@@ -75,7 +77,6 @@ Rx = Dense(50, activation="relu")(Rx)
 Rx = Dense(128, activation="relu")(Rx)
 Rx = Dense(cases, activation="softmax")(Rx)
 R = Model([inputs, results], [Rx], name='R')
-
 
 def make_loss_D(c):
     def loss_D(y_true, y_pred):
@@ -138,13 +139,21 @@ dg_it = iter(dg)
 #                   batch_size=256, adv=True, data_augment=False),
 #     epochs=100)
 
-for i in range(10):
-    print(i)
-    train_R.fit_generator(
-        DataGenerator(X_train, Y_train, Z_train, batch_size=256, adv=True),
-        epochs=5)
-    train_D.fit_generator(
-        DataGenerator(X_train, Y_train, Z_train, batch_size=256, adv=False),
-        epochs=5)
+for j in range(10):
+    for i in range(10):
+        print(i)
+        train_R.fit_generator(
+            DataGenerator(X_train, Y_train, Z_train, batch_size=256, adv=True),
+            epochs=5)
+        train_D.fit_generator(
+            DataGenerator(X_train, Y_train, Z_train, batch_size=256, adv=False),
+            epochs=5)
+    y_pred.append(D.predict_generator(DataGenerator(X_test, Y_test,
+					                                 batch_size=128,
+					                                 data_augment=False)))
 
-D.save_weights("adversarial_weights.h5")
+y_true = np.array(Y_test)[:len(y_pred[0])].reshape(len(y_pred[0]), )
+results = {'y_pred': y_pred,
+           'y_true': y_true}
+
+pickle.dump(results, open("../results/adv_results.p", "wb"))

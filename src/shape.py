@@ -66,8 +66,46 @@ Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 
-D.compile(loss='mse', optimizer='rmsprop')
 D.summary()
+
+##################################################################
+#  _                    ______                _   _              #
+# | |                   |  ___|              | | (_)             #
+# | |     ___  ___ ___  | |_ _   _ _ __   ___| |_ _  ___  _ __   #
+# | |    / _ \/ __/ __| |  _| | | | '_ \ / __| __| |/ _ \| '_ \  #
+# | |___| (_) \__ \__ \ | | | |_| | | | | (__| |_| | (_) | | | | #
+# \_____/\___/|___/___/ \_|  \__,_|_| |_|\___|\__|_|\___/|_| |_| #
+##################################################################
+                                                              
+def make_loss(c):
+    def likelihood_loss(y_true, y_pred):
+        y_fit = y_true[1]
+        mu = y_true[0]
+        y_pred = (y_pred+1)*y_fit
+
+        epsilon = tf.constant(0.0000001)
+        sigma = c*tf.sqrt(y_true)
+        first_part = tf.divide(tf.square(mu - y_true),
+                               2.*tf.square(sigma)+epsilon)
+        a = tf.divide(10.-mu, tf.sqrt(2.)*sigma+epsilon)
+        b = tf.divide(0.-mu, tf.sqrt(2.)*sigma+epsilon)
+        penalty = tf.erf(a) - tf.erf(b)
+        loss = first_part + tf.log(penalty+epsilon) + tf.log(tf.sqrt(2.*np.pi)*sigma+epsilon)
+        return tf.reduce_mean(loss)
+    return likelihood_loss
+
+def weighted_loss(y_true, y_pred):
+    y_fit = y_true[1]
+    mu = y_true[0]
+    y_pred = (y_pred+1)*y_fit
+
+    epsilon = tf.constant(0.0000001)
+    sigma = tf.sqrt(y_true)
+    first_part = tf.divide(tf.square(mu - y_true),
+                           2.*tf.square(sigma)+epsilon)
+    return tf.reduce_mean(first_part)
+
+
 #############################################################
 #  _____           _       _                   __     _     #
 # /__   \_ __ __ _(_)_ __ (_)_ __   __ _    /\ \ \___| |_   #
@@ -77,7 +115,9 @@ D.summary()
 #                                  |___/                    #
 #############################################################
 
-epochs = 25
+D.compile(loss=weighted_loss, optimizer='rmsprop')
+
+epochs = 150
 
 hist_update = D.fit_generator(
     DataGenerator(X_train, Y_train,
@@ -89,5 +129,38 @@ history.update([('loss', history['loss'] + hist_update['loss']),
                 ('val_loss', history['val_loss'] +
                  hist_update['val_loss'])])
 
-D.save_weights("shape_weights.h5")
+y_pred = D.predict_generator(DataGenerator(X_test, Y_test, batch_size=128, data_augment=False))
+y_pred = y_pred.reshape(len(y_pred), )
+y_true = np.array(Y_test)[:len(y_pred)].reshape(len(y_pred), )
+y, mu, sigma = sliced_statistics(y_true, y_pred, n)
+
+c = np.mean(sigma)
+
+D.compile(loss=make_loss(c), optimizer='rmsprop')
+
+epochs = 50
+
+hist_update = D.fit_generator(
+    DataGenerator(X_train, Y_train,
+                  batch_size=128, data_augment=True, shape_learning=True), epochs=epochs,
+    validation_data=DataGenerator(X_train, Y_train, batch_size=128,
+                                  data_augment=False, shape_learning=True), validation_steps=100).history
+
+history.update([('loss', history['loss'] + hist_update['loss']),
+                ('val_loss', history['val_loss'] +
+                 hist_update['val_loss'])])
+
+y_pred = D.predict_generator(DataGenerator(X_test, Y_test, batch_size=128, data_augment=False))
+y_pred = y_pred.reshape(len(y_pred), )
+y_true = np.array(Y_test)[:len(y_pred)].reshape(len(y_pred), )
+y, mu, sigma = sliced_statistics(y_true, y_pred, n)
+
+
+results = {'y_pred': y_pred,
+           'y_true': y_true,
+           'y': y,
+           'mu': mu,
+           'sigma': sigma,
+           'history': history}
+
 pickle.dump(history, open("shape_history.p", "wb"))

@@ -53,11 +53,6 @@ class DataGenerator(keras.utils.Sequence):
         batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
 
-        # transform data to geometrical array
-        if self.shape_learning:
-            fit = (0.04*np.sum(batch_x, axis=1)-0.09).reshape(128, 1)
-            batch_y = np.divide(batch_y, fit)-1
-
         batch_x = batch_x.reshape(self.batch_size, self.channels,
                                   self.height, self.width)
         # (batch_size, x, y, z) -> (batch_size, y, z, x) because xXS_HHHHH
@@ -88,6 +83,12 @@ class DataGenerator(keras.utils.Sequence):
             batch_x = batch_x[:, :, self.width-shift:2*self.width-shift]
 
         batch_x = batch_x.reshape(batch_x.shape[0], batch_x.shape[1], batch_x.shape[2], batch_x.shape[3], 1)
+
+        if self.shape_learning:
+            y_fit = (0.04*np.sum(batch_x, axis=1)-0.09).reshape(128, 1)
+            return batch_x, , [batch_y, y_fit]
+
+        
         if self.z is None:
             return batch_x, batch_y
 
