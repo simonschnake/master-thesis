@@ -1205,23 +1205,7 @@ identical weigths.
 
 
 
-** Setup                                                           :noexport:
- Here are the needed packages. Also to config matplotlib for latex export
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   !cd /home/schnakes/master-thesis/thesis/
-   import matplotlib as mpl
-   import matplotlib.pyplot as plt
-   mpl.rcParams['text.usetex'] = True
-   mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
-   mpl.rcParams['mathtext.fontset'] = 'stix'
-   mpl.rcParams['font.family'] = 'STIXGeneral'
-   mpl.rcParams['font.size'] = 15
-   mpl.rcParams['axes.labelsize'] = 15
-
-   %matplotlib inline
- #+END_SRC
-
-** DONE Calorimeter Simulation
+** Calorimeter Simulation
 
 Geant4 cite:geant_simul_toolk was used to simulate a calorimeter with a layer structure similar to that
 of the CMS hadron calorimeter. The calorimeter has a length of 931.5 mm and a
@@ -1252,26 +1236,17 @@ GeV following a flat distribution. The point of arrival of the particles is
 always the exact center of the first detector layer.
 
 
-After the trajectories of the particles had been simulated, for each event the
-number of traces in each scintillator cell are counted.  These 1088 values are
-then stored as data points for further analysis.  
+After the trajectories of the particles had been simulated, for each
+event the number of traces in each scintillator cell are counted.
+These 1088 values are then stored as data points for further
+analysis. A example simulation event can be seen in figure ref:sim_exp
 
 #+CAPTION: Visualization of a typical  event simulation inside the detector.
-#+ATTR_LATEX: :width 1.1 \textwidth 
+#+ATTR_LATEX: :width 0.9 \textwidth 
+#+NAME: sim_exp
 [[../images/front-side.pdf]]
 
-** DONE Energy Regression By Linear Fitting
-
-#+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
-#+NAME: e-vs-sum_n
-label:e-vs-sum_n
-[[../images/e-vs-sum_n.pdf]]
-
-A \todo{zitieren oder ändern} traditional way of calibrating the energy of the calorimeter, would be to sum
-over the number of tracks in each scintillator cells as shown in ref:e-vs-sum_n
-a linear fit to the energy \[E = c_0\sum_i n_i + c_1\] This is done with the
-method of least squares.
-
+** Energy Regression By Linear Fitting
 
 The traditional method of determining the energy of a particle shower is to sum
 up the energies of the individual scintillator cells. This summation can still
@@ -1288,132 +1263,69 @@ function
 N(E) = c_0 \cdot E + c_1
 \end{align}
 
- were determined and the straight line was then inverted. This
-procedure is necessary to prevent distortions due to the restricted
+were determined and the straight line was then inverted. The inversion
+is necessary to prevent distortions due to the restricted
 distribution. The result is shown in Figure ref:e-vs-sum_n_fit.
 
-
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   from scipy.optimize import leastsq
-   # function to fit
-   inv_fitfunc = lambda c , x: (x-c[1])/c[0]
-
-   fitfunc = lambda c , x: x*c[0]+c[1]
-   errfunc = lambda c , x, y: (y - fitfunc(c, x))
-   out = leastsq(errfunc, [0.1, 0.0], args=(energies, sum_n), full_output=1)
-
-   c_fit1 = out[0]
-   covar = out[1]
-
-   n = np.arange(0, 250, 0.5)
-   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-   plt.plot(n, inv_fitfunc(c_fit1, n), 'k-')     # Fit
-
-   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$\sum_i n_i$')
-
-   plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit1[0], ha='left')
-   plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit1[1], ha='left')
-   plt.savefig('images/e-vs-sum_n_fit.pdf')
- #+END_SRC
-
-
-#+CAPTION: The graph is the same as in ref:e-vs-sum_n . The black straight is the result of the fit described above.
+#+CAPTION:  The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells.  10000 points from the data are plotted. The black straight is the result of the fit described above.
 #+NAME: e-vs-sum_n_fit
 label:e-vs-sum_n_fit
 [[../images/e-vs-sum_n_fit.pdf]]
 
 ** DONE Deep Learning Setup
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   import h5py
-
-   try:
-       data = h5py.File('../data/electron.h5', 'r')
-   except IOError:
-       try:
-	       data = h5py.File('data/electron.h5', 'r')
-       except IOError:
-	       print('Data not found')
-
-   X_test = data['test']['X']
-   Y_test = data['test']['Y']
-   X_train = data['train']['X']
-   Y_train = data['train']['Y']
- #+END_SRC
-
 #+CAPTION: The three-dimensional structure of a data sample is visulaized by an example event of an incoming electron with 9.14172 GeV
-#+NAME: e-vs-sum_n
-label:data_display
+#+NAME: data_display
 [[../images/data_display.pdf]]
 
-Die Datenstruktur visualisiert in Abbildung ref:data_display besitzt
-eine drei-dimensionale Pixelstruktur aus. Sie kann als Stapel von
-Bildern interpretiert werden. Für die Auswertung von Bildern sind
-Convolutional Neural Nets besonders geeignet. Deshalb wird im
-folgenden eine Architektur von mehreren aufeinander folgenden
-Convolutional Filtern, gefolgt von Lagen aus fully connected layern
-verwendet. Auf Pooling Filter wurde verzichtet, da diese Filter die
-Weitergabe quantitativer Größen im Netz verhindern. Die Lagenstruktur
-ist in table xx zu sehen.
+The data structure is visualized in figure ref:data_display and is a
+three-dimensional pixel structure. First a simple fully connected
+network is applied whose structure is not adapted to the structure of
+the data. Then a three-dimensional convolutional neural net is
+compared with the fully connected neural net.
 
-\todo{Lagenstruktur einfügen}
+The layer structure of the first network is shown in table ref:fcn_structure.
 
-Falls nicht anders expliziert wurde dieses Netzwerk für die
-weitergehende Analyse verwendet.
+#+CAPTION: The structure of the fully connected network is shown. The first column shows the different types of layers of the network, which here are only dense, which is the Keras type of a fully connected layer. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column the number of free parameters or weights of each layer.
+#+NAME: fcn_structure
+| Type  | $\#$ Nodes | Activation | $\#$ Params |
+|-------+------------+------------+-------------|
+| Dense |        500 | ReLU       |      544500 |
+| Dense |        128 | ReLU       |       64128 |
+| Dense |        128 | ReLU       |       16512 |
+| Dense |        128 | ReLU       |       16512 |
+| Dense |        128 | ReLU       |       16512 |
+| Dense |         10 | ReLU       |        1290 |
+| Dense |          1 | Linear     |          11 |
 
-** DONE First Network
+Es besitzt 659,465 freie Parameter und jede Lage besteht aus Nodes die
+mit allen Nodes der vorherigen Lage verbunden sind. Bis auf die Output
+Node haben alle Nodes ReLU als Aktivierungsfunktion.
+
+Das zweite Netwerk besteht aus einem Convolutional Teil an dem ein
+fully connected Netwerk angeschlossen ist. Die Lagenstruktur ist in Tabelle ref:conv_structure dargestellt.
+
+#+CAPTION: The structure of the 3D convolutional network is shown. The first column shows the different types of layers of the network. The 3D vectors behind the Conv3D are the kernel dimensions. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column the number of free parameters or weights of each layer.
+#+NAME: conv_structure
+| Type          | $\#$ Nodes | Activation | $\#$ Params |
+| Conv3D(3,3,3) |         32 | ReLU       |         896 |
+| Conv3D(3,3,3) |         10 | ReLU       |        8650 |
+| Conv3D(5,5,5) |          5 | ReLU       |        6255 |
+| Dense         |        128 | ReLU       |       28288 |
+| Dense         |        128 | ReLU       |       16512 |
+| Dense         |        128 | ReLU       |       16512 |
+| Dense         |         10 | ReLU       |        1290 |
+| Dense         |          1 | Linear     |          11 |
+
+Die alternative Struktur reduziert die Anzahl der freien Parameter auf 78,414. 
+
+
+** Network
 
 The network is trained with the RMSprop optimizer and our loss
 function is the mean squared error between the true energy values and
 our predicted energy values. We train the network for 250 epochs with a
 batch size of 128.
-
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   from keras.models import Model
-   from keras.layers import Dense, Input
-  
-   from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, Activation
-   from keras.models import Model
-   import h5py
-   import pickle
-  
-   from src.utils import DataGenerator
-
-   inputs = Input(shape=(8, 8, 17,))
-   Dx = Conv2D(32, (2, 2), strides = (1, 1), name = 'conv0')(inputs)
-   Dx = Activation('relu')(Dx)
-   Dx = Flatten()(Dx)
-   Dx = Dense(128, activation="relu")(Dx)
-   Dx = Dense(128, activation="relu")(Dx)
-   Dx = Dense(128, activation="relu")(Dx)
-   Dx = Dense(10, activation="relu")(Dx)
-   Dx = Dense(1, activation="linear")(Dx)
-   D = Model([inputs], [Dx], name='D')
-
- #+END_SRC
-
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
- import pickle
-
- history = pickle.load(open('src/first_history.p', 'rb'))
- epochs = range(len(history['loss']))
- fig, ax = plt.subplots()
- ax.spines['top'].set_visible(False)
- ax.spines['bottom'].set_visible(False)
- ax.spines['right'].set_visible(False)
- ax.spines['left'].set_visible(False)
- plt.tick_params(axis='both', which='both', bottom=False, top=False,
-                 labelbottom=True, left=True, right=False, labelleft=True)
- ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
- plt.plot(epochs, history['loss'], 'k-')
- plt.plot(epochs, history['val_loss'], '-', color='#1f77b4')
- plt.text(float(epochs[-1])+0.5, history['loss'][-1], 'training loss', ha='left', va='center', size=15)
- plt.text(float(epochs[-1])+0.5, history['val_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
- plt.xlabel('epochs')
- plt.ylabel('loss')
- plt.savefig('images/first_loss.pdf', bbox_inches = 'tight')
- #+END_SRC
 
 
  #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
