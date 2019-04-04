@@ -12,7 +12,7 @@
 ##############################################################
 
 from keras import losses
-from keras.layers import Input, Dense, Conv2D, Flatten, Activation, Lambda
+from keras.layers import Input, Dense, Conv3D, Flatten, Activation, Lambda
 from keras.models import Model
 from keras.optimizers import Adadelta
 import h5py
@@ -40,6 +40,9 @@ except OSError:
         exit()
 X_train = data['train']['X']
 Y_train = data['train']['Y']
+X_test = data['test']['X']
+Y_test = data['test']['Y']
+
 
 history = {'D_loss': [], 'val_D_loss': [], 'R_loss': [], 'val_R_loss': []}
 
@@ -55,9 +58,13 @@ y_pred = []
 
 lam = 2.5
 
-inputs = Input(shape=(8, 8, 17,))
-Dx = Conv2D(32, (2, 2), strides=(1, 1))(inputs)
+inputs = Input(shape=(8, 8, 17, 1))
+Dx = Conv3D(32, (3, 3, 3), padding='same')(inputs)
 Dx = Activation('relu')(Dx)
+Dx = Conv3D(10, (3, 3, 3))(Dx)
+Dx = Activation('relu')(Dx)
+Dx = Conv3D(5, (5, 5, 5), strides = (1, 1, 1), name = 'conv')(Dx)
+
 Dx = Flatten()(Dx)
 Dx = Dense(128, activation="relu")(Dx)
 Dx = Dense(128, activation="relu")(Dx)
@@ -92,10 +99,11 @@ def make_loss_R(c):
 
 opt = Adadelta()
 
-D.load_weights('data_augment_weights.h5')
-
 R.trainable = False
 D.trainable = True
+
+D.load_weights('likelihood_conv_weights.h5')
+
 train_D = Model([inputs, results], [D(inputs), R([inputs, results])])
 train_D.compile(loss=[make_loss_D(c=1.0), make_loss_R(c=-lam)], optimizer='rmsprop')
 
@@ -117,7 +125,7 @@ bins = np.arange(0., 10., 10./cases)[:-1]
 Z_train = np.digitize(Y_train, bins=bins)
 Z_train = np_utils.to_categorical(Z_train, num_classes=cases)
 
-pre_train_epochs = 2
+pre_train_epochs = 25
 epochs = 5
 dg = DataGenerator(X_train, Y_train, Z_train, batch_size=256)
 dg_it = iter(dg)

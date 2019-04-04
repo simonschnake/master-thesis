@@ -86,7 +86,7 @@ class DataGenerator(keras.utils.Sequence):
 
         if self.shape_learning:
             y_fit = (0.04*np.sum(batch_x, axis=1)-0.09).reshape(128, 1)
-            return batch_x, , [batch_y, y_fit]
+            return batch_x, [batch_y, y_fit]
 
         
         if self.z is None:
