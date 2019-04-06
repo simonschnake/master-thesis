@@ -43,7 +43,6 @@ Y_train = data['train']['Y']
 X_test = data['test']['X']
 Y_test = data['test']['Y']
 
-
 history = {'D_loss': [], 'val_D_loss': [], 'R_loss': [], 'val_R_loss': []}
 
 y_pred = []
@@ -73,7 +72,7 @@ Dx = Dense(10, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 
-cases = 500
+cases = 20
 # d_result = Input(shape=(Y_train.shape[1],))
 results = Input(shape=(Y_train.shape[1],))
 Rx = Lambda(lambda x: (x[0]-x[1])/x[1]**0.5)([D(inputs), results])

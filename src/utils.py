@@ -94,6 +94,11 @@ class DataGenerator(keras.utils.Sequence):
 
         else:
             batch_z = self.z[idx * self.batch_size:(idx + 1) * self.batch_size]
+            cases = 20
+            bins = [x*10/cases for x in range(cases)]
+            z = np.digitize(x, bins, right=True)
+            batch_z = keras.utils.to_categorical(z, num_classes=cases)
+            
             if self.adv is True:
                 return [batch_x, batch_y], batch_z
             else:
