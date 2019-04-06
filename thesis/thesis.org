@@ -35,6 +35,8 @@ according to their intrinsic angular momentum, the so-called spin. Bosons have
 an integer positive spin and fermions a positive half spin.
 
 
+
+
 \begin{figure}[h]
 
 \begin{tikzpicture}[x=1.2cm, y=1.2cm]
@@ -1272,7 +1274,9 @@ distribution. The result is shown in Figure ref:e-vs-sum_n_fit.
 label:e-vs-sum_n_fit
 [[../images/e-vs-sum_n_fit.pdf]]
 
-** DONE Deep Learning Setup
+** Deep Learning Setup
+
+\todo{split test train}
 
 #+CAPTION: The three-dimensional structure of a data sample is visulaized by an example event of an incoming electron with 9.14172 GeV
 #+NAME: data_display
@@ -1303,11 +1307,13 @@ mit allen Nodes der vorherigen Lage verbunden sind. Bis auf die Output
 Node haben alle Nodes ReLU als Aktivierungsfunktion.
 
 Das zweite Netwerk besteht aus einem Convolutional Teil an dem ein
-fully connected Netwerk angeschlossen ist. Die Lagenstruktur ist in Tabelle ref:conv_structure dargestellt.
+fully connected Netwerk angeschlossen ist. Die Lagenstruktur ist in
+Tabelle ref:conv_structure dargestellt.
 
 #+CAPTION: The structure of the 3D convolutional network is shown. The first column shows the different types of layers of the network. The 3D vectors behind the Conv3D are the kernel dimensions. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column the number of free parameters or weights of each layer.
 #+NAME: conv_structure
 | Type          | $\#$ Nodes | Activation | $\#$ Params |
+|---------------+------------+------------+-------------|
 | Conv3D(3,3,3) |         32 | ReLU       |         896 |
 | Conv3D(3,3,3) |         10 | ReLU       |        8650 |
 | Conv3D(5,5,5) |          5 | ReLU       |        6255 |
@@ -1317,394 +1323,202 @@ fully connected Netwerk angeschlossen ist. Die Lagenstruktur ist in Tabelle ref:
 | Dense         |         10 | ReLU       |        1290 |
 | Dense         |          1 | Linear     |          11 |
 
-Die alternative Struktur reduziert die Anzahl der freien Parameter auf 78,414. 
+Die alternative Struktur reduziert die Anzahl der freien Parameter auf 78,414.
 
-
-** Network
+** Energy Regression with the Fully Connected Network
 
 The network is trained with the RMSprop optimizer and our loss
 function is the mean squared error between the true energy values and
-our predicted energy values. We train the network for 250 epochs with a
-batch size of 128.
+our predicted energy values. We train the fully connected network for
+150 epochs with a batch size of 128.
 
+ #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set. The trained network was the fully connected network described above.
+ #+NAME: dense_loss
+ [[../images/dense_loss.pdf]]
 
- #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
- #+NAME: Loss
-label:first_loss
- [[../images/first_loss.pdf]]
-
- In figure ref:first_loss the loss function is shown. While the loss
+ In figure ref:dense_loss the loss function is shown. While the loss
  function for the training set decreases over time, the loss for the
  validation set increases. This implies that our model is overfitting,
  which means that the model uses the amount of parameters to remember
  each point of the data set and not the structure of the data.
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   D.load_weights('src/first_weights.h5')
-   func = lambda c, x: c[0]*x+c[1] 
-   fig, ax = plt.subplots()
-   plt.plot(energies, func(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-   results = D.predict_generator(DataGenerator(X_test, Y_test,
-					       batch_size=128,
-					       data_augment=False))
-   plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
-   plt.plot(energies, fitfunc(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-   plt.ylim([-5., 5])
-   plt.xlim([0.,10])
-   plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+ #+CAPTION: 10000 data points are plotted in a scatter plot between Epred and Etrue for the network and the fit. The blue background shows the results of the linear fit. In the foreground in black the results of the fully connected neural net are shown in black.
+ #+NAME: dense_scatter
+ [[../images/dense_scatter.pdf]] 
 
-   plt.text(7, -3.5, 'neural net', ha='left', va='center', size=17)
-   plt.text(7, 3.5, 'linear fit', ha='left', va='center', size=17, color='#1f77b4')
+In the scatter plot in figure ref:dense_scatter the results of the
+network and the linear fit are compared with each other. Globally the
+distributions of the points hardly visibly deviate from each
+other. Only noticeable is the decrease towards the end of the network
+distribution.  The network shows almost no values for
+$E_{\text{pred}}$ above 10 GeV.
 
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)  
-   ax.spines["left"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)  
-   plt.savefig('first.pdf', bbox_inches = 'tight')
- #+END_SRC
+ #+CAPTION: The results of the neural network and the linear fit are compared in the two graphs. The total data points were divided into 20 bins and then the mean and standard deviation of these bins were calculated. The upper graph shows the deviation of the mean values of Epred versus the mean values of Etrue. In the lower plot the standard deviation of Epred is plotted for each Bin divided by the root of the mean energy.
+ #+NAME: dense_res
+ [[../images/dense_res.pdf]] 
 
-** DONE Data Augmentation
+The results of the neural network and the linear fit are compared with
+each other in Figure ref:dense_res. In the upper plot the decrease of the mean
+values of the energies at the edge of the spectrum is visible. In
+addition, it is noticeable that the values are slightly shifted
+upwards globally.
 
-Um das overfitting problem zu beheben, wurde die Technik der Data
-Augmentation angewandt.  Data Augmentation in dieser Anwendung meint
-das wir alle gültigen Symmetrietransformationen ausnutzen um die
-Anzahl der Datepunkte zu erhöhen. Jedes Datenpunkt wird zufällig um
-bis zu 3 mal um 90 Grad gedreht und zufällig die gesamten Datenpunkte
-gespiegelt. Dies verachtfacht die möglichen Datenpunkte und soll das
-Netzwerk dazu befähigen die Symmetrien im System zu lernen.
-Anschließend wurden die Datenpunkte noch in allen Richtungen
-verschoben um die Daten unabhängig ihres Eintreffpunktes zu machen.
-An dieser Stelle sei bemerkt das dieses Transformationen nur gültig
-sind, da unsere Simulation absolut homogen und symmetrisch ist. Bei
-realen Detektorpunkten ist dies nicht gegeben.
+The lower graph shows the progression of the mean values of the
+standard deviations through the root of the energies. The quantity is
+a measure for the resolution of the calorimeter and it is noticeable
+that the global performance of the neuronal network is worse than that
+of the linear fit. Only at the end of the distribution is it
+significantly better than the resolution of the linear fit.
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
- import pickle
+One sees that the neural network optimizes its resolution by
+respecting the fact that the distribution is limited between 0 and 10
+GeV. The result is a drop in the value spectrum that is not physically
+motivated, but results solely from the restricted statistics.  The
+slight global shift to higher values is the result of the mean squared
+error as loss function. Thus the residuals of values with higher
+energies are greater than those of small energies. The network
+therefore optimizes itself to these higher values. Since the network
+is overfitted, this is reflected in the poor resolution.
 
- history = pickle.load(open('src/data_augment_history.p', 'rb'))
- epochs = range(len(history['loss']))
- fig, ax = plt.subplots()
- ax.spines['top'].set_visible(False)
- ax.spines['bottom'].set_visible(False)
- ax.spines['right'].set_visible(False)
- ax.spines['left'].set_visible(False)
- plt.tick_params(axis='both', which='both', bottom=False, top=False,
-                 labelbottom=True, left=True, right=False, labelleft=True)
- ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
- plt.plot(epochs, history['loss'], 'k-')
- plt.plot(epochs, history['val_loss'], '-', color='#1f77b4')
- plt.text(float(epochs[-1])+1.5, history['loss'][-1]+0.015, 'training loss', ha='left', va='center', size=15)
- plt.text(float(epochs[-1])+1.5, history['val_loss'][-1]-0.015, 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
- plt.xlabel('epochs')
- plt.ylabel('loss')
- plt.ylim([0.38, 0.8])
- plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
- #+END_SRC
+The next part of this work is mainly concerned with solving the
+problems previously described.
 
 
- #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
- #+NAME: Loss
-label:data_augment_loss
- [[../images/data_augment_loss.pdf]]
 
-Wie in Abbildung ref:data_augment_loss zu sehen, kann das Overfitting
-für unseren Datensatz mit dieser Methode komplett reduziert werden.
-Die Fluktuationen in den Werten der Loss Funktion für das validation
-sample entstehen durch die höhere statistische Fluktuation einer
-kleineren Datenmenge. Der globale Verlauf folgt asymptotisch dem der
-loss für das trainingsset.
+** Data Augmentation
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   D.load_weights('src/data_augment_weights.h5')
-   func = lambda c, x: c[0]*x+c[1] 
-   fig, ax = plt.subplots()
-   plt.plot(energies, func(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-   results = D.predict_generator(DataGenerator(X_test, Y_test,
-					       batch_size=128,
-					       data_augment=False))
-   plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
-   plt.plot(energies, fitfunc(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-   plt.ylim([-5., 5])
-   plt.xlim([0.,10])
-   plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+In order to solve the overfitting problem, the technique of data
+augmentation was used.  Data augmentation in this application means
+that all valid symmetry transformations were used to increase the
+number of data points. Each data point is randomly rotated up to 3
+times by 90 degrees and randomly mirrored in beam direction. This
+increases the possible data points eightfold and should enable the
+network to learn the symmetries in the system. The data points were
+then moved in all directions to make the data independent of their
+arrival point. At this point it should be noted that these
+transformations are only valid because the simulation is absolutely
+homogeneous and symmetrical. This is not necessarily the case with
+real detector data.
 
-   plt.text(7, -3.5, 'neural net', ha='left', va='center', size=17)
-   plt.text(7, 3.5, 'linear fit', ha='left', va='center', size=17, color='#1f77b4')
+#+CAPTION: The value of the loss function is shown after each epoch for the fully connected network. val and train stand for the value of the loss function on the validation set and the training set. neural net denotes the network without data augmentation, while data augmentation stands for the network with data augmentation.
+#+NAME: da_loss
+[[../images/data_augment_loss.pdf]] 
 
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)  
-   ax.spines["left"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)  
-   plt.savefig('images/data_augment.pdf', bbox_inches = 'tight')
- #+END_SRC
+As shown in figure ref:da_loss, the overfitting for our dataset can be
+completely reduced with this method.  The fluctuations in the values
+of the loss function for the validation sample result from the higher
+statistical fluctuation of a smaller amount of data. With data
+augmentation the global course follows asymptotically to the loss for
+the training set. It does not possess the increase of the validation
+set without data augmentation. This indicates that the network is not
+overfitted.
 
- #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
- #+NAME: data_augment
- [[../images/data_augment.pdf]]
+** Adversarial Training
 
+Um die unphysikalischen Abweichungen am Ende der Verteilung zu
+reduzieren, sollte ein adversarial network eingesetzt werden. Die
+theoretischen Grundlagen für diese Art von Training sind in dem
+Article "Learning to Pivot with Adversarial Networks" by G. Louppe et
+al. zu erst beschrieben worden. Hier wurde eine Modifikation Ihres
+Trainings Prozesses angewandt.
 
-Der Scatterplot der Resultate des neuronalen Netzes und des linearen
-Fits sind in ref:data_augment dargestellt. In schwarz im Vordergrund
-ist das ergebnis des neuronalen Netzes abgebildet, dahinter in blau
-das Resultat des linearen Fits zum Vergleich. Bis zu einem Wert von
-etwa 8 GeV sind die Punkte des neuronalen Netzes und des linearen Fits
-in etwa gleich verteilt. Anschließend flacht die Verteilung des
-neuronalen Netzes stark ab. Dies liegt daran, dass das neuronale Netz
-lernt das die Verteilung der resultierenden Datenpunkte bei einer
-Grenze von 10 GeV aufhört. Es kann also Datenpunkte deren statistische
-Fluktuation auch derer höherer Energien entsprechen könnte, leichter
-separieren und zu niedrigeren Energien korrigieren. Diese Reduktion
-der Verteilungsbreite führt zu einer systematischen Verzerrung.
+Die grundlegende Idee hier war, dass aus dem Resultat des neuronalen
+Netzes eine Größe errechnet werden soll, die für alle Werte unabhängig
+sein soll. In diesem Fall ist das angestrebte Ziel einen konstante
+Verteilung der Werte von
+$(E_{\text{pred}}-E_{\text{true}})/\sqrt{E_{\text{true}}}$. Hierfür
+wurde an das vortrainierte Neuronale Netz ein feindliches Netzwerk
+angehängt, dessen Ziel ist ist aus dieser Größe auf $E_{\text{pred}}$
+zurückzuschließen. Der Trainings-Aufbau ist in Abbildung
+\cite{adv-training} dargestellt. Das feindliche Netzwerk wurde mit der
+Loss Funktion 
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   import sys
-   sys.path.append('../src')
-   from utils import *
-   y_true = np.array(Y_test)[:len(results)].reshape(len(results),)
-   y_pred = results.reshape(len(results),)
-   y_fit = func(c_fit, np.sum(X_test[:len(results)], axis=1)).reshape(len(results),)
-   n = 20p
-   y_f, mu_f, sigma_f = sliced_statistics(y_true, y_fit, n) 
-   y_nn, mu_nn, sigma_nn = sliced_statistics(y_true , y_pred, n) 
+\begin{align}
+\mathcal{L} = - \sum Y_true 
+\end{align}
 
-   fig = plt.figure()
-   ax = fig.add_subplot(2,1,1)
+\begin{figure}[h]
+  \centering
+  \usetikzlibrary{arrows}
+  \def\layersep{1cm}
+  \small
+  \begin{tikzpicture}[shorten >= 1pt, ->, node distance=\layersep,scale=.75]
+    \tikzstyle{neuron} = [circle, minimum size=0.25cm, draw=black!20, line width=0.3mm, fill=white]
+    % Classifier f
+    \node at (1.5,0) {Network $f$};
+    \draw (-1,-0.5) rectangle (4,-5.5);
 
-   ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
-   ax.plot(y_nn, mu_nn - y_nn, 'k-')
-   plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1], 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
-   plt.text(y_nn[-1] + 0.1, mu_nn[-1] - y_nn[-1], 'neural net', ha='left', va='center', size=15)
-   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
-   ax.xaxis.set_ticks([])
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)
+    \path[->, shorten >= 0pt] (-2,-3) edge (-1,-3);
+    \node[left] at (-2,-3) {$X$};
 
-   ax = fig.add_subplot(2,1,2)
-   ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
-   ax.plot(y_nn, sigma_nn / np.sqrt(y_nn), 'k-')
-   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
-   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)
-   plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1]), 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
-   plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1]), 'neural net', ha='left', va='center', size=15)
-   plt.ylim([0., 0.5])
-   plt.savefig('images/data_augment_res.pdf', bbox_inches = 'tight')
- #+END_SRC
+    \path[-o, shorten >= 0pt] (1.5,-6.5) edge (1.5,-5.5);
+    \node[below] at (1.5,-6.5) {$\theta_f$};
 
- #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
- #+NAME: data_augment_res
- [[../images/data_augment_res.pdf]]
+    \path[->, shorten >= 0pt] (3.5,-3) edge (6.5,-3);
+    \node[above] at (5.25,-3) {$f(X;\theta_f)$};
 
-In Abbildung ref:data_augment_res wurden die gesamten Datenpunkte in
-25 Bins mit gleichem Abstand ihrer resultierenden Energie sortiert
-eingeteilt und für jeden Bin jeweils der Mittelwert der
-Energiedifferenzen und die Standardabweichung der Energiedifferenzen
-bestimmt. Im oberen Graphen ist der Mittelwert der Energiedifferenzen
-aufgetragen. Im unteren Graphen ist die Standardabweichung durch die
-Wurzel der resultierenden Energien abgebildet. Die Schlüsse aus dem
-Scatterplot sind auch hier zu beobachten. In den Mittelwerten sieht
-man den Abfall zu hohen Energien, die in einer erhöhten Auflösung
-resultiert. Des weiteren ist hier zu sehen, dass die Datenpunkte
-global systematisch nach oben verschoben sind.
+    \path[dashed,-] (5.25,-3) edge (5.25,-6.5);
+    \node[below] at (5.25,-6.5) {${\cal L}_f(\theta_f)$};
 
-Diese Verschiebung ist mit der Wahl des Mean Squared Errors als Loss
-Funktion zu erläutern. Die einzelnen Residuen der Summationsbeiträge
-sind auf Grund der statistischen Verteilung für größere Energien
-größer. Das Netzwerk optimiert sich deshalb zu höheren Werten und
-erzeugt systematische Fehler. 
+    \foreach \name / \y in {1,...,3}
+    \node[neuron] (f-I-\name) at (-0.5,-1-\y) {};
 
-Hier zeigt sich das die Wahl der Loss Funktion entscheident ist um
-systematische Fehler vorzubeugen. Die Loss Funktion muss die Statistik
-der Datenpunkte widerspiegeln. Dies wird weiterführend im Kapitel xx
-diskutiert. 
+    \foreach \name / \y in {1,...,5}
+    \node[neuron] (f-H1-\name) at (-0.5cm+\layersep,-\y cm) {};
+    \foreach \name / \y in {1,...,5}
+    \node[neuron] (f-H2-\name) at (-0.5cm+3*\layersep,-\y cm) {};
 
-** TODO Adversarial Solution                                       :noexport:
+    \node[neuron] (f-O) at (-0.5cm+4*\layersep,-3cm) {};
 
-*** Gute Fragen [/]
-- [ ] was habe ich eigentlich gemacht?
-- [ ] wie stellen wir das da?
+    \foreach \source in {1,...,3}
+    \foreach \dest in {1,...,5}
+    \path[black] (f-I-\source) edge (f-H1-\dest);
 
-  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-    D.load_weights('src/data_augment_weights.h5')
-    func = lambda c, x: c[0]*x+c[1] 
-    fig, ax = plt.subplots()
-    plt.plot(energies, (func(c_like, sum_n)-energies)/np.sqrt(energies), '.', alpha=0.25, markersize=3, color='#1f77b4')
-    results = D.predict_generator(DataGenerator(X_test, Y_test,
-						batch_size=128,
-						data_augment=False))
-    plt.plot(Y_test[:10000], (results[:10000] - np.array(Y_test[:10000], dtype=np.float32))/np.sqrt(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
-    plt.xlim([0.,10])
+    \foreach \source in {1,...,5}
+    \path[black] (f-H2-\source) edge (f-O);
 
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)  
-    ax.spines["left"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)  
-  #+END_SRC
+    \node[black] at (1.5,-3) {...};
 
-  To diminish the depency of the distribution of given true labels, the
-  maximum likelihood fit, developed in the previous chapter, will be
-  used as a loss function.
+    % Adversary r
+    \node at (9,0) {Adversary $r$};
+    \draw (6.5,-0.5) rectangle (11.5,-5.5);
 
-  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-    D.load_weights('src/adversarial_weights.h5')
-    fig, ax = plt.subplots()
-    plt.plot(energies, func(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-    results = D.predict_generator(DataGenerator(X_test, Y_test,
-						batch_size = 32))
-    plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
-    # plt.ylim([-5., 5])
-    plt.xlim([0.,10])
-    plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
-    plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+    \node[above] at (14,-3) {$r(f(X;\theta_f);\theta_r)$};
+    \path[-o, shorten >= 0pt] (11,-3) edge (15,-3);
+    \path[-o, shorten >= 0pt] (9,-6.5) edge (9,-5.5);
+    \node[below] at (9,-6.5) {$\theta_r$};
 
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)  
-    ax.spines["left"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
+    \foreach \name / \y in {1,...,1}
+    \node[neuron] (r-I-\name) at (7,-2-\y) {};
 
-    plt.text(7, -3.5, 'neural net', ha='left', va='center', size=17)
-    plt.text(7, 3.5, 'linear fit', ha='left', va='center', size=17, color='#1f77b4')
+    \foreach \name / \y in {1,...,5}
+    \node[neuron] (r-H1-\name) at (7cm+\layersep,-\y cm) {};
+    \foreach \name / \y in {1,...,5}
+    \node[neuron] (r-H2-\name) at (7cm+3*\layersep,-\y cm) {};
 
-    plt.savefig('images/adversarial.pdf', bbox_inches = 'tight')
-  #+END_SRC
+    \node[neuron] (r-O1) at (7cm+4*\layersep,-2cm) {};
+    \node[neuron] (r-O2) at (7cm+4*\layersep,-3cm) {};
+    \node[neuron] (r-O3) at (7cm+4*\layersep,-4cm) {};
 
-  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-    import sys
-    sys.path.append('../src')
-    from utils import *
-    y_true = np.array(Y_test)[:len(results)].reshape(len(results),)
-    y_pred = results.reshape(len(results),)
-    y_fit = func(c_fit, np.sum(X_test[:len(results)], axis=1)).reshape(len(results),)
-    n = 20
-    y_f, mu_f, sigma_f = sliced_statistics(y_true, y_fit, n) 
-    y_nn, mu_nn, sigma_nn = sliced_statistics(y_true , y_pred, n) 
-  
-    fig = plt.figure()
-    ax = fig.add_subplot(2,1,1)
+    \foreach \source in {1,...,1}
+    \foreach \dest in {1,...,5}
+    \path[black] (r-I-\source) edge (r-H1-\dest);
 
-    ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
-    ax.plot(y_nn, mu_nn - y_nn, 'k-')
-    plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1], 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
-    plt.text(y_nn[-1] + 0.1, mu_nn[-1] - y_nn[-1], 'neural net', ha='left', va='center', size=15)
-    plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
-    ax.xaxis.set_ticks([])
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
+    \foreach \source in {1,...,5}
+    \path[black] (r-H2-\source) edge (r-O1);
+    \foreach \source in {1,...,5}
+    \path[black] (r-H2-\source) edge (r-O2);
+    \foreach \source in {1,...,5}
+    \path[black] (r-H2-\source) edge (r-O3);
 
-    ax = fig.add_subplot(2,1,2)
-    ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
-    ax.plot(y_nn, sigma_nn / np.sqrt(y_nn), 'k-')
-    plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
-    plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1]), 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
-    plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1]), 'neural net', ha='left', va='center', size=15)
-    plt.ylim([0., 0.5])
-    plt.savefig('images/adversarial_res.pdf', bbox_inches = 'tight')
-  #+END_SRC
+    \node[black] at (9,-3) {...};
 
-
-  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-    import pickle
-    history = pickle.load(open('src/adversarial_history.p', 'rb'))
-    epochs = range(len(history['D_loss']))
-    fig, ax = plt.subplots()
-    ax.spines['top'].set_visible(False)
-    ax.spines['bottom'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_visible(False)
-    plt.tick_params(axis='both', which='both', bottom=False, top=False,
-                    labelbottom=True, left=True, right=False, labelleft=True)
-    ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
-    plt.plot(epochs, history['D_loss'], 'k-')
-    plt.plot(epochs, history['val_D_loss'], '-', color='#1f77b4')
-    plt.text(float(epochs[-1])+0.2, history['D_loss'][-1], 'training loss', ha='left', va='center', size=15)
-    plt.text(float(epochs[-1])+0.2, history['val_D_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-  #+END_SRC
-
-  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-    import pickle
-    history = pickle.load(open('src/adversarial_history.p', 'rb'))
-    epochs_R = range(len(history['R_loss']))
-    fig, ax = plt.subplots()
-    ax.spines['top'].set_visible(False)
-    ax.spines['bottom'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_visible(False)
-    plt.tick_params(axis='both', which='both', bottom=False, top=False,
-		    labelbottom=True, left=True, right=False, labelleft=True)
-    ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
-    plt.plot(np.array(epochs_R), np.abs(history['R_loss']), 'k-')
-    plt.plot(np.array(epochs_R), np.abs(history['val_R_loss']), '-', color='#1f77b4')
-    plt.text(np.array(epochs_R)[-1]+0.2, np.abs(history['R_loss'])[-1], 'training loss', ha='left', va='center', size=15)
-    plt.text(np.array(epochs_R)[-1]+0.2, np.abs(history['val_R_loss'])[-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-  #+END_SRC
-
-  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-    D.load_weights('src/adversarial_weights.h5')
-    fig, ax = plt.subplots()
-    plt.plot(energies, fitfunc(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-    plt.plot(Y_test[:10000], (D.predict(X_test[:10000])-Y_test[:10000]), 'k.', alpha=0.25, markersize=3)
-    # plt.ylim([-6., 6])
-    plt.xlim([0.,10])
-    plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
-    plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)  
-    ax.spines["left"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)  
-  #+END_SRC
-
-  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-    n = 20
-
-    y_true = np.array(Y_test).reshape(len(Y_test),)
-    D.load_weights('src/adversarial_weights.h5')
-    y_pred = D.predict(X_test).reshape(len(y_true),)
-    y_adv, mu_adv, sigma_adv = sliced_statistics(y_true , y_pred, n) 
-
-    D.load_weights('src/first_weights.h5')
-    y_pred = D.predict(X_test).reshape(len(y_true),)
-    y_nn, mu_nn, sigma_nn = sliced_statistics(y_true , y_pred, n) 
-
-    y_fit = fitfunc(c_fit, np.sum(X_test, axis=1))
-    n = 10
-    y_f, mu_f, sigma_f = sliced_statistics(y_true , y_fit, n) 
-
-    fig = plt.figure()
-    ax = fig.add_subplot(2,1,1)
-
-    ax.plot(y_nn, mu_nn - y_nn, '-', color='#1f77b4')
-    ax.plot(y_f, mu_f - mu_f, 'k-')
-    ax.plot(y_adv, mu_adv - y_adv, 'r-', alpha=0.8)
-  
-    plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
-    ax.xaxis.set_ticks([])
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["bottom"].set_visible(False)
-
-    ax = fig.add_subplot(2,1,2)
-    ax.plot(y_nn, sigma_nn/ np.sqrt(y_nn), '-', color='#1f77b4')
-    ax.plot(y_f, sigma_f/np.sqrt(y_f), 'k-')
-    ax.plot(y_adv, sigma_adv/np.sqrt(y_adv), 'r-', alpha=0.8)
-    plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
-    plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    plt.ylim([0., 0.5])
-  #+END_SRC
+    \draw[dashed,-] (14.9,-6.5) -- (14.9,-3);
+    \node[below] at (15,-6.5) {${\cal L}_r(\theta_f, \theta_r)$};
+  \end{tikzpicture}
+\caption{Visualisation of the adversarial training setup}
+\label{adv-training}
+\end{figure}
 
 ** TODO Linear Fit with different version
 
@@ -1964,6 +1778,9 @@ p
  #+NAME: likelihood_res
  [[../images/likelihood_res.pdf]]
 
+** TODO Are we learning the shape?                                 :noexport:
+*** divide the incoming cells by the total sum
+
 ** TODO Pions
 *** Loading Data                                                   :noexport:
   #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -2134,9 +1951,6 @@ p
  #+CAPTION: Results of the polynom fit vs the first neural net width data augmentation
  #+NAME: pion_res
  [[../images/pion_res.pdf]]
-
-** TODO Are we learning the shape?                                 :noexport:
-*** divide the incoming cells by the total sum
 
 
 * Energy Regression with Particle Flow Jets
