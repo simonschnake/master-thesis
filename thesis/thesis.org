@@ -1190,7 +1190,7 @@ identical weigths.
 
 \todo{D.O. Hebb 1940 (Hebbian learning by modified synaptic strength) nachschlagen}
 * Energy Regression in Calorimetry
-** Inhalt [9/13]
+** Inhalt [10/13]
 - [X] Aufbau Calorimeter Simulation
 - [X] Linearer Fit Standard
 - [X] Aufbau Neuronales Netz
@@ -1199,9 +1199,9 @@ identical weigths.
 - [X] Data Augmentation
 - [X] Results
 - [X] Shift to higher Values
-- [ ] Results of different loss functions
 - [X] Kink Border Problem
-- [ ] Adversarial Training
+- [X] Adversarial Training
+- [ ] Results of different loss functions
 - [ ] Custom Loss Function
 - [ ] Zusammenfassung
 
@@ -1383,10 +1383,8 @@ is overfitted, this is reflected in the poor resolution.
 The next part of this work is mainly concerned with solving the
 problems previously described.
 
-
-
 ** Data Augmentation
-
+   
 In order to solve the overfitting problem, the technique of data
 augmentation was used.  Data augmentation in this application means
 that all valid symmetry transformations were used to increase the
@@ -1414,28 +1412,6 @@ set without data augmentation. This indicates that the network is not
 overfitted.
 
 ** Adversarial Training
-
-Um die unphysikalischen Abweichungen am Ende der Verteilung zu
-reduzieren, sollte ein adversarial network eingesetzt werden. Die
-theoretischen Grundlagen für diese Art von Training sind in dem
-Article "Learning to Pivot with Adversarial Networks" by G. Louppe et
-al. zu erst beschrieben worden. Hier wurde eine Modifikation Ihres
-Trainings Prozesses angewandt.
-
-Die grundlegende Idee hier war, dass aus dem Resultat des neuronalen
-Netzes eine Größe errechnet werden soll, die für alle Werte unabhängig
-sein soll. In diesem Fall ist das angestrebte Ziel einen konstante
-Verteilung der Werte von
-$(E_{\text{pred}}-E_{\text{true}})/\sqrt{E_{\text{true}}}$. Hierfür
-wurde an das vortrainierte Neuronale Netz ein feindliches Netzwerk
-angehängt, dessen Ziel ist ist aus dieser Größe auf $E_{\text{pred}}$
-zurückzuschließen. Der Trainings-Aufbau ist in Abbildung
-\cite{adv-training} dargestellt. Das feindliche Netzwerk wurde mit der
-Loss Funktion 
-
-\begin{align}
-\mathcal{L} = - \sum Y_true 
-\end{align}
 
 \begin{figure}[h]
   \centering
@@ -1520,437 +1496,128 @@ Loss Funktion
 \label{adv-training}
 \end{figure}
 
-** TODO Linear Fit with different version
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   from scipy.optimize import leastsq
-   # function to fit
-   fitfunc = lambda c , x: (x-c[1])/(abs(c[0])+0.0001)
-   errfunc = lambda c , x, y: (y - fitfunc(c, x))
-   out = leastsq(errfunc, [0., 0.0], args=(energies, sum_n), full_output=1)
+Um die unphysikalischen Abweichungen am Ende der Verteilung zu
+reduzieren, sollte ein adversarial network eingesetzt werden. Die
+theoretischen Grundlagen für diese Art von Training sind in dem
+Article "Learning to Pivot with Adversarial Networks" by G. Louppe et
+al. zu erst beschrieben worden. Hier wurde eine Modifikation Ihres
+Trainings Prozesses angewandt.
 
-   c_fit = out[0]
-   covar = out[1]
-  
-   fitfunc = lambda c , x: c[0]*x+c[1]+c[0]
-   n = np.arange(0, 250, 0.5)
-   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-   plt.plot(n, fitfunc(c_fit, n), 'b-')     # Fit
-   # plt.plot(n, fitfunc(c_fit1, n), 'k-')     # Fit
+Die grundlegende Idee hier war, dass aus dem Resultat des neuronalen
+Netzes eine Größe errechnet werden soll, die für alle Werte unabhängig
+sein soll. In diesem Fall ist das angestrebte Ziel einen konstante
+Verteilung der Werte von
+$(E_{\text{pred}}-E_{\text{true}})/\sqrt{E_{\text{true}}}$. Hierfür
+wurde an das vortrainierte Neuronale Netz ein feindliches Netzwerk
+angehängt, dessen Ziel ist ist aus dieser Größe auf $E_{\text{pred}}$
+zurückzuschließen. Der Trainings-Aufbau ist in Abbildung
+\cite{adv-training} dargestellt. Das feindliche Netzwerk wurde mit einer Categorial Cross Entropie als 
+Loss Funktion 
 
-   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$\sum_i n_i$')
-
- #  plt.text(1, 9, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
- #  plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
- #+END_SRC
 \begin{align}
- \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} \\
- \text{likelihood} = \prod_{i} \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))}\\
- \text{cost} = - \sum_{i} \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})\\
- \text{loss} = - \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})\\
- \text{loss} = - \ln(e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}})-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))\\
- \text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))\\
- \text{loss} = \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}+\ln(\sqrt{\frac{\pi}{2}} \sigma_i\left(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})\right))
+\mathcal{L}_r = - \sum \mathcal{C}\left(Y_{\text{true}}\right) \log(r\left(\frac{f(X)-Y_{\text{true}}}{\sqrt{Y_{\text{true}}}}\right))
 \end{align}
 
- For stability reasons we use the results of the leastsquares fit as
- the start parameters of our minimum likelihood fit.  The minimizing
- method is "L-BFGS-B"[CITE]. $\mu_i$ is the prediction of our model in
- this case the result of the linear fit.  The number of charged
- particles in the scintillators is poisson distributed. So the
- estimator the energy has a standard deviance of $\sqrt{\mu}$.
+trainiert. Hier sind $f$ und $r$ die Funktion des Netzwerkes und
+seines Feindes. $\mathcal{C}$ ist die Funktion, die alle Werte
+von 0. bis 10. GeV in 20 gleich große Kategorien unterteilt und dann
+jeder Kategorie auf einen 20-dimensionalen Basisvektor abbildet.
 
- Which is 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   from scipy.special import erf
-   from scipy.stats import norm
-   from scipy import optimize
+Es wird nun abwechselnd das Neuronale Netz und sein Adversary trainiert.
+Das Neuronale Netz wird mit der Loss Funktion
 
-   def likelihood(par):
-       epsilon = 0.0000001
-       mu = sum_n*par[0]+par[1]
-       sigma = np.sqrt(np.abs(mu)) # 2/par[0] 
-       elements = norm.pdf(energies, mu, sigma)
-       a = np.divide(mu-lower_border, np.sqrt(2)*sigma+epsilon)
-       b = np.divide(mu-upper_border, np.sqrt(2)*sigma+epsilon)
-       norms = np.abs(erf(a)- erf(b))
-       return -np.sum(np.log(np.divide(elements, norms + epsilon)+epsilon))
+\begin{align}
+\mathcal{L}_f = \sum (Y_{\text{true}} - f(X))^2 - \lambda \mathcal{L}_r
+\end{align}
 
-   lower_border = 0  
-   upper_border = 10
-   out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
+trainiert. Durch das negative Einbinden des Adversary versucht das
+Netzwerk die Performance des gegnerischen Netzes möglichst schlecht zu
+machen.
 
-   c_like = out['x']
+Beim Trainieren des Adversary werden die Gewichte des
+ersten Netzes festgehalten und umgekehrt. $\lambda$ ist ein beliebig
+festzulegender Faktor, der hier auf 2.5 festgelegt wurde.
 
-   n = np.arange(0, 250, 0.5)
-   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-   plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
-   # plt.plot(n, fitfunc(c_like, n), 'b-')     # Fit
-   # plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
+Der Trainingverlauf bestand aus einem abwechselnden Trainieren beider
+Netzwerke für jeweils 5 Epochs. Dieser Ablauf wurde zehn mal
+wiederholt und anschließend die Ergebnisse für das test sample des
+neuronalen Netzes aufgenommen. 
 
-   # n = np.arange(0, 10.1, 0.1)
-   # plt.plot(energies, sum_n, 'r.', alpha=0.06)
-   # plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
-
-   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$\sum_i n_i$')
+#+CAPTION: Die Resultate des Neuronalen Netzes nach jedem der 9 nacheinander folgenden Trainingsprozessen ist dargestellt. Die Ergebnisse sind nach ihrer Abfolge nummeriert. Zur übersichtlichkeit wurde auf Achsen und Beschriftung verzichtet. Diese ist die gleiche, wie in Abbildung \ref{dense_scatter}.
+#+NAME: adv_scatter
+[[../images/adv_scatter.png]]
 
 
-   plt.text(1, 9.5, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
-   plt.text(1, 9, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
+Dieser beschriebene Vorgang wurde neun Mal wiederholt und damit neun
+Resultate erzeugt, die in Abbildung ref:adv_scatter dargestellt sind.
 
-   plt.savefig('../images/e-vs-sum_n_fit.pdf')
- #+END_SRC
-
- #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
- #+NAME: e-vs-sum_n_fit
- [[../images/e-vs-sum_n_fit.pdf]]
+Zu sehen ist, dass die Ergebnisse fluktuieren und sich nicht
+konvergieren. Bis auf zwischenzeitlich auftretende Anomalien verändert
+sich das Endresultat kaum merklich.
 
 ** TODO Likelihood Solution
 
- \[
-    \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2(\text{erf}(\frac{\mu-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{\mu-b}{\sqrt{2}\sigma}))} 
- \]
- \[
- \text{likelihood} = \prod_{i} \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))}
- \]
+Da das Adversarial Training nicht zu gewünschten Ergebnissen führte
+wurde sich in diesem Teil der Kompensation der Abweichungen in der
+Distribution mittels des Verändern der Loss Funktion angeschaut.
 
- \[
- \text{log likelihood} = - \sum_{i} \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
- \]
+Auch im vorherigen Teil kam eine modifizierte Loss Funktion zum
+Einsatz.  Wie aus der unterliegenden Verteilung der Werte eine
+adequate Loss Funktion ermittelt werden kann, soll hier skizziert
+werden.
 
- \[
-  = - \sum_{i} \ln( \frac{\frac{1}{\sqrt{2\pi \sigma_i^2}} e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}}}{1/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i}))})
- \]
- \[
-  = - \sum_{i} \ln(e^{-\frac{(E_i-\mu_i)^2}{2 \sigma_i^2}})-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
- \]
- \[
-  = \sum_{i} \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}-\ln(\sqrt{2\pi \sigma_i^2}/2(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})))
- \]
+Durch Umformen und zulässige Hinzufügungen lässt sich aus dem mean
+squared error eine maximum likelihood herleiten
 
- \[
-  = \sum_{i} \frac{(E_i-\mu_i)^2}{2 \sigma_i^2}+\ln(\sqrt{\frac{\pi}{2}} \sigma_i\left(\text{erf}(\frac{\mu_i-a}{\sqrt{2}\sigma_i}) - \text{erf}(\frac{\mu_i-b}{\sqrt{2}\sigma_i})\right))
- \]
+\begin{align}
+    &\text{min} \sum (y_{\text{true}}-y_{\text{pred}})^2 \\
+    =&\text{max} \sum\frac{-(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2} - \ln(\sqrt{2\pi \sigma^2}) \\
+    = &\text{max} \sum \ln(\exp(-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2})) - \ln(\sqrt{2\pi \sigma^2}) \\
+    = &\text{max} \sum \ln( \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}) \\
+    = &\text{max} \ln \prod \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}\\
+    = &\text{max} \prod \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}.
+\end{align}
 
- For stability reasons we use the results of the leastsquares fit as
- the start parameters of our minimum likelihood fit.  The minimizing
- method is "L-BFGS-B"[CITE]. $\mu_i$ is the prediction of our model in
- this case the result of the linear fit.  The number of charged
- particles in the scintillators is poisson distributed. So the
- estimator the energy has a standard deviance of $\sqrt{\mu}$.
+Der Annahme das der mean squared error die gültige
+Mimimierungsfunktion des Neuronalen Netzes ist liegt also die Annahme
+zu Grunde, dass die Werte Gauß verteilt sind und einen konstante
+Standardabweichung besitzen.
 
- Which is 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   from scipy.special import erf
-   from scipy.stats import norm
-   from scipy import optimize
-p
-   def likelihood(par):
-       epsilon = 0.0000001
-       mu = sum_n*par[0]+par[1]
-       sigma = 0.31*np.sqrt(np.abs(energies)) # 2/par[0] 
-       elements = norm.pdf(energies, mu, sigma)
-       a = np.divide(mu-lower_border, np.sqrt(2)*sigma+epsilon)
-       b = np.divide(mu-upper_border, np.sqrt(2)*sigma+epsilon)
-       norms = np.abs(erf(a)- erf(b))
-       return -np.sum(np.log(np.divide(elements, norms + epsilon)+epsilon))
+Für ein Kalorimeter ist aber keine konstante Standardabweichung
+gegeben. Außerdem ist auch die Annahme dass die Werte eine volle
+Gauß-Verteilung besitzen an den Rändern nicht gültig. Hier muss die
+Abwesenheit der Datenpunkte mit einer Normierung kompensiert werden.
+Diese Auswirkungen sind in Abbildung ref:gaussian-shift dargestellt.
 
-   lower_border = 0  
-   upper_border = 10
-   out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
-  
-   c_like = out['x']
+#+CAPTION: Die unterschiedlichen Likelihoods zweier Gauß Funktionen sind dargestellt. Einmal mit Normierung und einmal ohne Normierung.
+#+NAME: gaussian-shift
+[[../images/gaussian_shift.png]]
 
-   n = np.arange(0, 240, 0.5)
-   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-   plt.plot(n, func(c_fit, n), 'b-')     # Fit
-   plt.plot(n, func(c_like, n), 'k-')     # Fit
-   #  plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
+Um also die abgeschnittene Verteilung zu berücksichtigen nehmen wir als Wahrscheinlichkeitsdichtefunktion 
+\begin{align}
+\text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)},
+\end{align}
 
-   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$\sum_i n_i$')
+wobei $a$ und $b$ hier 0. und 10 GeV sind. Wir können hieraus dann
+eine Loss Funktion herleiten, die es für das Neuronale Netz zu
+minimieren gilt.
 
-   plt.text(1, 9, r'$c_0 =$ '+ '%.3f' % c_like[0], ha='left')
-   plt.text(1, 8.3, r'$c_1 =$ '+ '%.2f' % c_like[1], ha='left')
+\begin{align}
+&\text{max}\left[ \prod \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)} \right]\\
+&=\text{min}\left[ -\ln \prod \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)}\right] \\
+&=\text{min}\left[ -\sum \ln(e^{-\frac{(x-\mu)^2}{2 \sigma^2}}{\sqrt{\frac{\pi \sigma^2}{2}}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)})\right] \\
+&=\text{min}\left[ -\sum -\frac{(x-\mu)^2}{2 \sigma^2}-\ln(\sqrt{\frac{\pi \sigma^2}{2}}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right))\right] \\
+&=\text{min}  \sum \frac{(x-\mu)^2}{\sigma^2} + \ln(\frac{\pi \sigma^2}{2}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)^2) 
+\end{align}
 
-   plt.savefig('images/e-vs-sum_n_lik.pdf')
- #+END_SRC
+Das resultierende Loss Funktion besteht aus einem Teil des mean
+weighted squared errors, diese Gewichtung verhindert die globale
+Verschiebung der Werte nach oben. Da Werte mit hohen Energien die
+selben Beiträge zur gesamt loss funktion beitragen wie Werte mit
+geringen Energien. Der zweite Term ist ein Korrekturfaktor der die
+Enden der Verteilung berücksichtigt und deren Effekte reduziert.
 
- #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the likelihood fit described above.
- #+NAME: e-vs-sum_n_lik
- [[../images/e-vs-sum_n_lik.pdf]] 
-
-
- To diminish the depency of the distribution of given true labels, the
- maximum likelihood fit, developed in the previous chapter, will be
- used as a loss function.
-
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
- import pickle
- history = pickle.load(open('src/likelihood_history.p', 'rb'))
- epochs = range(len(history['loss']))
- fig, ax = plt.subplots()
- ax.spines['top'].set_visible(False)
- ax.spines['bottom'].set_visible(False)
- ax.spines['right'].set_visible(False)
- ax.spines['left'].set_visible(False)
- plt.tick_params(axis='both', which='both', bottom=False, top=False,
-                 labelbottom=True, left=True, right=False, labelleft=True)
- ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
- plt.plot(epochs, history['loss'], 'k-')
- plt.plot(epochs, history['val_loss'], '-', color='#1f77b4')
- plt.text(float(epochs[-1])+0.5, history['loss'][-1], 'training loss', ha='left', va='center', size=15)
- plt.text(float(epochs[-1])+0.5, history['val_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
- plt.xlabel('epochs')
- plt.ylabel('loss')
- plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
- #+END_SRC
-
- #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
- #+NAME: Loss
- [[../likelihood_loss.pdf]]
-
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   D.load_weights('src/likelihood_weights.h5')
-   fig, ax = plt.subplots()
-   plt.plot(energies, func(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-   results = D.predict_generator(DataGenerator(X_test, Y_test))
-   plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
-   #plt.ylim([-10., 20])
-   plt.xlim([0.,10])
-   plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)  
-   ax.spines["left"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)
-   plt.savefig('images/likelihood.pdf', bbox_inches = 'tight')
- #+END_SRC
-
- #+CAPTION: Results of the linear fit vs the first neural net with data augmentation
- #+NAME: first
- [[../images/likelihood.pdf]]
-
-
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   import sys
-   sys.path.append('../src')
-   from utils import *
-   y_true = np.array(Y_test)[:len(results)].reshape(len(results),)
-   y_pred = results.reshape(len(results),)
-   y_fit = func(c_fit, np.sum(X_test[:len(results)], axis=1)).reshape(len(results),)
-   n = 20
-   y_f, mu_f, sigma_f = sliced_statistics(y_true, y_fit, n) 
-   y_nn, mu_nn, sigma_nn = sliced_statistics(y_true , y_pred, n) 
-
-   fig = plt.figure()
-   ax = fig.add_subplot(2,1,1)
-
-   ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
-   ax.plot(y_nn, mu_nn - y_nn, 'k-')
-   plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1]+0.02, 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
-   plt.text(y_nn[-1] + 0.1, mu_nn[-1] - y_nn[-1]-0.02, 'neural net', ha='left', va='center', size=15)
-   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
-   plt.ylim([-0.3, 0.3])
-   ax.xaxis.set_ticks([])
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)
-   print((sigma_nn / np.sqrt(y_nn))[-1])
-   print((sigma_f / np.sqrt(y_f))[-1])
-   ax = fig.add_subplot(2,1,2)
-   ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
-   ax.plot(y_nn, sigma_nn / np.sqrt(y_nn), 'k-')
-   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
-   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)
-   plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1])+0.01, 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
-   plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1])-0.01, 'neural net', ha='left', va='center', size=15)
-   plt.ylim([0.0, 0.5])
-   plt.savefig('images/likelihood_res.pdf', bbox_inches = 'tight')
- #+END_SRC
-
- #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
- #+NAME: likelihood_res
- [[../images/likelihood_res.pdf]]
-
-** TODO Are we learning the shape?                                 :noexport:
-*** divide the incoming cells by the total sum
-
-** TODO Pions
-*** Loading Data                                                   :noexport:
-  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-    import h5py
-
-    try:
-	data = h5py.File('../data/pion.h5', 'r')
-    except IOError:
-	try:
-		data = h5py.File('data/pion.h5', 'r')
-	except IOError:
-		print('Data not found')
-
-    X_test = data['test']['X']
-    Y_test = data['test']['Y']
-    X_train = data['train']['X']
-    Y_train = data['train']['Y']
-  #+END_SRC
-
-*** Polynom Fit
-  A traditional way of calibrating the neural net would be to sum over all scintillator cells as shown in xx
-  a linear fit to the energy.
-  \[E = c_0\sum_i n_i + c_1\]
-  This is done with the method of least squares.
-
-  The relation is bijectiv so the solution can be found by swapping the axixes.
-
-  #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   from scipy.special import erf
-   from scipy.stats import norm
-   from scipy import optimize
-
-   import numpy as np
-   sum_n = np.sum(X_test[:10000], axis=1)
-   energies = np.transpose(Y_test[:10000])[0]
-
-
-   # function to fit
-   fitfunc = lambda c , x: c[0]*x**2+c[1]*x
-   errfunc = lambda c , x, y: (y - fitfunc(c, x))
-   out = leastsq(errfunc, [0., 0.], args=(energies, sum_n), full_output=1)
-  
-   c_fit = out[0]
-   covar = out[1]
-   a, b = out[0]
-
-   invfunc = lambda a, b, x: -b/(2*a)-np.sqrt((b/(2*a))**2+x/a)
-
-
-   def likelihood(par):
-       epsilon = 0.0000001
-       mu = fitfunc(par, sum_n)
-       sigma = 0.855*np.sqrt(np.abs(energies)) # 2/par[0] 
-       elements = norm.pdf(energies, mu, sigma)
-       a = np.divide(mu-lower_border, np.sqrt(2)*sigma+epsilon)
-       b = np.divide(mu-upper_border, np.sqrt(2)*sigma+epsilon)
-       norms = np.abs(erf(a)- erf(b))
-       return -np.sum(np.log(np.divide(elements, norms + epsilon)+epsilon))
-
-   lower_border = 0  
-   upper_border = 10
-   out = optimize.minimize(likelihood, np.array([-1., 0.1]), method='L-BFGS-B')
-  
-   c_like = out['x']
-
-   n = np.arange(0.1, 550, 0.5)
-   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-   plt.plot(n, invfunc(a, b, n) , 'k-')     # Fit
-   plt.plot(n, fitfunc(c_like, n), 'b-')     # Fit
-
-   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$\sum_i n_i$')
-   plt.savefig('images/pion_fit.pdf', bbox_inches = 'tight')
-  #+END_SRC
-
- #+CAPTION: Here a polynom is fitted via an likelihood to the pion data
- #+NAME: pion_fit
- [[./images/pion_fit.pdf]] 
-
-*** Neural Net
-
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
- import pickle
- history = pickle.load(open('src/pion_history.p', 'rb'))
- epochs = range(len(history['loss']))
- fig, ax = plt.subplots()
- ax.spines['top'].set_visible(False)
- ax.spines['bottom'].set_visible(False)
- ax.spines['right'].set_visible(False)
- ax.spines['left'].set_visible(False)
- plt.tick_params(axis='both', which='both', bottom=False, top=False,
-                 labelbottom=True, left=True, right=False, labelleft=True)
- ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
- plt.plot(epochs, history['loss'], 'k-')
- plt.plot(epochs, history['val_loss'], '-', color='#1f77b4')
- plt.text(float(epochs[-1])+1.5, history['loss'][-1], 'training loss', ha='left', va='center', size=15)
- plt.text(float(epochs[-1])+1.5, history['val_loss'][-1], 'validation loss', ha='left', va='center', size=15, color='#1f77b4')
- plt.xlabel('epochs')
- plt.ylabel('loss')
- plt.savefig('images/pion_loss.pdf', bbox_inches = 'tight')
- #+END_SRC
-
- #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set.
- #+NAME: Loss
- [[../images/pion_loss.pdf]]
-
-
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   D.load_weights('src/pion_weights.h5')
-   fig, ax = plt.subplots()
-   plt.plot(energies, fitfunc(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
-   results = D.predict_generator(DataGenerator(X_test, Y_test))
-   plt.plot(Y_test[:10000], results[:10000] - np.array(Y_test[:10000], dtype=np.float32), 'k.', alpha=0.25, markersize=3)
-   #plt.ylim([-10., 20])
-   plt.xlim([0.,10])
-   plt.ylabel(r'$E_{\text{pred}} - E_{\text{true}}$ [GeV]')
-   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)  
-   ax.spines["left"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)
-   plt.savefig('images/pion.pdf', bbox_inches = 'tight')
- #+END_SRC
-
- #+CAPTION: Results of the linear fit vs the first neural net with data augmentation for pions
- #+NAME: pion
- [[../images/pion.pdf]]
-
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-   import sys
-   sys.path.append('../src')
-   from utils import *
-   y_true = np.array(Y_test)[:len(results)].reshape(len(results),)
-   y_pred = results.reshape(len(results),)
-   y_fit = fitfunc(c_like, np.sum(X_test[:len(results)], axis=1)).reshape(len(results),)
-   n = 20
-   y_f, mu_f, sigma_f = sliced_statistics(y_true, y_fit, n) 
-   y_nn, mu_nn, sigma_nn = sliced_statistics(y_true , y_pred, n) 
-
-   fig = plt.figure()
-   ax = fig.add_subplot(2,1,1)
-
-   ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
-   ax.plot(y_nn, mu_nn - y_nn, 'k-')
-   plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1]+0.01, 'polynom fit', ha='left', va='center', size=15, color='#1f77b4')
-   plt.text(y_nn[-1] + 0.1, mu_nn[-1] - y_nn[-1]-0.01, 'neural net', ha='left', va='center', size=15)
-   plt.ylabel(r'$\mu - E_{\text{true}}$ [GeV]')
-   # plt.ylim([-0.3, 0.3])
-   ax.xaxis.set_ticks([])
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)
-   ax.spines["bottom"].set_visible(False)
-   ax = fig.add_subplot(2,1,2)
-   ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
-   ax.plot(y_nn, sigma_nn / np.sqrt(y_nn), 'k-')
-   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
-   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
-   ax.spines["top"].set_visible(False)
-   ax.spines["right"].set_visible(False)
-   print((sigma_nn / np.sqrt(y_nn))[-10])
-   plt.text(y_f[-1] + 0.1, sigma_f[-1] / np.sqrt(y_f[-1])+0.01, 'polynom fit', ha='left', va='center', size=15, color='#1f77b4')
-   plt.text(y_nn[-1] + 0.1, sigma_nn[-1] / np.sqrt(y_nn[-1])-0.01, 'neural net', ha='left', va='center', size=15)
-   # plt.ylim([0.0, 0.5])
-   plt.savefig('images/pion_res.pdf', bbox_inches = 'tight')
- #+END_SRC
-
- #+CAPTION: Results of the polynom fit vs the first neural net width data augmentation
- #+NAME: pion_res
- [[../images/pion_res.pdf]]
 
 
 * Energy Regression with Particle Flow Jets
