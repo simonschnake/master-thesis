@@ -1,4 +1,3 @@
-
 #+Title: Project One
 #+Author: Simon Schnake
 #+LATEX_HEADER: \usepackage{physics}
@@ -25,7 +24,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[2]:
+# Out[1]:
 :END:
 
 * Loading Data                                                     :noexport:
@@ -48,7 +47,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[3]:
+# Out[2]:
 :END:
 
 * Experimental Setup
@@ -76,8 +75,8 @@ Comparing different models
 
 #+RESULTS:
 :RESULTS:
-# Out[4]:
-[[file:./obipy-resources/E5Mxez.png]]
+# Out[3]:
+[[file:./obipy-resources/u0esu7.png]]
 :END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
@@ -129,8 +128,8 @@ Comparing different models
 
 #+RESULTS:
 :RESULTS:
-# Out[5]:
-[[file:./obipy-resources/C8Lu0O.png]]
+# Out[4]:
+[[file:./obipy-resources/aM7u7c.png]]
 :END:
 
 * Linear Fit
@@ -153,7 +152,7 @@ least squares.
 
   n = np.arange(0, 250, 0.5)
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, inv_fitfunc(c_fit1, n), 'k-')     # Fit
+  plt.plot(n, inv_fitfunc(c_fit1, n), 'k-', linestyle='dashed')     # Fit
 
   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$\sum_i n_i$')
@@ -165,8 +164,8 @@ least squares.
 
 #+RESULTS:
 :RESULTS:
-# Out[6]:
-[[file:./obipy-resources/zXvRNF.png]]
+# Out[59]:
+[[file:./obipy-resources/1E6JEU.png]]
 :END:
 
 #+
@@ -202,9 +201,9 @@ The relation is bijectiv so the solution can be found by swapping the axes.
 
 #+RESULTS:
 :RESULTS:
-# Out[7]:
+# Out[6]:
 : Text(0.5,0,'$\\sum_i n_i$')
-[[file:./obipy-resources/DgBKh3.png]]
+[[file:./obipy-resources/BiFYq0.png]]
 :END:
 
 \[
@@ -255,17 +254,39 @@ Which is
       norms = np.abs(erf(a)- erf(b))
       return -np.sum(np.log(np.divide(elements, norms + epsilon)+epsilon))
 
+  def mwse(par):
+      epsilon = 0.0000001 
+      mu = sum_n*par[0]+par[1]
+      sigma = np.sqrt(np.abs(mu)) # 2/par[0] 
+      return -np.sum(np.log(norm.pdf(energies, mu, sigma)+epsilon))
+
+  def mse(par):
+      epsilon = 0.0000001
+      mu = sum_n*par[0]+par[1]
+      sigma = 1/4. #np.sqrt(np.abs(mu)) # 2/par[0] 
+      return -np.sum(np.log(norm.pdf(energies, mu, sigma)+epsilon))
+
+
+
+
   lower_border = 0  
   upper_border = 10
-  out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
 
+  out = optimize.minimize(mse, np.array(c_fit), method='L-BFGS-B')
+  c_mse = out['x']
+
+  out = optimize.minimize(mwse, np.array(c_fit), method='L-BFGS-B')
+  c_mwse = out['x']
+
+  out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
   c_like = out['x']
 
-  n = np.arange(0, 250, 0.5)
+
+  n1 = np.arange(0, 255, 0.5)
+  n2 = np.arange(0, 240, 0.5)
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
-  plt.plot(n, fitfunc(c_fit, n), 'k-')     # Fit
-  # plt.plot(n, fitfunc(c_like, n), 'b-')     # Fit
-  # plt.plot(n, fitfunc(c_fit1, n), 'w-')     # Fit
+  plt.plot(n1, fitfunc(c_mse, n1), 'k-')     # Fit
+  plt.plot(n2, fitfunc(c_like, n2), 'b-')     # Fit
 
   # n = np.arange(0, 10.1, 0.1)
   # plt.plot(energies, sum_n, 'r.', alpha=0.06)
@@ -273,18 +294,18 @@ Which is
 
   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$\sum_i n_i$')
+  plt.ylim([0., 11])
 
+  plt.text(140, 10, 'likelihood fit', ha='left',size=16, color='b')
+  plt.text(254, 10, 'mse', ha='left',size=16)
 
-  plt.text(1, 9.5, r'$c_0 =$ '+ '%.2f' % c_fit[0], ha='left')
-  plt.text(1, 9, r'$c_1 =$ '+ '%.2f' % c_fit[1], ha='left')
-
-  plt.savefig('images/e-vs-sum_n_fit.pdf')
+  plt.savefig('images/e-vs-sum_n_like.pdf')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[8]:
-[[file:./obipy-resources/CJi4u5.png]]
+# Out[65]:
+[[file:./obipy-resources/gfPb1o.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.

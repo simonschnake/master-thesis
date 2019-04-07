@@ -1190,37 +1190,30 @@ identical weigths.
 
 \todo{D.O. Hebb 1940 (Hebbian learning by modified synaptic strength) nachschlagen}
 * Energy Regression in Calorimetry
-** Inhalt [10/13]
-- [X] Aufbau Calorimeter Simulation
-- [X] Linearer Fit Standard
-- [X] Aufbau Neuronales Netz
-- [X] Resultat
-- [X] Overfitting
-- [X] Data Augmentation
-- [X] Results
-- [X] Shift to higher Values
-- [X] Kink Border Problem
-- [X] Adversarial Training
-- [ ] Results of different loss functions
-- [ ] Custom Loss Function
-- [ ] Zusammenfassung
 
-
+In this chapter, the possibility of improving the resolution in the
+energy measurement of a calorimeter by using deep learning will be
+presented. For this purpose, two different networks are trained with
+simulation data and existing adversities are overcome.
 
 ** Calorimeter Simulation
 
-Geant4 cite:geant_simul_toolk was used to simulate a calorimeter with a layer structure similar to that
-of the CMS hadron calorimeter. The calorimeter has a length of 931.5 mm and a
-height and width of 300 mm. The layer structure is listed in table x. The first
-layer consists of a 9mm thick scintillator layer and a 40mm thick stainless
-steel layer. The steel layers in CMS HCAL are the carriers holding the
-calorimeter. The first layer is followed by 8 layers, each consisting of a 3.7
-mm thick scintillator and a 50.5 mm thick brass absorber. This is followed by
-layers of 3.7 mm thick scintillators, but 56.5 mm thick brass plates.  The last
-two layers consist of a 3.7 mm scintillator, followed by a 75 mm steel holder,
-completed with a 9 mm scintillator. Each scintillator layer consists of 64
-equal-sized scintillator tiles with a height and width of 75 mm. 
+Geant4 cite:geant_simul_toolk was used to simulate a calorimeter with
+a layer structure similar to that of the CMS hadron calorimeter. The
+calorimeter has a length of 931.5 mm and a height and width of 300
+mm. The layer structure is listed in table x. The first layer consists
+of a 9mm thick scintillator layer and a 40mm thick stainless steel
+layer. The steel layers in CMS HCAL are the carriers holding the
+calorimeter. The first layer is followed by 8 layers, each consisting
+of a 3.7 mm thick scintillator and a 50.5 mm thick brass
+absorber. This is followed by layers of 3.7 mm thick scintillators,
+but 56.5 mm thick brass plates.  The last two layers consist of a 3.7
+mm scintillator, followed by a 75 mm steel holder, completed with a 9
+mm scintillator. Each scintillator layer consists of 64 equal-sized
+scintillator tiles with a height and width of 75 mm.
 
+#+CAPTION: The structure of the layers in the simulation is shown.
+#+NAME: fcn_structure
    | layer | scint in mm | abs in mm | abs material |
    |-------+-------------+-----------+--------------|
    |     0 |           9 |        40 | steel        |
@@ -1229,14 +1222,11 @@ equal-sized scintillator tiles with a height and width of 75 mm.
    |    15 |         3.7 |        75 | steel        |
    |    16 |           9 |           |              |
 
-\todo{tabelle beschriften}
-
 In the simulation, the paths of incoming particles and their resulting particles
 are simulated. The incoming particles were initially electrons and then pions.
 The momentum of the incoming particles is randomly initialized between 0 and 10
 GeV following a flat distribution. The point of arrival of the particles is
 always the exact center of the first detector layer.
-
 
 After the trajectories of the particles had been simulated, for each
 event the number of traces in each scintillator cell are counted.
@@ -1276,8 +1266,6 @@ label:e-vs-sum_n_fit
 
 ** Deep Learning Setup
 
-\todo{split test train}
-
 #+CAPTION: The three-dimensional structure of a data sample is visulaized by an example event of an incoming electron with 9.14172 GeV
 #+NAME: data_display
 [[../images/data_display.pdf]]
@@ -1302,13 +1290,13 @@ The layer structure of the first network is shown in table ref:fcn_structure.
 | Dense |         10 | ReLU       |        1290 |
 | Dense |          1 | Linear     |          11 |
 
-Es besitzt 659,465 freie Parameter und jede Lage besteht aus Nodes die
-mit allen Nodes der vorherigen Lage verbunden sind. Bis auf die Output
-Node haben alle Nodes ReLU als Aktivierungsfunktion.
+It has 659,465 free parameters and each layer consists of nodes
+connected to all nodes of the previous layer. With the exception of
+the output node, all nodes have ReLU as their activation function.
 
-Das zweite Netwerk besteht aus einem Convolutional Teil an dem ein
-fully connected Netwerk angeschlossen ist. Die Lagenstruktur ist in
-Tabelle ref:conv_structure dargestellt.
+The second network consists of a convolutional part to which a fully
+connected network is connected. The layer structure is shown in table
+ref:conv_structure.
 
 #+CAPTION: The structure of the 3D convolutional network is shown. The first column shows the different types of layers of the network. The 3D vectors behind the Conv3D are the kernel dimensions. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column the number of free parameters or weights of each layer.
 #+NAME: conv_structure
@@ -1323,7 +1311,7 @@ Tabelle ref:conv_structure dargestellt.
 | Dense         |         10 | ReLU       |        1290 |
 | Dense         |          1 | Linear     |          11 |
 
-Die alternative Struktur reduziert die Anzahl der freien Parameter auf 78,414.
+The alternative structure reduces the number of free parameters to 78,414.
 
 ** Energy Regression with the Fully Connected Network
 
@@ -1496,79 +1484,73 @@ overfitted.
 \label{adv-training}
 \end{figure}
 
+In order to reduce the unphysical deviations at the end of the
+distribution, an adversarial network was used. The theoretical basis
+for this type of training was first described in the article "Learning
+to Pivot with Adversarial Networks" by G. Louppe et al. Here a
+modification of this training process was applied.
 
-Um die unphysikalischen Abweichungen am Ende der Verteilung zu
-reduzieren, sollte ein adversarial network eingesetzt werden. Die
-theoretischen Grundlagen für diese Art von Training sind in dem
-Article "Learning to Pivot with Adversarial Networks" by G. Louppe et
-al. zu erst beschrieben worden. Hier wurde eine Modifikation Ihres
-Trainings Prozesses angewandt.
+The basic idea here was that a quantity should be calculated from the
+result of the neural network, which should be independent for all
+values. In this case, the goal is a constant distribution of the
+values of
+$(E_{\text{pred}}-E_{\text{true}})/\sqrt{E_{\text{true}}}$. 
 
-Die grundlegende Idee hier war, dass aus dem Resultat des neuronalen
-Netzes eine Größe errechnet werden soll, die für alle Werte unabhängig
-sein soll. In diesem Fall ist das angestrebte Ziel einen konstante
-Verteilung der Werte von
-$(E_{\text{pred}}-E_{\text{true}})/\sqrt{E_{\text{true}}}$. Hierfür
-wurde an das vortrainierte Neuronale Netz ein feindliches Netzwerk
-angehängt, dessen Ziel ist ist aus dieser Größe auf $E_{\text{pred}}$
-zurückzuschließen. Der Trainings-Aufbau ist in Abbildung
-\cite{adv-training} dargestellt. Das feindliche Netzwerk wurde mit einer Categorial Cross Entropie als 
-Loss Funktion 
-
-\begin{align}
-\mathcal{L}_r = - \sum \mathcal{C}\left(Y_{\text{true}}\right) \log(r\left(\frac{f(X)-Y_{\text{true}}}{\sqrt{Y_{\text{true}}}}\right))
-\end{align}
-
-trainiert. Hier sind $f$ und $r$ die Funktion des Netzwerkes und
-seines Feindes. $\mathcal{C}$ ist die Funktion, die alle Werte
-von 0. bis 10. GeV in 20 gleich große Kategorien unterteilt und dann
-jeder Kategorie auf einen 20-dimensionalen Basisvektor abbildet.
-
-Es wird nun abwechselnd das Neuronale Netz und sein Adversary trainiert.
-Das Neuronale Netz wird mit der Loss Funktion
+For this purpose, an adversarial network was attached to the
+pre-trained neural network, whose target is to deduce
+$E_{\text{pred}}$ from this quantity. The training structure is shown
+in figure \cite{adv-training}. The adversarial network was trained
+with a Categorial Cross Entropy as loss function
 
 \begin{align}
-\mathcal{L}_f = \sum (Y_{\text{true}} - f(X))^2 - \lambda \mathcal{L}_r
+\mathcal{L}_r = - \sum \mathcal{C}\left(Y_{\text{true}}\right) \log(r\left(\frac{f(X)-Y_{\text{true}}}{\sqrt{Y_{\text{true}}}}\right)).
 \end{align}
 
-trainiert. Durch das negative Einbinden des Adversary versucht das
-Netzwerk die Performance des gegnerischen Netzes möglichst schlecht zu
-machen.
+Here $f$ and $r$ are the function of the network and its
+adversary. $\mathcal{C}$ is the function that divides all values
+from 0. to 10. GeV into 20 equal categories and then maps each
+category to a 20-dimensional base vector.
 
-Beim Trainieren des Adversary werden die Gewichte des
-ersten Netzes festgehalten und umgekehrt. $\lambda$ ist ein beliebig
-festzulegender Faktor, der hier auf 2.5 festgelegt wurde.
+The neuronal net and its adversary were trained alternately. The
+Neural Net was trained with the loss function
 
-Der Trainingverlauf bestand aus einem abwechselnden Trainieren beider
-Netzwerke für jeweils 5 Epochs. Dieser Ablauf wurde zehn mal
-wiederholt und anschließend die Ergebnisse für das test sample des
-neuronalen Netzes aufgenommen. 
+\begin{align}
+\mathcal{L}_f = \sum (Y_{\text{true}} - f(X))^2 - \lambda \mathcal{L}_r.
+\end{align}
+
+By integrating the adversary negatively, the network tries to make the
+performance of the antagonist network as poor as possible. When
+training the adversary, the weights of the first net are recorded and
+vice versa. $\lambda$ is an arbitrary factor that has been set to 2.5
+here.
+
+The training course consisted of alternating training of both networks
+for 5 epochs each. This process was repeated ten times and then the
+results for the test sample of the neural network were recorded.
 
 #+CAPTION: Die Resultate des Neuronalen Netzes nach jedem der 9 nacheinander folgenden Trainingsprozessen ist dargestellt. Die Ergebnisse sind nach ihrer Abfolge nummeriert. Zur übersichtlichkeit wurde auf Achsen und Beschriftung verzichtet. Diese ist die gleiche, wie in Abbildung \ref{dense_scatter}.
 #+NAME: adv_scatter
 [[../images/adv_scatter.png]]
 
+This process was repeated nine times and generated nine results, which
+are shown in figure ref:adv_scatter.
 
-Dieser beschriebene Vorgang wurde neun Mal wiederholt und damit neun
-Resultate erzeugt, die in Abbildung ref:adv_scatter dargestellt sind.
+It can be seen that the results fluctuate and do not converge. With
+the exception of anomalies that occur in the meantime, the final
+result hardly changes noticeably.
 
-Zu sehen ist, dass die Ergebnisse fluktuieren und sich nicht
-konvergieren. Bis auf zwischenzeitlich auftretende Anomalien verändert
-sich das Endresultat kaum merklich.
+** Likelihood Solution
 
-** TODO Likelihood Solution
+As the Adversarial Training did not lead to desired results, in this
+part the compensation of the deviations in the distribution by
+changing the loss function was examined.
 
-Da das Adversarial Training nicht zu gewünschten Ergebnissen führte
-wurde sich in diesem Teil der Kompensation der Abweichungen in der
-Distribution mittels des Verändern der Loss Funktion angeschaut.
+Also in the previous part a modified loss function was used.  How an
+adequate loss function can be determined with respect to the
+underlying distribution of values is outlined here.
 
-Auch im vorherigen Teil kam eine modifizierte Loss Funktion zum
-Einsatz.  Wie aus der unterliegenden Verteilung der Werte eine
-adequate Loss Funktion ermittelt werden kann, soll hier skizziert
-werden.
-
-Durch Umformen und zulässige Hinzufügungen lässt sich aus dem mean
-squared error eine maximum likelihood herleiten
+By transforming the mean squared error and adding permissible values,
+a maximum likelihood can be derived
 
 \begin{align}
     &\text{min} \sum (y_{\text{true}}-y_{\text{pred}})^2 \\
@@ -1579,45 +1561,88 @@ squared error eine maximum likelihood herleiten
     = &\text{max} \prod \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}.
 \end{align}
 
-Der Annahme das der mean squared error die gültige
-Mimimierungsfunktion des Neuronalen Netzes ist liegt also die Annahme
-zu Grunde, dass die Werte Gauß verteilt sind und einen konstante
-Standardabweichung besitzen.
+The assumption that the mean squared error is the valid minimization
+function of the neural network is therefore based on the assumption
+that the values are Gaussian distributed and have a constant standard
+deviation.
 
-Für ein Kalorimeter ist aber keine konstante Standardabweichung
-gegeben. Außerdem ist auch die Annahme dass die Werte eine volle
-Gauß-Verteilung besitzen an den Rändern nicht gültig. Hier muss die
-Abwesenheit der Datenpunkte mit einer Normierung kompensiert werden.
-Diese Auswirkungen sind in Abbildung ref:gaussian-shift dargestellt.
+However, no constant standard deviation is given for a calorimeter. In
+addition, the assumption that the values have a full Gaussian
+distribution is not valid at the edges. Here the absence of the data
+points must be compensated with a normalization. These effects are
+shown in figure ref:gaussian-shift.
 
-#+CAPTION: Die unterschiedlichen Likelihoods zweier Gauß Funktionen sind dargestellt. Einmal mit Normierung und einmal ohne Normierung.
+#+CAPTION: The different likelihoods of two Gaussian functions are shown. One with normalization and one without.
 #+NAME: gaussian-shift
 [[../images/gaussian_shift.png]]
 
-Um also die abgeschnittene Verteilung zu berücksichtigen nehmen wir als Wahrscheinlichkeitsdichtefunktion 
+In order to consider the truncated distribution we take as probability density function 
+
 \begin{align}
 \text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)},
 \end{align}
 
-wobei $a$ und $b$ hier 0. und 10 GeV sind. Wir können hieraus dann
-eine Loss Funktion herleiten, die es für das Neuronale Netz zu
-minimieren gilt.
+where $a$ and $b$ here are 0.0 and 10.0 GeV. We can then derive a loss
+function which has to be minimized for the neural net.
 
 \begin{align}
 &\text{max}\left[ \prod \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)} \right]\\
 &=\text{min}\left[ -\ln \prod \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)}\right] \\
 &=\text{min}\left[ -\sum \ln(e^{-\frac{(x-\mu)^2}{2 \sigma^2}}{\sqrt{\frac{\pi \sigma^2}{2}}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)})\right] \\
 &=\text{min}\left[ -\sum -\frac{(x-\mu)^2}{2 \sigma^2}-\ln(\sqrt{\frac{\pi \sigma^2}{2}}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right))\right] \\
-&=\text{min}  \sum \frac{(x-\mu)^2}{\sigma^2} + \ln(\frac{\pi \sigma^2}{2}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)^2) 
+&=\text{min}  \sum \frac{(x-\mu)^2}{\sigma^2} + \ln(\frac{\pi \sigma^2}{2}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)^2) \label{likelihood-loss}
 \end{align}
 
-Das resultierende Loss Funktion besteht aus einem Teil des mean
-weighted squared errors, diese Gewichtung verhindert die globale
-Verschiebung der Werte nach oben. Da Werte mit hohen Energien die
-selben Beiträge zur gesamt loss funktion beitragen wie Werte mit
-geringen Energien. Der zweite Term ist ein Korrekturfaktor der die
-Enden der Verteilung berücksichtigt und deren Effekte reduziert.
+The resulting loss function consists of q mean weighted squared error
+part. This weighting prevents the global shift of the values towards
+the higher values. Since values with high energies contribute the same
+contributions to the total loss function as values with low
+energies. The second term is a correction factor that takes into
+account the ends of the distribution and reduces its effects.
 
+Effects of distribution on the results are a general fitting problem and not only limited to neural networks. In the first part these effects were solved by inverting the problem. This is possible with a linear fit, but not with a neural network.
+
+#+CAPTION:The graph compares two minimizations of a linear fit to the summed entries of the calorimeter cells. The blue straight line has been optimized with the minimization function derived above. For the black line, the mean squared error has been minimized.
+#+NAME: e-vs-sum_n_like
+[[../images/e-vs-sum_n_like.pdf]]
+
+This is shown for the linear fit in figure ref:e-vs-sum_n_like. You
+can see how the mse is slightly tilted to the side compared to the
+mean course of the data. This is fixed by the maximum likelihood fit.
+
+The pre-trained neural net was then further trained with
+\eqref{likelihood-loss} as loss function for 50 epochs. The result is
+shown in figure ref:likelihood_res. The decrease of the mean values to
+high energy values was completely reduced. Globally, the neuronal
+network has no tendency to higher values.
+
+#+CAPTION: The results of the neural network and the linear fit are compared in the two graphs. The total data points were divided into 20 bins and then the mean and standard deviation of these bins were calculated. The upper graph shows the deviation of the mean values of Epred versus the mean values of Etrue. In the lower plot the standard deviation of Epred is plotted for each Bin divided by the root of the mean energy.
+#+NAME: likelihood_res
+[[../images/likelihood_res.pdf]]
+
+** Comparison of network architectures
+
+Finally, we want to compare the performance of two network architectures.
+
+Both the convolutional neural net and the fully connected neural net
+were each trained 150 epochs with mean squared error and data
+augmentation. Afterwards both networks were trained 50 epochs with the
+likelihood loss to solve the boundary problems.
+
+#+CAPTION: The results of the fully connected network and the convolutional network are presentedand the linear fit are compared in the two graphs. The total data points were divided into 20 bins and then the mean and standard deviation of these bins were calculated. The upper graph shows the deviation of the mean values of Epred versus the mean values of Etrue. In the lower plot the standard deviation of Epred is plotted for each Bin divided by the root of the mean energy.
+#+NAME: arch_comparison
+[[../images/arch_comparison.pdf]]
+
+Figure ref:arch_comparison shows the different resolutions of the
+linear fit, the ConvNet and the FCN. The linear fit had a mean
+resolution of 0.362, the FCN of 0.327 and the ConvNet of 0.319. With
+the ConvNet the resolution can be improved by almost 12 percent.
+
+It should be noted that this is only a basic possibility and it is
+outside the focus of this work to show how much the resolution can be
+improved.  It should be noted that only the basic possibility of
+improvement is presented here. It is beyond the focus of this work to
+show how much the resolution can be improved.
 
 
 * Energy Regression with Particle Flow Jets

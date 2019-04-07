@@ -79,8 +79,8 @@ plt.savefig('images/dense_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[45]:
-[[file:./obipy-resources/KAkWPi.png]]
+# Out[3]:
+[[file:./obipy-resources/XUPpKb.png]]
 :END:
 
 * Scatter Plot Raw
@@ -107,8 +107,8 @@ plt.savefig('images/dense_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[3]:
-[[file:./obipy-resources/Rflkpc.png]]
+# Out[4]:
+[[file:./obipy-resources/dT4alR.png]]
 :END:
 
 * Results Raw
@@ -154,6 +154,13 @@ plt.savefig('images/dense_loss.pdf', bbox_inches = 'tight')
   # plt.savefig('images/dense_res.pdf', bbox_inches = 'tight')
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+# Out[5]:
+: (0.0, 0.5)
+[[file:./obipy-resources/2klccn.png]]
+:END:
+
 * Loss Data Augmentation
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -188,7 +195,7 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 #+RESULTS:
 :RESULTS:
 # Out[6]:
-[[file:./obipy-resources/cr8DKs.png]]
+[[file:./obipy-resources/ipMWaz.png]]
 :END:
 
 * Scatter Likelihood
@@ -212,6 +219,12 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
   ax.spines["left"].set_visible(False)
   ax.spines["bottom"].set_visible(False)  
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[7]:
+[[file:./obipy-resources/62Ewfv.png]]
+:END:
 
 * Comparison Loss Functions
 
@@ -237,6 +250,12 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
   plt.savefig('images/loss_comparison.pdf', bbox_inches = 'tight')
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+# Out[8]:
+[[file:./obipy-resources/7XldQh.png]]
+:END:
+
 * Comparison Fully Connected Net & Conv Net
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
@@ -254,11 +273,21 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
   plt.ylim([0.25, 0.5])
 
+  print(np.mean(sigma_f/np.sqrt(y_f)))
+  print(np.mean(dense_res['sigma']['likeli'] / np.sqrt(conv_res['y']['likeli'])))
+  print(np.mean(conv_res['sigma']['likeli'] / np.sqrt(conv_res['y']['likeli'])))
+
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
 
-  # plt.savefig('images/dense_res.pdf', bbox_inches = 'tight')
+  plt.savefig('images/arch_comparison.pdf', bbox_inches = 'tight')
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[11]:
+[[file:./obipy-resources/ZZpjMr.png]]
+:END:
 
 * Adversarial Scatter
 #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
