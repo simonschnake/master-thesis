@@ -10,10 +10,23 @@
 from keras.layers import Input, Dense, Flatten
 from keras.models import Model
 from keras.utils import Sequence
+from keras.optimizers import SGD, RMSprop
 from keras import backend as K
 import h5py
 import numpy as np
 import pickle
+from scipy.stats import binned_statistic
+from scipy.optimize import leastsq
+import tensorflow as tf
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+mpl.rcParams['mathtext.fontset'] = 'stix'
+mpl.rcParams['font.family'] = 'STIXGeneral'
+mpl.rcParams['font.size'] = 15
+mpl.rcParams['axes.labelsize'] = 15
 
 ##############################################################
 #  _                 _ _                  ___      _         #
@@ -48,6 +61,8 @@ class DataGenerator(Sequence):
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
 
         return batch_x, batch_y[:, 7]
+    def dump_res(self):
+        return self.y[:, 7][:len(self)*self.batch_size]
 
 
 history = {'loss': [], 'val_loss': []}
@@ -88,8 +103,33 @@ def accuracy(y_true, y_pred):
     sigma = K.std(R, axis=-1)
     return K.exp(-mu-sigma)
 
+def make_loss(res, pred):
+    x = binned_statistic(res, res, statistic='mean', bins=50)[0]
+    y = binned_statistic(res, pred, statistic='std', bins=50)[0]
+    fitfunc = lambda c , x: c[0]*np.sqrt(x)+c[1]*x+c[2]
+    errfunc = lambda c , x, y: (y - fitfunc(c, x))
+    out = leastsq(errfunc, [1., 0.1, 0.], args=(x, y), full_output=1)
+    c = out[0]
+    # plt.plot(x, y)
+    # plt.plot(x, fitfunc(c, x), 'b-')     # Fit
+    # plt.show()
+    
+    def likelihood_loss(y_true, y_pred):
+        epsilon = tf.constant(0.0000001)
+        mu = y_pred
+        sigma = c[0]*tf.sqrt(y_true)+c[1]*y_true+c[2]
+        first_part = tf.divide(tf.square(mu - y_true),
+                               2.*tf.square(sigma)+epsilon)
+        a = tf.divide(10.-mu, tf.sqrt(2.)*sigma+epsilon)
+        b = tf.divide(0.-mu, tf.sqrt(2.)*sigma+epsilon)
+        penalty = tf.erf(a) - tf.erf(b)
+        loss = first_part + tf.log(penalty+epsilon) + tf.log(tf.sqrt(2.*np.pi)*sigma+epsilon)
+        return tf.reduce_mean(loss)
+    return likelihood_loss
 
-D.compile(loss=mean_squared_percentage_error, optimizer='rmsprop', metrics=[accuracy])
+
+rmsprop = RMSprop(lr=0.00001)
+D.compile(loss='mse', optimizer=rmsprop, metrics=[accuracy])
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -100,9 +140,26 @@ D.compile(loss=mean_squared_percentage_error, optimizer='rmsprop', metrics=[accu
 #                                  |___/                    #
 #############################################################
 
-epochs = 1
+epochs = 10
 train_Gen = DataGenerator(batch_size=128, train=True)
 val_Gen = DataGenerator(batch_size=128, train=False)
+
+hist_update = D.fit_generator(train_Gen,
+                              epochs=epochs,
+                              validation_data=val_Gen,
+                              validation_steps=len(val_Gen)).history
+
+# history.update([('loss', history['loss'] + hist_update['loss']),
+#                 ('val_loss', history['val_loss'] +
+#                  hist_update['val_loss'])])
+
+D.save_weights("first_weights.h5")
+
+pred = D.predict_generator(train_Gen)
+res = train_Gen.dump_res()
+pred = pred.reshape(len(pred),)
+
+D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
 
 hist_update = D.fit_generator(train_Gen,
                               epochs=epochs,
@@ -112,6 +169,7 @@ hist_update = D.fit_generator(train_Gen,
 history.update([('loss', history['loss'] + hist_update['loss']),
                 ('val_loss', history['val_loss'] +
                  hist_update['val_loss'])])
+
 
 D.save_weights("first_weights.h5")
 pickle.dump(history, open("first_history.p", "wb"))
