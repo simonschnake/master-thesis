@@ -120,15 +120,15 @@ def make_loss(res, pred):
         sigma = c[0]*tf.sqrt(y_true)+c[1]*y_true+c[2]
         first_part = tf.divide(tf.square(mu - y_true),
                                2.*tf.square(sigma)+epsilon)
-        a = tf.divide(10.-mu, tf.sqrt(2.)*sigma+epsilon)
-        b = tf.divide(0.-mu, tf.sqrt(2.)*sigma+epsilon)
+        a = tf.divide(150.-mu, tf.sqrt(2.)*sigma+epsilon)
+        b = tf.divide(30.-mu, tf.sqrt(2.)*sigma+epsilon)
         penalty = tf.erf(a) - tf.erf(b)
         loss = first_part + tf.log(penalty+epsilon) + tf.log(tf.sqrt(2.*np.pi)*sigma+epsilon)
         return tf.reduce_mean(loss)
     return likelihood_loss
 
 
-rmsprop = RMSprop(lr=0.00001)
+rmsprop = RMSprop(lr=0.0001)
 D.compile(loss='mse', optimizer=rmsprop, metrics=[accuracy])
 
 #############################################################
@@ -141,8 +141,8 @@ D.compile(loss='mse', optimizer=rmsprop, metrics=[accuracy])
 #############################################################
 
 epochs = 1
-train_Gen = DataGenerator(batch_size=128, train=True)
-val_Gen = DataGenerator(batch_size=128, train=False)
+train_Gen = DataGenerator(batch_size=1024, train=True)
+val_Gen = DataGenerator(batch_size=1024, train=False)
 
 hist_update = D.fit_generator(train_Gen,
                               epochs=epochs,
@@ -163,6 +163,51 @@ D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
 
 hist_update = D.fit_generator(train_Gen,
                               epochs=epochs,
+                              validation_data=val_Gen,
+                              validation_steps=len(val_Gen)).history
+
+history.update([('loss', history['loss'] + hist_update['loss']),
+                ('val_loss', history['val_loss'] +
+                 hist_update['val_loss'])])
+
+pred = D.predict_generator(train_Gen)
+res = train_Gen.dump_res()
+pred = pred.reshape(len(pred),)
+
+D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
+
+hist_update = D.fit_generator(train_Gen,
+                              epochs=epochs,
+                              validation_data=val_Gen,
+                              validation_steps=len(val_Gen)).history
+
+history.update([('loss', history['loss'] + hist_update['loss']),
+                ('val_loss', history['val_loss'] +
+                 hist_update['val_loss'])])
+
+pred = D.predict_generator(train_Gen)
+res = train_Gen.dump_res()
+pred = pred.reshape(len(pred),)
+
+D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
+
+hist_update = D.fit_generator(train_Gen,
+                              epochs=epochs,
+                              validation_data=val_Gen,
+                              validation_steps=len(val_Gen)).history
+
+history.update([('loss', history['loss'] + hist_update['loss']),
+                ('val_loss', history['val_loss'] +
+                 hist_update['val_loss'])])
+
+pred = D.predict_generator(train_Gen)
+res = train_Gen.dump_res()
+pred = pred.reshape(len(pred),)
+
+D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
+
+hist_update = D.fit_generator(train_Gen,
+                              epochs=epoch,
                               validation_data=val_Gen,
                               validation_steps=len(val_Gen)).history
 
