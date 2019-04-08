@@ -43,7 +43,7 @@ class DataGenerator(Sequence):
     def __init__(self, batch_size=128, train=True):
         self.batch_size = batch_size
         try:
-            data = h5py.File('./QCD_Pt-30to150Run2Spring18.h5', 'r')
+            data = h5py.File('../../data/jets/QCD_Pt-30to150Run2Spring18.h5', 'r')
         except OSError:
             print('Data not found')
             exit()
@@ -140,7 +140,7 @@ D.compile(loss='mse', optimizer=rmsprop, metrics=[accuracy])
 #                                  |___/                    #
 #############################################################
 
-epochs = 10
+epochs = 1
 train_Gen = DataGenerator(batch_size=128, train=True)
 val_Gen = DataGenerator(batch_size=128, train=False)
 
