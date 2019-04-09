@@ -3,7 +3,7 @@
 #+TITLE: Energy Regression with Deep Learning in Particle Collider Physics
 
 #+OPTIONS: toc:nil creator:nil H:4 num:4 ':t ^:{} title:nil
-
+#+LANGUAGE: en
 #+LaTeX_CLASS: thesis
 #+LaTeX_HEADER: \usepackage{latex_config}
 #+LATEX_HEADER: \usepackage{makeidx}
@@ -893,7 +893,7 @@ energies of the jets with the true energies of the jets using jet
 energy corrections. To assign the corrected energies to the
 reconstructed jets, the differences between the reconstructed jets and
 true jet energies are determined. In this way, detector-specific
-effects, such as interactions in the material, are eliminated.  The
+effects, such as interactions in the material, are reduced.  The
 jet corrections in CMS follow a fixed procedure.
 
 The Level 1 (L1) correction reduces the shift of energy by
@@ -1191,28 +1191,27 @@ identical weigths.
 \todo{D.O. Hebb 1940 (Hebbian learning by modified synaptic strength) nachschlagen}
 * Energy Regression in Calorimetry
 
-In this chapter, the possibility of improving the resolution in the
-energy measurement of a calorimeter by using deep learning will be
-presented. For this purpose, two different networks are trained with
-simulation data and existing adversities are overcome.
+In this chapter, the possibility to improve the resolution in the energy
+measurement of a calorimeter by using deep learning will be presented. For this
+purpose, two different networks are trained with simulation data. Also existing
+adversities were overcome.
 
 ** Calorimeter Simulation
 
-Geant4 cite:geant_simul_toolk was used to simulate a calorimeter with
-a layer structure similar to that of the CMS hadron calorimeter. The
-calorimeter has a length of 931.5 mm and a height and width of 300
-mm. The layer structure is listed in table x. The first layer consists
-of a 9mm thick scintillator layer and a 40mm thick stainless steel
-layer. The steel layers in CMS HCAL are the carriers holding the
-calorimeter. The first layer is followed by 8 layers, each consisting
-of a 3.7 mm thick scintillator and a 50.5 mm thick brass
-absorber. This is followed by layers of 3.7 mm thick scintillators,
-but 56.5 mm thick brass plates.  The last two layers consist of a 3.7
-mm scintillator, followed by a 75 mm steel holder, completed with a 9
-mm scintillator. Each scintillator layer consists of 64 equal-sized
-scintillator tiles with a height and width of 75 mm.
+Geant4 cite:geant_simul_toolk was used to simulate a calorimeter with a layer
+structure similar to the structure of the CMS hadron calorimeter. The
+calorimeter has a length of 931.5 mm and a height and width of 300 mm. The layer
+structure is listed in table x. The first layer consists of a 9mm thick
+scintillator layer and a 40mm thick stainless steel layer. The steel layers in
+CMS HCAL are the carriers holding the calorimeter. The first layer is followed
+by 8 layers, each consisting of a 3.7 mm thick scintillator and a 50.5 mm thick
+brass absorber. This is followed by layers of 3.7 mm thick scintillators, whereas
+56.5 mm thick brass plates.  The last two layers consist of a 3.7 mm
+scintillator, followed by a 75 mm steel holder, completed with a 9 mm
+scintillator. Each scintillator layer consists of 64 equal-sized scintillator
+tiles with each with a height and width of 75 mm.
 
-#+CAPTION: The structure of the layers in the simulation is shown.
+#+CAPTION: The structure of the layers in the simulation is reflected in the values listed below.
 #+NAME: fcn_structure
    | layer | scint in mm | abs in mm | abs material |
    |-------+-------------+-----------+--------------|
@@ -1223,7 +1222,8 @@ scintillator tiles with a height and width of 75 mm.
    |    16 |           9 |           |              |
 
 In the simulation, the paths of incoming particles and their resulting particles
-are simulated. The incoming particles were initially electrons and then pions.
+are simulated. The incoming particles were electrons.
+# Initially, the incoming particles were electrons and then changed to pions.
 The momentum of the incoming particles is randomly initialized between 0 and 10
 GeV following a flat distribution. The point of arrival of the particles is
 always the exact center of the first detector layer.
@@ -1231,7 +1231,7 @@ always the exact center of the first detector layer.
 After the trajectories of the particles had been simulated, for each
 event the number of traces in each scintillator cell are counted.
 These 1088 values are then stored as data points for further
-analysis. A example simulation event can be seen in figure ref:sim_exp
+analysis. An example simulation event is shown in figure ref:sim_exp.
 
 #+CAPTION: Visualization of a typical  event simulation inside the detector.
 #+ATTR_LATEX: :width 0.9 \textwidth 
@@ -1242,8 +1242,8 @@ analysis. A example simulation event can be seen in figure ref:sim_exp
 
 The traditional method of determining the energy of a particle shower is to sum
 up the energies of the individual scintillator cells. This summation can still
-be influenced by weights to compensate for detector effects.  The simulation did
-not determine the energy in the individual cells but the number of charged
+be influenced by weighting to compensate for detector effects. The simulation
+did not determine the energy in the individual cells but the number of charged
 traces. This should be linear to the deposited energy. Detector effects can also
 be neglected in a simulation.
 
@@ -1278,7 +1278,7 @@ compared with the fully connected neural net.
 
 The layer structure of the first network is shown in table ref:fcn_structure.
 
-#+CAPTION: The structure of the fully connected network is shown. The first column shows the different types of layers of the network, which here are only dense, which is the Keras type of a fully connected layer. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column the number of free parameters or weights of each layer.
+#+CAPTION: The structure of the fully connected network is shown. The first column shows the different types of layers of the network, which here are only dense mapping the Keras type of a fully connected layer. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column shows the number of free parameters or weights of each layer.
 #+NAME: fcn_structure
 | Type  | $\#$ Nodes | Activation | $\#$ Params |
 |-------+------------+------------+-------------|
@@ -1295,10 +1295,10 @@ connected to all nodes of the previous layer. With the exception of
 the output node, all nodes have ReLU as their activation function.
 
 The second network consists of a convolutional part to which a fully
-connected network is connected. The layer structure is shown in table
+connected network is linked. The layer structure is shown in table
 ref:conv_structure.
 
-#+CAPTION: The structure of the 3D convolutional network is shown. The first column shows the different types of layers of the network. The 3D vectors behind the Conv3D are the kernel dimensions. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column the number of free parameters or weights of each layer.
+#+CAPTION: The structure of the 3D convolutional network is presented. The first column shows the different types of layers of the network. The 3D vectors behind the Conv3D are the kernel dimensions. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column shows the number of free parameters or weights of each layer.
 #+NAME: conv_structure
 | Type          | $\#$ Nodes | Activation | $\#$ Params |
 |---------------+------------+------------+-------------|
@@ -1315,78 +1315,73 @@ The alternative structure reduces the number of free parameters to 78,414.
 
 ** Energy Regression with the Fully Connected Network
 
-The network is trained with the RMSprop optimizer and our loss
-function is the mean squared error between the true energy values and
-our predicted energy values. We train the fully connected network for
-150 epochs with a batch size of 128.
+The network is trained with the RMSprop optimizer and the loss function is the
+mean squared error between the true energy values and the predicted energy
+values. We train the fully connected network for 150 epochs with a batch size
+of 128.
 
  #+CAPTION: The Graph shows the evolution of the loss function for the training set and the validation set. The trained network was the fully connected network described above.
  #+NAME: dense_loss
  [[../images/dense_loss.pdf]]
 
  In figure ref:dense_loss the loss function is shown. While the loss
- function for the training set decreases over time, the loss for the
+ function for the training set decreases over time, the loss function for the
  validation set increases. This implies that our model is overfitting,
  which means that the model uses the amount of parameters to remember
  each point of the data set and not the structure of the data.
 
- #+CAPTION: 10000 data points are plotted in a scatter plot between Epred and Etrue for the network and the fit. The blue background shows the results of the linear fit. In the foreground in black the results of the fully connected neural net are shown in black.
+ #+CAPTION: 10000 data points are plotted in a scatter plot between $E_\text{pred}$ and Etrue for the network and the fit. The blue background shows the results of the linear fit. In the foreground, the results of the fully connected neural net are shown in black.
  #+NAME: dense_scatter
  [[../images/dense_scatter.pdf]] 
 
-In the scatter plot in figure ref:dense_scatter the results of the
-network and the linear fit are compared with each other. Globally the
-distributions of the points hardly visibly deviate from each
-other. Only noticeable is the decrease towards the end of the network
-distribution.  The network shows almost no values for
-$E_{\text{pred}}$ above 10 GeV.
+In the scatter plot in figure ref:dense_scatter the results of the network and
+the linear fit are compared with each other. Globally the distributions of the
+points hardly visibly deviate from each other. Soley the the decrease of the
+network is visible towards the end of the distribution.  The network shows
+hardly any values for $E_{\text{pred}}$ above 10 GeV.
 
- #+CAPTION: The results of the neural network and the linear fit are compared in the two graphs. The total data points were divided into 20 bins and then the mean and standard deviation of these bins were calculated. The upper graph shows the deviation of the mean values of Epred versus the mean values of Etrue. In the lower plot the standard deviation of Epred is plotted for each Bin divided by the root of the mean energy.
+ #+CAPTION: The results of the neural network and the linear fit are compared with each other in the two graphs. The total data points were divided into 20 bins and then the mean and standard deviation of these bins were calculated. The upper graph shows the deviation of the mean values of Epred versus the mean values of Etrue. In the lower plot the standard deviation of Epred is plotted for each bin divided by the root of the mean energy.
  #+NAME: dense_res
  [[../images/dense_res.pdf]] 
 
-The results of the neural network and the linear fit are compared with
-each other in Figure ref:dense_res. In the upper plot the decrease of the mean
-values of the energies at the edge of the spectrum is visible. In
-addition, it is noticeable that the values are slightly shifted
-upwards globally.
+The results of the neural network and the linear fit are compared with each
+other in Figure ref:dense_res. In the upper plot the decrease of the mean values
+of the energies at the edge of the spectrum is visible. In addition, it is
+noticeable that the values are slightly shifted upwards globally.
 
-The lower graph shows the progression of the mean values of the
-standard deviations through the root of the energies. The quantity is
-a measure for the resolution of the calorimeter and it is noticeable
-that the global performance of the neuronal network is worse than that
-of the linear fit. Only at the end of the distribution is it
-significantly better than the resolution of the linear fit.
+The lower graph shows the progression of the mean values of the standard
+deviations through the root of the energies. The quantity is a measure for the
+resolution of the calorimeter and it is noticeable that the global performance
+of the neuronal network is weaker than th one of the linear fit. Only at the end
+of the distribution is it significantly better than the resolution of the linear
+fit.
 
-One sees that the neural network optimizes its resolution by
-respecting the fact that the distribution is limited between 0 and 10
-GeV. The result is a drop in the value spectrum that is not physically
-motivated, but results solely from the restricted statistics.  The
-slight global shift to higher values is the result of the mean squared
-error as loss function. Thus the residuals of values with higher
-energies are greater than those of small energies. The network
-therefore optimizes itself to these higher values. Since the network
-is overfitted, this is reflected in the poor resolution.
+It can be noted that the neural network optimizes its resolution by respecting
+the fact that the distribution is limited between 0 and 10 GeV. The result is a
+drop in the value spectrum that is not physically motivated, but results solely
+from the restricted statistics.  The slightly global shift to higher values is
+the result of the mean squared error as a loss function. Thus the residuals of
+values with higher energies are greater than those of small energies. The
+network therefore optimizes itself to these higher values. Since the network is
+overfitted, this is reflected in the poor resolution.
 
-The next part of this work is mainly concerned with solving the
-problems previously described.
+The next section is mainly concerned with solving the problems previously
+described.
 
 ** Data Augmentation
    
-In order to solve the overfitting problem, the technique of data
-augmentation was used.  Data augmentation in this application means
-that all valid symmetry transformations were used to increase the
-number of data points. Each data point is randomly rotated up to 3
-times by 90 degrees and randomly mirrored in beam direction. This
-increases the possible data points eightfold and should enable the
-network to learn the symmetries in the system. The data points were
-then moved in all directions to make the data independent of their
-arrival point. At this point it should be noted that these
-transformations are only valid because the simulation is absolutely
-homogeneous and symmetrical. This is not necessarily the case with
-real detector data.
+In order to solve the overfitting problem, the technique of data augmentation
+was used. In this application data augmentation means that all valid symmetry
+transformations were used to increase the number of data points. Each data point
+is randomly rotated up to 3 times by 90 degrees and randomly mirrored in beam
+direction. This increases the possible data points eightfold and should enable
+the network to learn the symmetries in the system. The data points were then
+moved in every direction to make the data independent of their arrival point. At
+this point it should be noted that these transformations are only valid because
+the simulation is absolutely homogeneous and symmetrical. This is not
+necessarily the case with real detector data.
 
-#+CAPTION: The value of the loss function is shown after each epoch for the fully connected network. val and train stand for the value of the loss function on the validation set and the training set. neural net denotes the network without data augmentation, while data augmentation stands for the network with data augmentation.
+#+CAPTION: The value of the loss function is shown after each epoch for the fully connected network. Val and train stand for the value of the loss function on the validation set and the training set. Neural net denotes the network without data augmentation, while data augmentation stands for the network with data augmentation.
 #+NAME: da_loss
 [[../images/data_augment_loss.pdf]] 
 
@@ -1394,7 +1389,7 @@ As shown in figure ref:da_loss, the overfitting for our dataset can be
 completely reduced with this method.  The fluctuations in the values
 of the loss function for the validation sample result from the higher
 statistical fluctuation of a smaller amount of data. With data
-augmentation the global course follows asymptotically to the loss for
+augmentation, the global course follows asymptotically to the loss for
 the training set. It does not possess the increase of the validation
 set without data augmentation. This indicates that the network is not
 overfitted.
@@ -1490,7 +1485,7 @@ for this type of training was first described in the article "Learning
 to Pivot with Adversarial Networks" by G. Louppe et al. Here a
 modification of this training process was applied.
 
-The basic idea here was that a quantity should be calculated from the
+The basic idea was that a quantity should be calculated from the
 result of the neural network, which should be independent for all
 values. In this case, the goal is a constant distribution of the
 values of
@@ -1500,7 +1495,7 @@ For this purpose, an adversarial network was attached to the
 pre-trained neural network, whose target is to deduce
 $E_{\text{pred}}$ from this quantity. The training structure is shown
 in figure \cite{adv-training}. The adversarial network was trained
-with a Categorial Cross Entropy as loss function
+with a Categorial Cross Entropy as loss function.
 
 \begin{align}
 \mathcal{L}_r = - \sum \mathcal{C}\left(Y_{\text{true}}\right) \log(r\left(\frac{f(X)-Y_{\text{true}}}{\sqrt{Y_{\text{true}}}}\right)).
@@ -1512,7 +1507,7 @@ from 0. to 10. GeV into 20 equal categories and then maps each
 category to a 20-dimensional base vector.
 
 The neuronal net and its adversary were trained alternately. The
-Neural Net was trained with the loss function
+neural net was trained with the loss function
 
 \begin{align}
 \mathcal{L}_f = \sum (Y_{\text{true}} - f(X))^2 - \lambda \mathcal{L}_r.
@@ -1525,7 +1520,7 @@ vice versa. $\lambda$ is an arbitrary factor that has been set to 2.5
 here.
 
 The training course consisted of alternating training of both networks
-for 5 epochs each. This process was repeated ten times and then the
+for 5 epochs each. This process was repeated ten times before the
 results for the test sample of the neural network were recorded.
 
 #+CAPTION: Die Resultate des Neuronalen Netzes nach jedem der 9 nacheinander folgenden Trainingsprozessen ist dargestellt. Die Ergebnisse sind nach ihrer Abfolge nummeriert. Zur übersichtlichkeit wurde auf Achsen und Beschriftung verzichtet. Diese ist die gleiche, wie in Abbildung \ref{dense_scatter}.
@@ -1535,14 +1530,14 @@ results for the test sample of the neural network were recorded.
 This process was repeated nine times and generated nine results, which
 are shown in figure ref:adv_scatter.
 
-It can be seen that the results fluctuate and do not converge. With
+It is evident that the results fluctuate and do not converge. With
 the exception of anomalies that occur in the meantime, the final
 result hardly changes noticeably.
 
 ** Likelihood Solution
 
-As the Adversarial Training did not lead to desired results, in this
-part the compensation of the deviations in the distribution by
+As the Adversarial Training did not lead to desired results in this
+part, the compensation of the deviations in the distribution by
 changing the loss function was examined.
 
 Also in the previous part a modified loss function was used.  How an
@@ -1622,7 +1617,7 @@ network has no tendency to higher values.
 
 ** Comparison of network architectures
 
-Finally, we want to compare the performance of two network architectures.
+Finally, the performance of the two network architectures will be compared.
 
 Both the convolutional neural net and the fully connected neural net
 were each trained 150 epochs with mean squared error and data
@@ -1634,7 +1629,7 @@ likelihood loss to solve the boundary problems.
 [[../images/arch_comparison.pdf]]
 
 Figure ref:arch_comparison shows the different resolutions of the
-linear fit, the ConvNet and the FCN. The linear fit had a mean
+linear fit, the ConvNet and the FCN. The linear fit performed a mean
 resolution of 0.362, the FCN of 0.327 and the ConvNet of 0.319. With
 the ConvNet the resolution can be improved by almost 12 percent.
 
@@ -1643,7 +1638,6 @@ outside the focus of this work to show how much the resolution can be
 improved.  It should be noted that only the basic possibility of
 improvement is presented here. It is beyond the focus of this work to
 show how much the resolution can be improved.
-
 
 * Energy Regression with Particle Flow Jets
 * Conclusion
