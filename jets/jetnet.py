@@ -79,8 +79,8 @@ inputs = Input(shape=(200, 4,))
 Dx = Flatten()(inputs)
 Dx = Dense(800, activation="relu")(Dx)
 Dx = Dense(700, activation="relu")(Dx)
-Dx = Dense(600, activation="relu")(Dx)
-Dx = Dense(500, activation="relu")(Dx)
+Dx = Dense(600, activation="relu")(Dx)D
+yx = Dense(500, activation="relu")(Dx)
 Dx = Dense(400, activation="relu")(Dx)
 Dx = Dense(300, activation="relu")(Dx)
 Dx = Dense(200, activation="relu")(Dx)
@@ -110,9 +110,6 @@ def make_loss(res, pred):
     errfunc = lambda c , x, y: (y - fitfunc(c, x))
     out = leastsq(errfunc, [1., 0.1, 0.], args=(x, y), full_output=1)
     c = out[0]
-    # plt.plot(x, y)
-    # plt.plot(x, fitfunc(c, x), 'b-')     # Fit
-    # plt.show()
     
     def likelihood_loss(y_true, y_pred):
         epsilon = tf.constant(0.0000001)
@@ -185,6 +182,8 @@ history.update([('loss', history['loss'] + hist_update['loss']),
                 ('val_loss', history['val_loss'] +
                  hist_update['val_loss'])])
 
+D.save_weights("second_weights.h5")
+
 pred = D.predict_generator(train_Gen)
 res = train_Gen.dump_res()
 pred = pred.reshape(len(pred),)
@@ -204,10 +203,10 @@ pred = D.predict_generator(train_Gen)
 res = train_Gen.dump_res()
 pred = pred.reshape(len(pred),)
 
-D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
+D.compile(loss=make_loss(res, pred), optimizer= RMSprop(lr=0.000001), metrics=[accuracy])
 
 hist_update = D.fit_generator(train_Gen,
-                              epochs=epoch,
+                              epochs=epochs,
                               validation_data=val_Gen,
                               validation_steps=len(val_Gen)).history
 
@@ -216,5 +215,5 @@ history.update([('loss', history['loss'] + hist_update['loss']),
                  hist_update['val_loss'])])
 
 
-D.save_weights("first_weights.h5")
+D.save_weights("third_weights.h5")
 pickle.dump(history, open("first_history.p", "wb"))
