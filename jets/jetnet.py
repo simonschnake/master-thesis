@@ -87,6 +87,18 @@ Dx = Dense(200, activation="relu")(Dx)
 Dx = Dense(1, activation="linear")(Dx)
 D = Model([inputs], [Dx], name='D')
 
+rmsprop = RMSprop(lr=0.0001)
+D.compile(loss='mse', optimizer=rmsprop, metrics=[accuracy])
+
+##################################################################
+#  _                    ______                _   _              #
+# | |                   |  ___|              | | (_)             #
+# | |     ___  ___ ___  | |_ _   _ _ __   ___| |_ _  ___  _ __   #
+# | |    / _ \/ __/ __| |  _| | | | '_ \ / __| __| |/ _ \| '_ \  #
+# | |___| (_) \__ \__ \ | | | |_| | | | | (__| |_| | (_) | | | | #
+# \_____/\___/|___/___/ \_|  \__,_|_| |_|\___|\__|_|\___/|_| |_| #
+##################################################################
+
 
 def mean_squared_percentage_error(y_true, y_pred):
     diff = K.square((y_true - y_pred) / K.clip(K.abs(y_true),
@@ -102,6 +114,31 @@ def accuracy(y_true, y_pred):
     mu = K.abs(K.mean(R, axis=-1)-1.)
     sigma = K.std(R, axis=-1)
     return K.exp(-mu-sigma)
+
+def make_binned_loss(res, pred):
+    x = binned_statistic(res, res, statistic='mean', bins=50)[0]
+    y = binned_statistic(res, pred, statistic='std', bins=50)[0]
+    fitfunc = lambda c , x: c[0]*np.sqrt(x)+c[1]*x+c[2]
+    errfunc = lambda c , x, y: (y - fitfunc(c, x))
+    out = leastsq(errfunc, [1., 0.1, 0.], args=(x, y), full_output=1)
+    c = out[0]
+    def binned_max_likelihood_loss(y_true, y_pred):
+        epsilon = tf.constant(0.0000001)
+        mu = y_pred
+        sigma = 0.9*tf.sqrt(y_true)
+        first_part = tf.divide(tf.square(mu - y_true),
+                               2.*tf.square(sigma)+epsilon)
+        a = tf.divide(mu-30., tf.sqrt(2.)*sigma+epsilon)
+        b = tf.divide(mu-150., tf.sqrt(2.)*sigma+epsilon)
+        penalty = tf.erf(a) - tf.erf(b)
+        loss = first_part + tf.log(penalty+epsilon) + tf.log(sigma+epsilon)
+        value_range = [30., 150.]
+        # binning in y_true
+        indices = tf.histogram_fixed_width_bins(y_true, value_range, nbins=50)
+        # build mean per bin
+        loss_per_bin = tf.math.unsorted_segment_mean(loss, indices, 50)
+        return tf.reduce_mean(loss_per_bin, axis=None, keepdims=False)
+    return binned_max_likelihood_loss
 
 def make_loss(res, pred):
     x = binned_statistic(res, res, statistic='mean', bins=50)[0]
@@ -125,8 +162,7 @@ def make_loss(res, pred):
     return likelihood_loss
 
 
-rmsprop = RMSprop(lr=0.0001)
-D.compile(loss='mse', optimizer=rmsprop, metrics=[accuracy])
+
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -150,7 +186,6 @@ hist_update = D.fit_generator(train_Gen,
 #                 ('val_loss', history['val_loss'] +
 #                  hist_update['val_loss'])])
 
-D.save_weights("first_weights.h5")
 
 pred = D.predict_generator(train_Gen)
 res = train_Gen.dump_res()
