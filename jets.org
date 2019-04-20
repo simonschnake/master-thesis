@@ -1,0 +1,23 @@
+#+Title: Jets
+#+Author: Simon Schnake
+#+LATEX_HEADER: \usepackage{physics}
+#+LATEX_HEADER: \usepackage{amssymb}
+#+OPTIONS: toc:nil
+
+* Setup                                                            :noexport:
+Here are the needed packages. Also to config matplotlib for latex export
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  # !cd /home/schnakes/master-thesis
+  import matplotlib as mpl
+  import matplotlib.pyplot as plt
+  import matplotlib.mlab as mlab
+  mpl.rcParams['text.usetex'] = True
+  mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+  mpl.rcParams['mathtext.fontset'] = 'stix'
+  mpl.rcParams['font.family'] = 'STIXGeneral'
+  mpl.rcParams['font.size'] = 15
+  mpl.rcParams['axes.labelsize'] = 15
+  %matplotlib inline
+#+END_SRC
+
+
