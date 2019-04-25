@@ -206,7 +206,7 @@ pred = pred.reshape(len(pred),)
 
 ###############################################################################
 
-D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
+D.compile(loss=make_binned_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
 
 history = D.fit_generator(train_Gen,
                           epochs=epochs,
@@ -221,7 +221,7 @@ pred = pred.reshape(len(pred),)
 
 ################################################################################
 
-D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
+D.compile(loss=make_binned_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
 
 history = D.fit_generator(train_Gen,
                           epochs=epochs,
@@ -236,7 +236,7 @@ pred = pred.reshape(len(pred),)
 
 ################################################################################
 
-D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
+D.compile(loss=make_binned_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
 
 history = D.fit_generator(train_Gen,
                           epochs=epochs,
@@ -247,4 +247,4 @@ produce_results('fourth')
 
 ################################################################################
 
-pickle.dump(results, open("../results/pfnet_results.p", "wb"))
+pickle.dump(results, open("../results/pfnet_binnedresults.p", "wb"))
