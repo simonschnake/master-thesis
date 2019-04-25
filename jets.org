@@ -23,18 +23,19 @@ Here are the needed packages. Also to config matplotlib for latex export
 
   import numpy as np
   import pickle
+  from scipy.stats import binned_statistic
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[4]:
+# Out[137]:
 :END:
 
 ** Data Loading
 #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
   y = pickle.load(open('./results/y_values.p', 'rb'))
-  jetnet = pickle.load(open('./results/jetnet_results.p', 'rb'))
-  pfnet = pickle.load(open('./results/pfnet_results.p', 'rb'))
+  jetnet = pickle.load(open('./results/jetnet_binned_results.p', 'rb'))
+  pfnet = pickle.load(open('./results/pfnet_binnedresults.p', 'rb'))
 
   event_nr = y[:, 0]
   jet_nr = y[:, 1]
@@ -50,7 +51,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[197]:
+# Out[143]:
 :END:
 
 the y lines contain 10 values
@@ -76,24 +77,24 @@ the y lines contain 10 values
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
-  y = binned_statistic(genjet_pt, jet_pt, statistic='std', bins=25)[0]
+  y = binned_statistic(genjet_pt, jet_pt/np.sqrt(genjet_pt), statistic='std', bins=25)[0]
   plt.plot(x, y, 'k-')
 
-  x = binned_statistic(genjet_pt, jetnet['third']['pred'], statistic='mean', bins=25)[0]
-  y = binned_statistic(genjet_pt, jetnet['third']['pred'], statistic='std', bins=25)[0]
+  #x = binned_statistic(genjet_pt, jetnet['third']['pred'], statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_pt, pfnet['second']['pred']/np.sqrt(genjet_pt), statistic='std', bins=25)[0]
   plt.plot(x, y, 'b-')
 
-  x = binned_statistic(genjet_pt, pfnet['third']['pred'], statistic='mean', bins=25)[0]
-  y = binned_statistic(genjet_pt, pfnet['third']['pred'], statistic='std', bins=25)[0]
-  plt.plot(x, y, 'r-')
+  #x = binned_statistic(genjet_pt, pfnet['third']['pred'], statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_pt, pfnet['third']['pred']/np.sqrt(genjet_pt), statistic='std', bins=25)[0]
+  plt.plot(x[5:20], y[5:20], 'r-')
 
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[231]:
-: [<matplotlib.lines.Line2D at 0x7f084fec5080>]
-[[file:./obipy-resources/Bv2HLx.png]]
+# Out[179]:
+: [<matplotlib.lines.Line2D at 0x7f0874ac86a0>]
+[[file:./obipy-resources/RISXXJ.png]]
 :END:
 
 * Plots for SlimmedJet P_t Reco
@@ -289,8 +290,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[195]:
-[[file:./obipy-resources/tQpd8u.png]]
+# Out[157]:
+[[file:./obipy-resources/BclQdI.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
