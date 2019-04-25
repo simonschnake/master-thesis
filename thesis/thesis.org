@@ -1189,7 +1189,8 @@ identical weigths.
 
 
 \todo{D.O. Hebb 1940 (Hebbian learning by modified synaptic strength) nachschlagen}
-* Energy Regression in Calorimetry
+** Particle Flow Network
+* Calorimetry Energy Analyis
 
 In this chapter, the possibility of improving the resolution in the
 energy measurement of a calorimeter by using deep learning will be
@@ -1644,86 +1645,88 @@ improved.  It should be noted that only the basic possibility of
 improvement is presented here. It is beyond the focus of this work to
 show how much the resolution can be improved.
 
-* Energy Regression with Particle Flow Jets
+* Jet Energy Analysis
+Der Inhalt dieses Kapitels ist die Jet Energy Calibrierung mittels neuronalen Netzen
+Zun
 ** Jet Simulation
 - plot distribution of jets
 - plot student_t 
 ** Deep Learning Setup
-- write down everything in jetnet.py
-- write down likelihood loss
-- iterative
 
 Um die Energien der Jets zu kalibrieren, werden die einzelnen Particle
 Flow Candidates mit einem neuronalen Netz bearbeitet.
-Die Struktur des Neuronalen Netzes 
 
-_________________________________________________________________
-Layer (type)                 Output Shape              Param #   
-=================================================================
-input_1 (InputLayer)         (None, 200, 4)            0         
-_________________________________________________________________
-flatten_1 (Flatten)          (None, 800)               0         
-_________________________________________________________________
-dense_1 (Dense)              (None, 800)               640800    
-_________________________________________________________________
-dense_2 (Dense)              (None, 700)               560700    
-_________________________________________________________________
-dense_3 (Dense)              (None, 600)               420600    
-_________________________________________________________________
-dense_5 (Dense)              (None, 400)               240400    
-_________________________________________________________________
-dense_6 (Dense)              (None, 300)               120300    
-_________________________________________________________________
-dense_7 (Dense)              (None, 200)               60200     
-_________________________________________________________________
-dense_8 (Dense)              (None, 1)                 201       
-=================================================================
-Total params: 2,043,201
-Trainable params: 2,043,201
-Non-trainable params: 0
+Zunächst werden die Dimensionen des $(200, 4)$ Input-Raums in einen
+(800, 1)-Raum transformiert. Danach wird das FCN auf sie angewandt.
 
-The layer structure of the first network is shown in table ref:fcn_structure.
+Das Netzwerk, das zur Analyse verwendet wird, ist ein sehr einfach
+gehaltenes FCN.  In Tabelle ref:jet_fcn_structure ist die Struktur
+dargestellt. Die Anzahl der Notes wird jede Lage reduziert.  Die erste
+Lage besitzt 800 Nodes, was der Anzahl der Input Features eines
+Datenpunktes entspricht. Die 7 Lagen haben jetzt die ReLU
+Aktivierungfunktion. Die letzte Lage besitzt wie im vorherigen Kapitel
+nur eine lineare Node, da wir wieder eine Regression
+vornehmen. Insgesamt besitzt das Netzwerk 2,043,201 freie Parameter.
+
 
 #+CAPTION: The structure of the fully connected network is shown. The first column shows the different types of layers of the network, which here are only dense, which is the Keras type of a fully connected layer. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column the number of free parameters or weights of each layer.
-#+NAME: fcn_structure
+#+NAME: jet_fcn_structure
 | Type  | $\#$ Nodes | Activation | $\#$ Params |
 |-------+------------+------------+-------------|
-| Dense |        500 | ReLU       |      544500 |
-| Dense |        128 | ReLU       |       64128 |
-| Dense |        128 | ReLU       |       16512 |
-| Dense |        128 | ReLU       |       16512 |
-| Dense |        128 | ReLU       |       16512 |
-| Dense |         10 | ReLU       |        1290 |
-| Dense |          1 | Linear     |          11 |
+| Dense |        800 | ReLU       |      640800 |
+| Dense |        700 | ReLU       |      560700 |
+| Dense |        600 | ReLU       |      420600 |
+| Dense |        400 | ReLU       |      240400 |
+| Dense |        300 | ReLU       |      120300 |
+| Dense |        200 | ReLU       |       60200 |
+| Dense |          1 | Linear     |         201 |
 
-It has 659,465 free parameters and each layer consists of nodes
-connected to all nodes of the previous layer. With the exception of
-the output node, all nodes have ReLU as their activation function.
+Im Trainingsprozess wird dem Neuronalen Netz immer ein Batch von 1024
+Datenpunkten gegeben und das Netzwerk und das Netzwerk wird zur
+Rekonstruktion der Gen_Jet Pt trainiert.
 
-The second network consists of a convolutional part to which a fully
-connected network is connected. The layer structure is shown in table
-ref:conv_structure.
+Zuächst wird das Netzwerk mit MSE als Loss-Funktion trainiert.
 
-#+CAPTION: The structure of the 3D convolutional network is shown. The first column shows the different types of layers of the network. The 3D vectors behind the Conv3D are the kernel dimensions. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column the number of free parameters or weights of each layer.
-#+NAME: conv_structure
-| Type          | $\#$ Nodes | Activation | $\#$ Params |
-|---------------+------------+------------+-------------|
-| Conv3D(3,3,3) |         32 | ReLU       |         896 |
-| Conv3D(3,3,3) |         10 | ReLU       |        8650 |
-| Conv3D(5,5,5) |          5 | ReLU       |        6255 |
-| Dense         |        128 | ReLU       |       28288 |
-| Dense         |        128 | ReLU       |       16512 |
-| Dense         |        128 | ReLU       |       16512 |
-| Dense         |         10 | ReLU       |        1290 |
-| Dense         |          1 | Linear     |          11 |
+Da unsere Datenspektrum wieder nur einen begrenzten Raum abdeckt ist
+zu erwarten, dass die im vorherigen Kapitel beschriebenen
+systematischen Abweichungen wieder auftreten. Dadurch, dass in den
+Particle Flow Candidates die Kalorimeter Information massgeblich mit
+eingeht, ist auch ihre Fehlerstruktur korreliert. 
 
-The alternative structure reduces the number of free parameters to 78,414.
+Also wird die selbe Loss Funktion aus dem vorherigen Kapitel
+angewendet.  Da die Standardabweichung $\sigma$ nicht apriori
+ersichtlich ist, wird diese zuvor angenähert.
 
+Hierfür die Distribution des Netwerk Outputs berechnet und diese 20 Bins nach $E_true$ unterteilt.
+Anschließen wird für jeden Bin die Standardabweichung ermittelt und an diese Punkte wird die analytische Funktion
 
+\begin{align}
+\sigma(E_{\text{true}})= c_0 \sqrt{E_{\text{true}}}+c_1 E_{\text{true}} + c_2
+\end{align}
+
+gefittet. Diese Funktion wird als $\sigma$ Term in der Loss Funktion
+genutzt. An dieser Stelle sei darauf hingewiesen, dass eine
+differenzierbare Funktion für $\sigma$ unabdingbar ist, da der
+Gradient der Loss Funktion für den Backpropagation Algorithmus
+vonnöten ist.
+
+Da die Verteilung der Werte zusätzlich nicht flach ist, wird in einem
+weiteren Analyse Schritt die Loss-Funktion gebinned.  Dies heißt, dass
+die Datenpunkte nach E_true sortiert werden und der Mittelwert für
+jeden Bin errechnet wird. Anschließen wird der Mittelwert dieser
+Mittelwerte als Loss Funktion verwendet. Dadurch tragen einzelne
+Regionen im Spektrum nicht mehr zum gesamten Wert bei, da ihre
+Population höher ist. Der Bias zu Werten mit hoher Population soll so
+vermindert werden.
 
 ** Likelihood Fit
 ** Different Variables
 ** ParticleflowNet
+** Flaws in Structure
+- batch size zu klein für binned
+- struktur der werte nicht gaußförmig
+
+* Outlook and further ideas
 * Conclusion
 
 \include{_eidversicherung}

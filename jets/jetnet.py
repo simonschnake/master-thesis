@@ -18,16 +18,6 @@ import pickle
 from scipy.stats import binned_statistic
 from scipy.optimize import leastsq
 import tensorflow as tf
-from utils import sliced_statistics
-from energyflow.archs import PFN
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-mpl.rcParams['text.usetex'] = True
-mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
-mpl.rcParams['mathtext.fontset'] = 'stix'
-mpl.rcParams['font.family'] = 'STIXGeneral'
-mpl.rcParams['font.size'] = 15
-mpl.rcParams['axes.labelsize'] = 15
 
 ##############################################################
 #  _                 _ _                  ___      _         #
@@ -144,10 +134,6 @@ def make_loss(res, pred):
 #      / /\/\ \ (_) | (_| |  __/ |                           #
 #      \/    \/\___/ \__,_|\___|_|                           #
 ##############################################################
-
-# network architecture parameters
-ppm_sizes = (100, 100, 128)
-dense_sizes = (100, 100, 100)
 
 inputs = Input(shape=(200, 4,))
 Dx = Flatten()(inputs)
