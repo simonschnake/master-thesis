@@ -82,8 +82,8 @@ def accuracy(y_true, y_pred):
     return K.exp(-mu-sigma)
 
 def make_binned_loss(res, pred):
-    x = binned_statistic(res, res, statistic='mean', bins=50)[0]
-    y = binned_statistic(res, pred, statistic='std', bins=50)[0]
+    x = binned_statistic(res, res, statistic='mean', bins=50)[0][10:40]
+    y = binned_statistic(res, pred, statistic='std', bins=50)[0][10:40]
     fitfunc = lambda c , x: c[0]*np.sqrt(x)+c[1]*x+c[2]
     errfunc = lambda c , x, y: (y - fitfunc(c, x))
     out = leastsq(errfunc, [1., 0.1, 0.], args=(x, y), full_output=1)
@@ -235,4 +235,4 @@ produce_results('fourth')
 
 ################################################################################
 
-pickle.dump(results, open("../results/jetnet_binned_results.p", "wb"))
+pickle.dump(results, open("../results/jetnet_binned2_results.p", "wb"))
