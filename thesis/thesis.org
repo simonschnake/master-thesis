@@ -1644,8 +1644,86 @@ improved.  It should be noted that only the basic possibility of
 improvement is presented here. It is beyond the focus of this work to
 show how much the resolution can be improved.
 
-
 * Energy Regression with Particle Flow Jets
+** Jet Simulation
+- plot distribution of jets
+- plot student_t 
+** Deep Learning Setup
+- write down everything in jetnet.py
+- write down likelihood loss
+- iterative
+
+Um die Energien der Jets zu kalibrieren, werden die einzelnen Particle
+Flow Candidates mit einem neuronalen Netz bearbeitet.
+Die Struktur des Neuronalen Netzes 
+
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+input_1 (InputLayer)         (None, 200, 4)            0         
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 800)               0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 800)               640800    
+_________________________________________________________________
+dense_2 (Dense)              (None, 700)               560700    
+_________________________________________________________________
+dense_3 (Dense)              (None, 600)               420600    
+_________________________________________________________________
+dense_5 (Dense)              (None, 400)               240400    
+_________________________________________________________________
+dense_6 (Dense)              (None, 300)               120300    
+_________________________________________________________________
+dense_7 (Dense)              (None, 200)               60200     
+_________________________________________________________________
+dense_8 (Dense)              (None, 1)                 201       
+=================================================================
+Total params: 2,043,201
+Trainable params: 2,043,201
+Non-trainable params: 0
+
+The layer structure of the first network is shown in table ref:fcn_structure.
+
+#+CAPTION: The structure of the fully connected network is shown. The first column shows the different types of layers of the network, which here are only dense, which is the Keras type of a fully connected layer. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column the number of free parameters or weights of each layer.
+#+NAME: fcn_structure
+| Type  | $\#$ Nodes | Activation | $\#$ Params |
+|-------+------------+------------+-------------|
+| Dense |        500 | ReLU       |      544500 |
+| Dense |        128 | ReLU       |       64128 |
+| Dense |        128 | ReLU       |       16512 |
+| Dense |        128 | ReLU       |       16512 |
+| Dense |        128 | ReLU       |       16512 |
+| Dense |         10 | ReLU       |        1290 |
+| Dense |          1 | Linear     |          11 |
+
+It has 659,465 free parameters and each layer consists of nodes
+connected to all nodes of the previous layer. With the exception of
+the output node, all nodes have ReLU as their activation function.
+
+The second network consists of a convolutional part to which a fully
+connected network is connected. The layer structure is shown in table
+ref:conv_structure.
+
+#+CAPTION: The structure of the 3D convolutional network is shown. The first column shows the different types of layers of the network. The 3D vectors behind the Conv3D are the kernel dimensions. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column the number of free parameters or weights of each layer.
+#+NAME: conv_structure
+| Type          | $\#$ Nodes | Activation | $\#$ Params |
+|---------------+------------+------------+-------------|
+| Conv3D(3,3,3) |         32 | ReLU       |         896 |
+| Conv3D(3,3,3) |         10 | ReLU       |        8650 |
+| Conv3D(5,5,5) |          5 | ReLU       |        6255 |
+| Dense         |        128 | ReLU       |       28288 |
+| Dense         |        128 | ReLU       |       16512 |
+| Dense         |        128 | ReLU       |       16512 |
+| Dense         |         10 | ReLU       |        1290 |
+| Dense         |          1 | Linear     |          11 |
+
+The alternative structure reduces the number of free parameters to 78,414.
+
+
+
+** Likelihood Fit
+** Different Variables
+** ParticleflowNet
 * Conclusion
 
 \include{_eidversicherung}
