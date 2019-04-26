@@ -20,7 +20,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[1]:
+# Out[266]:
 :END:
 
 * Loading Data                                                     :noexport:
@@ -44,7 +44,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[2]:
+# Out[267]:
 :END:
 
 * Loss Raw
@@ -79,8 +79,8 @@ plt.savefig('images/dense_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[3]:
-[[file:./obipy-resources/XUPpKb.png]]
+# Out[268]:
+[[file:./obipy-resources/j1MhEJ.png]]
 :END:
 
 * Scatter Plot Raw
@@ -107,8 +107,8 @@ plt.savefig('images/dense_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[4]:
-[[file:./obipy-resources/dT4alR.png]]
+# Out[269]:
+[[file:./obipy-resources/4BzL3n.png]]
 :END:
 
 * Results Raw

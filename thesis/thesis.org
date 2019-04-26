@@ -1650,8 +1650,8 @@ Der Inhalt dieses Kapitels ist die Jet Energy Calibrierung mittels neuronalen Ne
 Zun
 ** Jet Simulation
 - plot distribution of jets
-- plot student_t 
-** Deep Learning Setup
+
+** Deep Learning Setupn
 
 Um die Energien der Jets zu kalibrieren, werden die einzelnen Particle
 Flow Candidates mit einem neuronalen Netz bearbeitet.
@@ -1718,13 +1718,32 @@ Mittelwerte als Loss Funktion verwendet. Dadurch tragen einzelne
 Regionen im Spektrum nicht mehr zum gesamten Wert bei, da ihre
 Population höher ist. Der Bias zu Werten mit hoher Population soll so
 vermindert werden.
+** Calibration
 
-** Likelihood Fit
-** Different Variables
-** ParticleflowNet
+- R einführen
+Als Maß für die Calibrierung wurde die Variable $R$ verwendet,
+
+\begin{align}
+R = \frac{P_{T, \text{Reco}}}{P_{T, \text{Gen}}}.
+\end{align}
+
+$P_{T, \text{Gen}}$ ist der transversale Impuls der Jets auf
+Generatorlevel und P_{T, \text{Reco}} ist der rekonstruierte
+tranversale Impuls des Jet Algorithmuses oder des Neuronalen Netzes.
+
+- Performance Plot
+- R Plot Systematik
+
+** Particleflownet
+
+- Performance Plot
+- R Plot Systematik
+- R für verschiedene Variablen
+
+
 ** Flaws in Structure
-- batch size zu klein für binned
 - struktur der werte nicht gaußförmig
+- input variablen nicht gleichmäßig
 
 * Outlook and further ideas
 * Conclusion
