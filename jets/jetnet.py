@@ -151,11 +151,7 @@ n = 20
 def produce_results(save_name):
     pred = D.predict_generator(val_Gen)
     pred = pred.reshape(len(pred),)
-    y, mu, sigma = sliced_statistics(results['y_true'], pred, n)
     res = {'pred': pred,
-           'y': y,
-           'mu': mu,
-           'sigma': sigma,
            'history' : history}
     results[save_name] = res
 
