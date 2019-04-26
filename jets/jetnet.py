@@ -149,6 +149,8 @@ D = Model([inputs], [Dx], name='D')
 
 n = 20 
 def produce_results(save_name):
+    D.save_weights("jetnet_weights.h5")
+    D.save_weights
     pred = D.predict_generator(val_Gen)
     pred = pred.reshape(len(pred),)
     res = {'pred': pred,
@@ -184,50 +186,21 @@ history = D.fit_generator(train_Gen,
 
 produce_results('first')
 
-pred = D.predict_generator(train_Gen)
-res = train_Gen.dump_res()
-pred = pred.reshape(len(pred),)
-
 ###############################################################################
+epochs = 1
+for i in range(10):
+    pred = D.predict_generator(train_Gen)
+    res = train_Gen.dump_res()
+    pred = pred.reshape(len(pred),)
 
-D.compile(loss=make_binned_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
+    D.compile(loss=make_binned_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
 
-history = D.fit_generator(train_Gen,
-                          epochs=epochs,
-                          validation_data=val_Gen,
-                          validation_steps=len(val_Gen)).history
+    history = D.fit_generator(train_Gen,
+                              epochs=epochs,
+                              validation_data=val_Gen,
+                              validation_steps=len(val_Gen)).history
 
-produce_results('second')
-
-pred = D.predict_generator(train_Gen)
-res = train_Gen.dump_res()
-pred = pred.reshape(len(pred),)
-
-################################################################################
-
-D.compile(loss=make_binned_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
-
-history = D.fit_generator(train_Gen,
-                          epochs=epochs,
-                          validation_data=val_Gen,
-                          validation_steps=len(val_Gen)).history
-
-produce_results('third')
-
-pred = D.predict_generator(train_Gen)
-res = train_Gen.dump_res()
-pred = pred.reshape(len(pred),)
-
-################################################################################
-
-D.compile(loss=make_binned_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
-
-history = D.fit_generator(train_Gen,
-                          epochs=epochs,
-                          validation_data=val_Gen,
-                          validation_steps=len(val_Gen)).history
-
-produce_results('fourth')
+    produce_results(str(i))
 
 ################################################################################
 
