@@ -1177,7 +1177,7 @@ recognition purposes. Also the work by LeCun et al. has to be mentioned, they
 demonstrated the application of a backpropagating ConvNet to the recognition of
 handwritting zip code digits cite:lecun89.
 
-** Recurrent Neural Networks
+** Recurrent Neural Networks                                         :noexport:
 
 Recurrent Neural Networs are an deep learning architecture for sequential
 data. It is specialized to process a sequence of values
@@ -1186,10 +1186,46 @@ output. These outputs are computes by the same algorithmic structure, sharing
 identical weigths. 
 
 \todo{Kapitel zuende schreiben}
-
-
 \todo{D.O. Hebb 1940 (Hebbian learning by modified synaptic strength) nachschlagen}
-** Particle Flow Network
+
+** Particle Flow Networks
+
+A set is a collection of objects that remain invariant under permutation. Each function that maps from a set $X = \{x_1, ... , x_M \}$ to a space $Y$ must have
+therefore be invariant under all permutations of its arguments.
+
+\begin{align}
+f(\{x_1, ... , x_M \}) = f(\{x_{\pi(1)}, ... , x_{\pi(M)}\})
+\end{align}
+
+Such a function is permutations invariant if it can be decomposed into
+the form $\rho\left( \sum_{x\in X} \phi(x) \right)$. Moreover, for a
+sufficiently large $l$ with the continuous functions $F: X \leftarrow \mathbb{R}^l$ and $\Phi: \mathbb{R}^l
+\leftarrow Y$, 
+
+\begin{align}
+f(\{x_1, ... , x_M \}) = F(\sum_{i=1}^M \Phi(x_i))
+\end{align}
+
+is an arbitrarily good approximation.
+
+A proof for this statement can be found in cite:zaheer17_deep_sets.
+
+In application to jet physics, a jet can be understood as a set of
+particles with arbitrary descriptive variables. $\Phi$ is then a per
+particle mapping into a $l$-dimensional hyperspace.  Komiske et
+al. name this hyperspace /latent space/. From this latent space $F$ maps
+to the target space $R$.
+
+A Particle Flow Network cite:komiske19_energ_flow_networ consists of a $\Phi$ network that maps from
+the particle's four momentum into the latent space. For each jet, the
+resulting latent space vectors are summed up and mapped to the target
+space with a second network.
+
+This partitioning of the net to satisfy the permutation invariance of
+sets was first discussed by Zaheer et al.cite:zaheer17_deep_sets. The
+application of deep sets in particle jet physics and particle flow
+networks was first implemented by Komiske et al cite:komiske19_energ_flow_networ.
+
 * Calorimetry Energy Analyis
 
 In this chapter, the possibility of improving the resolution in the
@@ -1645,11 +1681,31 @@ improved.  It should be noted that only the basic possibility of
 improvement is presented here. It is beyond the focus of this work to
 show how much the resolution can be improved.
 
-* Jet Energy Analysis
-Der Inhalt dieses Kapitels ist die Jet Energy Calibrierung mittels neuronalen Netzen
-Zun
-** Jet Simulation
-- plot distribution of jets
+* Jet Calibration Analysis
+Der Inhalt dieses Kapitels ist die Jet Energy Calibrierung mittels
+neuronalen Netzen dargestellt.  Die Anwendung der im vorhergegangen
+Methodik zur Reduzierung von Randeffekten auf Jets wird vorgestellt.
+Neben einer einfachen Netzwerkarchitektur wird auch ein Particle Flow
+Netzwerk zur Regression verwendet.
+
+In dieser Analyse wurden ur Daten verwendet die durch Simulation
+entstanden sind. Das betrachtete Datensample ist ein QCD Datensatz der
+zur 2018 Detektorsimulation gehört. Der Datensatz besaß ein $P_T$
+Spektrum von 15 bis 3000 Gev. Der Datensatz lag ohne PileUp vor.
+
+Zur Analyse wurden aus dem Datensatz einzelne Jets extrahiert. Es
+wurden nur Jets im Energiebereich zwischen 30 und 140 GeV ausgewählt.
+Die Verteilung der 
+
+\todo{wieviele Jets, split?}
+
+
+Zu jedem Event wurden die Vierer Vektoren der konstituierenden
+Teilchen gespeichert. Es wurde die transversalen Impulse der Jets auf
+Generatorlevel und auf nach der Simulation aufgezeichnet.
+
+Das Ziel dieses Teiles ist es nun von der dem Satz an Teilchen auf den
+Impuls zurück zu schließen. 
 
 ** Deep Learning Setupn
 
@@ -1731,8 +1787,44 @@ $P_{T, \text{Gen}}$ ist der transversale Impuls der Jets auf
 Generatorlevel und P_{T, \text{Reco}} ist der rekonstruierte
 tranversale Impuls des Jet Algorithmuses oder des Neuronalen Netzes.
 
-- Performance Plot
-- R Plot Systematik
+#+CAPTION: Die resultierenden $R$ Punkte des Reco Algoritmus und des Neuronalen Netzes im Verhältnis zu $P_{T, \text{Gen}}$ sind dargestellt. 
+#+NAME: jetnet_R_scatter
+[[../images/jetnet_R_scatter.pdf]]
+
+In der Abbildung ref:jetnet_R_scatter sieht man die Ergebnisse des
+Reco Algorithmuses und des Neuronalen Netzes in einem Scatter Plot
+übereinander dargestellt. Als Loss Funktion für das Neuronale Netz
+wurde MSE verwendet. Durch das beschnittene Wertespektrum sieht man
+die ähnliche systematische Abweichungen wie schon im vorhergegangen
+Kapitel.  
+
+Um diese zu beheben nutzen wir nun die Kraft der Imagination und des
+Verstandes.  Ne Spaß, wir machen natürlich das gleiche, was wir auch
+im letzten Kapitel gemacht haben. Wäre ja Quatsch sich nochmal
+Gedanken zu machen.
+
+#+CAPTION: Die Mittelwerte der R Verteilung sind in Abhängigkeit zu $P_{T, \text{Gen}}$ dargestellt. Reco steht für den Reco Algorithmus. MSE für das Neuronale Netz mit 'mse' als Loss Funktion. 1st und 2nd stehen für die erste und zweite Iteration mit abweichender Loss Funktion.
+#+NAME: jetnet_R
+[[../images/jetnet_R.pdf]]
+
+
+Wie oben beschrieben, ich hoffe ich habe das auch oben beschrieben,
+werden in Abbildung ref:jetnet_R die resultierenden R Werte für die
+neuronalen Netze und den Reco Algorithmus dargestellt. Man sieht, dass
+die erste Interation die systemamtischen Abweichungen an den Rändern
+behebt, allerdings zu hohe Ergebnisse liefert. Dieser Shift zu hohen
+Werten findet sich nicht nach der zweiten Iteration. Die Randeffekte
+konnten nicht behoben werden und bestehen auch nach mehrfacher
+Iteration. 
+
+#+CAPTION: Die Standardabweichung durch die Wurzel von $P_{T, \text{Gen}}$ in Verhältnis zu $P_{T, \text{Gen}}$ ist dargestellt.
+#+NAME: jetnet_res
+[[../images/jetnet_res.pdf]]
+
+In Abbildung ref:jetnet_res ist die Auflösung dargestellt. Man sieht
+das alle Netze besser performen als der Reco Algorithmus. An den
+Rändern sinkt wieder die Auflösung. Dies kann durch die alternative
+Loss Funktion eingedämmt werden.
 
 ** Particleflownet
 
@@ -1741,9 +1833,50 @@ tranversale Impuls des Jet Algorithmuses oder des Neuronalen Netzes.
 - R für verschiedene Variablen
 
 
+Im nächsten Teil wurde ein PFNet trainert. Der Trainingsablauf war der
+gleiche wie für das erste Netz. Der Aufbau des PFNets besteht aus
+einem Filter Module das aus drei Lagen besteht mit (100, 100, 128) .
+Das heißt wir landen in einem 128dim Output Space, der wir dann an das
+zweite Netzwerk weiter gereicht. Dieser besteht aus drei Lagen mit
+jeweils 100 Neuronalen gefolgt von einer Node aus Output.
+
+#+CAPTION: Die Mittelwerte der R Verteilung sind in Abhängigkeit zu $P_{T, \text{Gen}}$ dargestellt. Reco steht für den Reco Algorithmus. MSE für das Neuronale Netz mit 'mse' als Loss Funktion. 1st und 2nd stehen für die erste und zweite Iteration mit abweichender Loss Funktion.
+#+NAME: pfnet_R
+[[../images/pfnet_R.pdf]]
+
+Auf Abbildung ref:pfnet_R sieht man die Mittelwerte der R
+Verteilung. Pretty dope. Das Prozedere von eben wurde auch hier auf
+die Sachen losgelassen. Man sieht, dass die alternative Loss Funktion
+stark dabei hilft den Teil am Anfang zu beseitigen.  Insgesamt besitzt
+die gesamte Verteilung noch eine gewisse Schieflage, aber sonst ist
+das eigentlich schon ganz nett.
+
+#+CAPTION: Die Standardabweichung durch die Wurzel von $P_{T, \text{Gen}}$ in Verhältnis zu $P_{T, \text{Gen}}$ ist dargestellt.
+#+NAME: pfnet_res
+[[../images/pfnet_res.pdf]]
+
+In ref:pfnet_res ist die Verteilung der der Auflösungen
+dargestellt. Alle PFNet Resultate haben in etwa die gleichen Verläufe
+und sind deutlich besser als das REco Teil. Die beste Performance wird
+nach der zweiten Iteration erzielt
+.
+** Comparison
+
+In Abb. ref:comp_R ist zu sehen, dass der Verlauf der R Verteilung der beiden Netzwerktypen fast identisch ist.
+x
+
+#+CAPTION: Die Mittelwerte der R Verteilung sind in Abhängigkeit zu $P_{T, \text{Gen}}$ dargestellt. Reco steht für den Reco Algorithmus. MSE für das Neuronale Netz mit 'mse' als Loss Funktion. Die Verläufe beider Netzwerktypen und des REco sind dargestellt.
+#+NAME: comp_R
+[[../images/comp_R.pdf]]
+
+#+CAPTION: Die Standardabweichung durch die Wurzel von $P_{T, \text{Gen}}$ in Verhältnis zu $P_{T, \text{Gen}}$ ist dargestellt.
+#+NAME: comp_res 
+[[../images/comp_res.pdf]]
+
 ** Flaws in Structure
 - struktur der werte nicht gaußförmig
 - input variablen nicht gleichmäßig
+
 
 * Outlook and further ideas
 * Conclusion
@@ -1752,3 +1885,5 @@ tranversale Impuls des Jet Algorithmuses oder des Neuronalen Netzes.
 
 bibliographystyle:unsrt
 bibliography:bibliography.bib
+
+
