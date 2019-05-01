@@ -15,23 +15,61 @@
 \cleardoublepage
 
 * Introduction
+
+Particle collisions such as those at the Large Hadron Collider (LHC)
+cite:lhc_machine produce gigantic amounts of data. With the High Lumi Update
+cite:bruening19_high_lumin_large_hadron_collid this amount will increase
+considerably. This increase in data requires new analysis techniques to gain new
+insights from the data. The progress in the area of machine learning in recent
+years offer a toolbox of new analysis techniques that can be applied to particle
+physics. In this thesis some possibilities of this application are presented.
+
+
+This work does not remain the only one in this pursuit, in recent years
+considerable progress has been made in certain areas of particle physics. One
+aspect is that existing searches can be supported with the help of deep learning
+cite:baldi14_searc_exotic_partic_high_energ,baldi15_enhan_higgs_boson_toτ_with_deep_learn,santos17_machin_learn_techn_searc_decay_chann.
+Furthermore it is also possible to use deep learning for model independent
+searches
+cite:dagnolo19_learn_new_physic_from_machin,simone19_guidin_new_physic_searc_with_unsup_learn,heimel19_qcd_or_what
+Pile up can also be detected
+cite:komiske17_pileup_mitig_with_machin_learn_pumml.  In addition, machine
+learning can be used to identify jets
+cite:komiske19_energ_flow_networ,cogan15_jet_images,oliveira16_jet_images_deep_learn_edition,baldi16_jet_subst_class_high_energ,barnard17_parton_shower_uncer_jet_subst,kasieczka17_deep_learn_top_tagger_or_end_qcd,datta17_how_much_infor_is_jet,komiske17_deep_learn_color.
+This is only an excerpt from the broad field of research that has established
+itself in recent years.
+
+This work will deal with low level data, especially calorimeter cell data, and
+with high level variables such as clustered particles from individual jets.  The
+aim here is to apply different techniques for resolution improvement.
+
+The following chapter gives a brief overview of particle physics. The third
+chapter is following with a discussion over particles in matter and
+calorimetry. Afterwards, an important Geant5 analysis tool is presented. In
+chapter 5 the Large Hadron Collider, the CMS Detector, the Particle Flow
+Algorithm as well as Jet Clustering and Energy Correction are described. The
+aspects of deep learning that play an important role in this work are discussed
+afterwards. The 7th chapter contains the first part of the analysis, in which a
+discussion is made on improving the resolution of a calorimeter simulation.
+Followed by a Jet Energy Calibrations analysis in Chapter 8. Chapter 9 concludes
+the work with a summary and an outlook.
+
 * Particle Physics
-This chapter briefly outlines the core areas of particle physics that are
-relevant for this work. The standard model of particle physics and further
-topics are considered.
+This chapter briefly outlines the core areas of particle physics relevant for
+this work. The Standard Model Of Particle Physics and further topics are
+considered.
 
 ** The Standard Model Of Particle Physics
 The Standard Model of Elementary Particle Physics summarizes the theoretical
 foundations of modern particle physics and describes the elementary particles
 and the fundamental interactions of physics. It contains a quantum field
 theoretical formulation of the electromagnetic, weak, strong interaction and the
-Higgs mechanism. The comparatively weak gravitation on the subatomic level is
-not included.
+Higgs mechanism. The comparatively weak gravitation is not included.
 
 ** Fundamental Building Blocks
 The fundamental building blocks of matter are the elementary particles assumed
 to be point-like. Elementary particles can be divided into bosons and fermions
-according to their intrinsic angular momentum, the so-called spin. Bosons have
+according to their intrinsic angular momentum, the spin. Bosons have
 an integer positive spin and fermions a positive half spin.
 
 
@@ -114,17 +152,18 @@ an integer positive spin and fermions a positive half spin.
   \node at (2.8,1.2) [generation] {\tiny generation};
 \end{tikzpicture}
 \caption{A diagram of the standard model of particle physics. A comprehensive overview of the current understanding of the universe \cite{davidG}}
+\label{standarmodel}
 \end{figure}
 
 The twelve fermions with spin $s = 1/2$ that exist in the framework of the SM
 form the mentioned fundamental components of matter and are listed in
-xxx. According to xxx the twelve fermions are categorized into three different
+\ref{standarmodel}. According to \ref{standarmodel} the twelve fermions are categorized into three different
 generations of fermions and quarks. A lepton generation consists of a particle
-with a charge of $q = -e$ and a corresponding neutralino. The quark generations
-each contain a positive quark with charge $q = 2/3 e$ and a negative quark with
-charge $q = - 1/3 e$. The individual generations are sorted according to their
+with a charge of $-e$ and a corresponding neutralino. The quark generations
+each contain a positive quark with charge $2/3 e$ and a negative quark with
+charge $- 1/3 e$. The individual generations are sorted according to their
 masses. Besides the charge and the spin, the fermions have other quantum
-numbers, like the weak isospin or the quarks have an additional color
+numbers, the weak isospin and the quarks have an additional color
 charge. The color charge is subdivided into red, green and blue, it expresses
 the coupling of the quarks to the strong interaction. Similarly, the coupling to
 the weak interaction is associated with the weak isospin. The weak isospin is
@@ -146,7 +185,7 @@ couples to the electric charge q. Electromagnetism is described by quantum
 electrodynamics (QED).
 
 The W- and Z-boson are the interaction particles of the weak interaction and
-couple to the weak isospin T. Within the framework of the weak interaction,
+couple to the weak isospin. Within the framework of the weak interaction,
 coupling to the W-boson allows a transition between quark generations and also
 lepton generations. The weak and electromagnetic interaction can be combined via
 $U(1)_{Y} \otimes SU(2)_{T}$ to the electroweak interaction. The gluons couple
@@ -156,19 +195,6 @@ chromodynamics (QCD).  It follows from the formulation of the interactions by
 gauge groups that gauge bosons must represent massless particles in order to
 guarantee the required local gauge invariance of the Lagrangian density of the
 SM. 
-
-** Beyond The Standard Model
-The standard model very successfully describes three of the four fundamental
-interactions and is very well confirmed by various precision measurements and
-finally by the experimental detection of the Higgs boson.  Despite these
-successes, it is not possible to combine the electromagnetic, weak and strong
-interaction within the SM. Furthermore, the SM does not postulate any suitable
-candidates for dark matter, so that a large part of the matter making up the
-universe cannot be explained. Also the mass of neurtrinos is not described by
-the Higgs mechanism. In addition, a measured mass of the Higgs boson of $m_{H} =
-125.7 \pm 0.4$ GeV in comparison to the Planck scale in the SM cannot be
-justified in the context of radiation and loop corrections without an unnatural
-fine-tuning, so that an extension of the SM is needed.
 
 ** Jets
 
