@@ -201,19 +201,15 @@ SM.
 The high-energy phenomena of quantum chromodynamics are described by the
 color-charged particles, the quarks and the gluons. These particles cannot be
 observed in isolation. Rather, the process of hadronization causes directional
-bundles of color-neutral hadrons, known as jets, to form. It is difficult to
-draw conclusions from jets about their parton sources, but it is possible.  In
-the case of the LHC, protons are brought into collision, but strictly speaking
-the individual partons from the protons collide with each other. Depending on
-the momentum of the protons, individual partons interact with different
-probabilities. To some extent, the effects involved can be described by the
-probability density of the partons shown in Figure xx. The parton distribution
-density indicates the probability of finding a parton of type i with a certain
-longitudinal distance x in a hadron. Often the distribution function is
-noted with the argument of the momentum transfer mutated as f. As a rule, PDFs
-are measured in high-energy experiments. Using the proton as an example, it
-becomes clear that it is more likely to find quarks for higher distances
-x. In contrast, the gluons predominate with small distance.
+bundles of color-neutral hadrons, known as jets, to form. In the case of the
+LHC, protons are brought into collision, but strictly speaking the individual
+partons from the protons collide with each other. Depending on the momentum of
+the protons, individual partons interact with different probabilities. To some
+extent, the effects involved can be described by the probability density of the
+partons. The parton distribution density indicates the probability of finding a
+parton of type i with a certain longitudinal distance $x$ in a hadron. Using the
+proton as an example, it becomes clear that it is more likely to find quarks for
+higher distances $x$. In contrast, the gluons predominate with small distance.
 
 #+CAPTION: Representation of the distribution of the momentum fraction x of a parton multiplied by its parton distribution function f(x). The two graphs show the distribution at different energy transfers \cite{PhysRevD.98.030001}.
 #+ATTR_LATEX: :width 0.8 \textwidth
@@ -273,42 +269,38 @@ radiation of a photon.  The mean energy loss due to bremsstrahlung can
 be approximately expressed by
 
 \begin{align}
-\left( \dv{E}{x} \right) \simeq - \frac{E}{X_0}
+\left( \dv{E}{x} \right) \simeq - \frac{E}{X_0}.
 \end{align}
 
-over the radiation length $X_0$ cite:wigman18. 
-
-Since the energy losses due to ionization grow logarithmically with
-the energy, while the Bremsstrahlung losses increase linearly with the
-energy cite:PhysRevD.98.030001, the dominant factor is bremsstrahlung
-for high energies. With decreasing electron energy, the losses due to
-ionization begin to dominate. This is shown in Figure
-ref:bremsstrahlung.
+Since the energy losses due to ionization grow logarithmically with the energy,
+while the Bremsstrahlung losses increase linearly with the energy
+cite:PhysRevD.98.030001, the dominant factor for high energies is
+bremsstrahlung. With decreasing electron energy, the losses due to ionization
+begin to dominate. This is shown in Figure ref:bremsstrahlung.
 
 #+CAPTION:  Illustration of the different fractions of energy loss of electrons and positrons when passing through lead \cite{PhysRevD.98.030001}.
+#+NAME: bremsstrahlung
 #+ATTR_LATEX: :width 0.8 \textwidth
 [[../images/bremsstrahlung.png]]
-label:bremsstrahlung
 
 ** Hadronic Interactions With Matter
 
 The development of hadronic showers is much more complicated than
-electromagnetic showers cite:wigman18. This is because only a few processes play a role
-in electromagnetic showers.  Due to the more diverse strong interaction, more
-diverse processes occur in the development of hadronic showers. Another aspect
-that contributes to the complexity of hadronic showers is that a struck nucleus
-experiences nuclear interactions. In electromagnetic showers, on the other hand,
-the target only serves to scatter the particles involved in the shower cite:wigman18.
+electromagnetic showers cite:wigman18. The reason is that only a few processes
+play a role in electromagnetic showers.  Due to the more diverse strong
+interaction, more diverse processes occur in the development of hadronic
+showers. Another aspect that contributes to the complexity of hadronic showers
+is that a struck nucleus experiences nuclear interactions. In electromagnetic
+showers, on the other hand, the target only serves to scatter the particles
+involved in the shower cite:wigman18.
 
 Charged hadrons deposit part of their energy via the ionization of the
-medium. Until they produce high-energy secondary particles in an
-absorption process.  In contrast, neutral hadrons deposit their energy
-only by absorption cite:wigman18,fabjan03. The mean free path between
-two hadronic interactions is given by the hadronic absorption length
-$\lambda_{\text{had}} = 35 A 1/3 g cm^{-2}$ cite:fabjan03. A denotes
-the mass number of the material passed through. The hadrons produced
-in the absorption process propagate further through the detector until
-they are absorbed themselves.
+medium. Until they produce high-energy secondary particles in an absorption
+process.  In contrast, neutral hadrons deposit their energy only by absorption
+cite:wigman18,fabjan03. The mean free path between two hadronic interactions is
+given by the hadronic absorption length cite:fabjan03. The hadrons produced in
+the absorption process propagate further through the detector until they are
+absorbed themselves.
 
 The production of secondary hadrons in the nucleus takes place via the
 process of Spallation. The Spallation is divided into two phases
@@ -352,22 +344,20 @@ expansion cite:wigman18.
 
 ** Calorimeter
 
-Calorimeters are used for destructive energy measurement by showers of
-incident particles. Depending on the type of particle measured, they
-are subdivided into electromagnetic and hadronic
-calorimeters. Calorimeters are divided into homogeneous and sampling
-calorimeters. Homogeneous calorimeters consist of a material that both
-acts as an absorber for the particles and simultaneously generates the
-signal that can be measured. They consist of inorganic, heavy
+Calorimeters are used for destructive energy measurement by showers of incident
+particles. Depending on the type of particle measured, they are subdivided into
+electromagnetic and hadronic calorimeters. Calorimeters are divided into
+homogeneous and sampling calorimeters. Homogeneous calorimeters consist of a
+material that both acts as an absorber for the particles and simultaneously
+generates the signal that can be measured. They consist of inorganic, heavy
 scintillation crystals or non-scintillating Cherenkov radiators
-cite:PhysRevD.98.030001. Sampling calorimeters consist of a sequence
-of active and passive layers. In the passive layers the particles are
-absorbed and in the active layers the signal is generated by
-ionization or scintillation. Materials used in passive layers are
-lead, iron, copper and uranium. Liquid noble gases, organic or
-inorganic scintillators are used in active layers
-cite:PhysRevD.98.030001. The following two subsections deal with the
-properties of electromagnetic and hadronic calorimeters.
+cite:PhysRevD.98.030001. Sampling calorimeters consist of a sequence of active
+and passive layers. In the passive layers the particles are absorbed and in the
+active layers the signal is generated by ionization or scintillation. Materials
+used in passive layers are typically lead, iron, copper and uranium. Liquid
+noble gases, organic or inorganic scintillators are used in active layers
+cite:PhysRevD.98.030001. The following two subsections deal with the properties
+of electromagnetic and hadronic calorimeters.
 
 *** Electromagnetic Calorimeter
 
@@ -378,12 +368,11 @@ given by
 \frac{\sigma}{E} = \frac{a}{\sqrt{E}} \otimes b \otimes \frac{c}{E}\ \cite{fabjan03,PhysRevD.98.030001}
 \end{align}
 
-The symbol $\otimes$ stands for the square sum of the individual
-terms. The first term is the stochastic term, the second the constant
-term and the third the noise term.  The stochastic term is caused by
-fluctuations of the number of charged tracks in the active
-medium. According to Amaldi cite:amaldi81 the stochastic term in
-sampling calorimeters is proportional to
+The symbol $\otimes$ stands for the square sum of the individual terms. The
+first term is the stochastic term, the second the constant term and the third
+the noise term.  The stochastic term is caused by fluctuations of the number of
+charged tracks in the active medium. The stochastic term in sampling
+calorimeters is proportional to
 
 \begin{align}
 \frac{\sigma}{E}\propto \sqrt{\frac{t}{E}}.
@@ -408,39 +397,38 @@ hadrons than for electrons cite:fabjan03. A quantitative description
 is given by the ratio e / h , which is therefore generally greater
 than one cite:wigman18.
 
-A calorimeter that delivers the same signals for a hadron and an
-electron and thus has a ratio of $e / h = 1$ is called a compensating
-calorimeter cite:wigman18. Compensation is an internal property of a
-calorimeter cite:kolanoski16. and cannot be measured directly
-cite:wigman18. The $e / h$ ratio is determined by measuring the $e /
-\pi$ ratio cite:wigman18. The $e / \pi$ ratio indicates the ratio of
-the signals of an electron and a pion and is defined by
+A calorimeter that delivers the same signals for a hadron and an electron has a
+ratio of $e / h = 1$ is called a compensating calorimeter
+cite:wigman18. Compensation is an internal property of a calorimeter
+cite:kolanoski16. and cannot be measured directly cite:wigman18. The $e / h$
+ratio is determined by measuring the $e / \pi$ ratio cite:wigman18. The $e /
+\pi$ ratio indicates the ratio of the signals of an electron and a pion and is
+defined by
 
 \begin{align}
 \frac{e}{\pi}=\frac{e/h}{1-f_{\text{em}} - e/h}. \cite{wigman18}
 \end{align}
 
 Therefore, the e / π ratio of the electromagnetic shower fraction
-$f_{\text{em}}$ depends on the energy of the incident pion. The $e /
-\pi$ ratio becomes independent for large energies from the
-compensation of the calorimeter and strives towards one.
+$f_{\text{em}}$ depends on the energy of the incident pion. The $e / \pi$ ratio
+is independent for large energies from the compensation of the calorimeter and
+strives towards one.
 
-Compensation improves the linearity and resolution of a hadronic
-calorimeter cite:wigman18,kolanoski16,fabjan03, The response of
-non-compensating calorimeters is not linear, since the electromagnetic
-part of the shower increases with the increasing energy of the
-incident particle. Since the electromagnetic component is a stronger
-signal, the response of a non-compensating calorimeter to particles of
-higher energy is larger. The resolution of the calorimeter also
-improves if compensation is present. The proportion of the
-electromagnetic shower component fluctuates strongly. If a calorimeter
-is not compensating, signals of of different magnitudes are generated
-from event by the same energy and the resolution deteriorates.
+Compensation improves the linearity and resolution of a hadronic calorimeter
+cite:wigman18,kolanoski16,fabjan03, The response of non-compensating
+calorimeters is not linear, since the electromagnetic part of the shower
+increases with the increasing energy of the incident particle. Since the
+electromagnetic component has a stronger signal, the response of a
+non-compensating calorimeter to particles of higher energy is larger. The
+resolution of the calorimeter also improves if compensation is present. The
+proportion of the electromagnetic shower component fluctuates strongly. If a
+calorimeter is not compensating, signals of different magnitudes are generated
+from events by the same energy and the resolution deteriorates.
 
 Compensation is therefore a design criterion for hadronic
 calorimeters. In general, $e / h > 1$ applies. Therefore, a reduction
 of the electromagnetic signal while simultaneously increasing the
-hadronic signal leads to compensation. The Reduction of the
+hadronic signal leads to compensation. The reduction of the
 electromagnetic signal can be achieved by using absorber materials
 with high numbers of nuclear charges. A large part of the energy
 deposition of electromagnetic showers takes place by absorption of
@@ -460,7 +448,7 @@ other or by enrichment of the active medium with hydrogen.
 
 * Geant4
 
-The basics of simulating a detector with /Geant4/  cite:geant_simul_toolk are discussed in this
+The basics of simulating a detector with \emph{Geant4}  cite:geant_simul_toolk are discussed in this
 chapter. The first section deals with the structure and sequence of a Geant4
 application. The following two sections deal with the operation of particle
 tracking by the detector and the simulation mechanisms. The last section of the
@@ -561,19 +549,18 @@ transport of the particles through the detector takes place step by step
 cite:geant_simul_toolk .  At the beginning of the step, each process from the
 list of the observed particle suggests a step length via its
 =GetPhysicalInteractionLength= method cite:geant_simul_toolk . If the particle
-is at rest, only decay processes are considered. All process types compete for
-particles in flight. In order to improve the accuracy of the simulation, there
-are several mechanisms that additionally limit the step length of a particle. On
-the one hand, processes that describe a continuous energy loss also suggest a
-step length. This is necessary in order to keep the change of the cross section
-due to energy loss during one step to a minimum cite:geant4-phys-ref
-. Furthermore, the shortest distance of the present location to the next volume
-boundary limits the step length.  This ensures that the particle does not pass
-into any different volume during the step cite:geant4-rec-dev . The smallest
-proposed step length determines the process being performed. Processes
-associated with a loss of energy or a change of direction of the particle can
-force their execution and take place even if their proposed step length is not
-the shortest cite:geant_simul_toolk .
+is at rest, only decay processes are considered. In order to improve the
+accuracy of the simulation, there are several mechanisms that additionally limit
+the step length of a particle. On the one hand, processes that describe a
+continuous energy loss suggest a step length. This is necessary in order to
+keep the change of the cross section due to energy loss during one step to a
+minimum cite:geant4-phys-ref . Furthermore, the shortest distance of the present
+location to the next volume boundary limits the step length.  This ensures that
+the particle does not pass into any different volume during the step
+cite:geant4-rec-dev . The smallest proposed step length determines the process
+being performed. Processes associated with a loss of energy or a change of
+direction of the particle can force their execution and take place even if their
+proposed step length is not the shortest cite:geant_simul_toolk .
 
 ** Geometry
 
@@ -590,7 +577,7 @@ logical volume and is represented by the class =G4LogicalVolume=. The logical
 volume contains its physical properties by the material it is made of. Also the
 definition of the electromagnetic fields and the user-defined limitations belong
 to a logical volume cite:geant4-doc . The third and last stage of the definition
-of a detector is the positioning of the logical volumes in the room. A placed
+of a detector is the positioning of the logical volumes in space. A placed
 volume is called physical volume. In order to to describe the detector
 completely, it is necessary for volumes to be inserted into each other.  The
 world volume represents the largest volume in the definition of a detector. It
@@ -954,7 +941,7 @@ function of $p^{\text{reco}}_T$. The L1 and L2L3 corrections are both
 applied to the data and the simulated events.  The L2L3res corrections
 are subsequently applied to the data to handle residual differences
 between the data and the simulation. The correction factor is
-determined on the jet energy scale from events with a jet and a photon
+determined on the jet energy scale by events with a jet and a photon
 or a Z boson. The measurement of the transverse moments of the
 Z-bosons pTz and the photons $p_T^{\gamma}$ are performed in the well
 understood detector range $\eta < \abs{1.3}$ and have much lower
@@ -979,10 +966,7 @@ transform the representation in increasingly higher levels of abstraction.  With
 this composition, very manifold functions can be learned, which maps the
 raw input data into the desired solution. The core aspect of Deep Learning is
 that the features of the layers are not designed by humans but are learned from
-the machine. \todo{"in a universal learning procedure." ist das so?}
-
-\todo{bayesian perspective anwendungen hinzufügen}
-
+the machine.
 Deep learning made major breakthroughs in a wide variety of fields. The most
 prominent example would be the recognition of images
 cite:szegedy15,NIPS2014_5573,farabet13,krizhevsky17 or speech-to-text synthesis
@@ -1030,9 +1014,6 @@ $i\text{th}$ node in the $l\text{th}$ layer is given by
 &a^{[l]}_{i} \coloneqq \left(\sigma^{[l]}_{W,b}(a^{[l-1]})\right)_{i} = \sigma^{[l]}_{i}(z^{[l]}_{i}), \label{forward}\\
 &\hat{Y}(X) \coloneqq a^{[L]}.
 \end{align}
-
-\todo{Visualisierung des Computation-Graphs plus Satz der auf die Grafik hinweist}
-
 
 This method to make machine learns was first developed by /Frank Rosenblatt/
 cite:rosenblatt58_percep. He build his work on the model for neuron proposed by
