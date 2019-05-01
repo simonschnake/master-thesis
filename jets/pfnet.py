@@ -7,14 +7,18 @@
 #                            |___/                           #
 ##############################################################
 
+from keras.layers import Input, Dense, Flatten
+from keras.models import Model
 from keras.utils import Sequence
-from keras.optimizers import adam
+from keras.optimizers import SGD, RMSprop
 from keras import backend as K
 import h5py
 import numpy as np
 import pickle
-from energyflow.archs import PFN
+from scipy.stats import binned_statistic
+from scipy.optimize import leastsq
 import tensorflow as tf
+from energyflow.archs import PFN
 
 ##############################################################
 #  _                 _ _                  ___      _         #
@@ -25,18 +29,16 @@ import tensorflow as tf
 #                              |___/                         #
 ##############################################################
 
-try:
-    data = h5py.File('./QCD_Pt-30to150Run2Spring18.h5', 'r')
-except OSError:
-    print('Data not found')
-    exit()
-
 
 class DataGenerator(Sequence):
 
     def __init__(self, batch_size=128, train=True):
         self.batch_size = batch_size
-        
+        try:
+            data = h5py.File('../../data/jets/QCD_Pt-30to150Run2Spring18.h5', 'r')
+        except OSError:
+            print('Data not found')
+            exit()
         sess_str = "val"
         if train is True:
             sess_str = "train"
@@ -49,30 +51,27 @@ class DataGenerator(Sequence):
     def __getitem__(self, idx):
         batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
+
         return batch_x, batch_y[:, 7]
+    def dump_res(self):
+        return self.y[:, 7][:len(self)*self.batch_size]
 
 
-history = {'val_loss': [], 'val_accuracy': [], 'val_mean_pred': [],
-           'loss': [], 'accuracy': [], 'mean_pred': []}
-
-##############################################################
-#                        _      _                            #
-#        /\/\   ___   __| | ___| |                           #
-#       /    \ / _ \ / _` |/ _ \ |                           #
-#      / /\/\ \ (_) | (_| |  __/ |                           #
-#      \/    \/\___/ \__,_|\___|_|                           #
-##############################################################
+##################################################################
+#  _                    ______                _   _              #
+# | |                   |  ___|              | | (_)             #
+# | |     ___  ___ ___  | |_ _   _ _ __   ___| |_ _  ___  _ __   #
+# | |    / _ \/ __/ __| |  _| | | | '_ \ / __| __| |/ _ \| '_ \  #
+# | |___| (_) \__ \__ \ | | | |_| | | | | (__| |_| | (_) | | | | #
+# \_____/\___/|___/___/ \_|  \__,_|_| |_|\___|\__|_|\___/|_| |_| #
+##################################################################
 
 
-def binned_mean_squared_error(y_true, y_pred):
-    # element of mean squared error
-    squared_error = tf.square(y_pred - y_true)/y_true
-    value_range = [30., 150.]
-    # binning in y_true
-    indices = tf.histogram_fixed_width_bins(y_true, value_range, nbins=50)
-    # build mean per bin
-    means_per_bin = tf.math.unsorted_segment_mean(squared_error, indices, 50)
-    return tf.reduce_mean(means_per_bin, axis=None, keepdims=False)
+def mean_squared_percentage_error(y_true, y_pred):
+    diff = K.square((y_true - y_pred) / K.clip(K.abs(y_true),
+                                               K.epsilon(),
+                                               None))
+    return 100. * K.mean(diff, axis=-1)
 
 
 def accuracy(y_true, y_pred):
@@ -83,60 +82,84 @@ def accuracy(y_true, y_pred):
     sigma = K.std(R, axis=-1)
     return K.exp(-mu-sigma)
 
+def make_binned_loss(res, pred):
+    x = binned_statistic(res, res, statistic='mean', bins=50)[0][10:40]
+    y = binned_statistic(res, pred, statistic='std', bins=50)[0][10:40]
+    fitfunc = lambda c , x: c[0]*np.sqrt(x)+c[1]*x+c[2]
+    errfunc = lambda c , x, y: (y - fitfunc(c, x))
+    out = leastsq(errfunc, [1., 0.1, 0.], args=(x, y), full_output=1)
+    c = out[0]
+    def binned_max_likelihood_loss(y_true, y_pred):
+        epsilon = tf.constant(0.0000001)
+        mu = y_pred
+        sigma = 0.9*tf.sqrt(y_true)
+        first_part = tf.divide(tf.square(mu - y_true),
+                               2.*tf.square(sigma)+epsilon)
+        a = tf.divide(mu-30., tf.sqrt(2.)*sigma+epsilon)
+        b = tf.divide(mu-150., tf.sqrt(2.)*sigma+epsilon)
+        penalty = tf.erf(a) - tf.erf(b)
+        loss = first_part + tf.log(penalty+epsilon) + tf.log(sigma+epsilon)
+        value_range = [30., 150.]
+        # binning in y_true
+        indices = tf.histogram_fixed_width_bins(y_true, value_range, nbins=50)
+        # build mean per bin
+        loss_per_bin = tf.math.unsorted_segment_mean(loss, indices, 50)
+        return tf.reduce_mean(loss_per_bin, axis=None, keepdims=False)
+    return binned_max_likelihood_loss
 
-def mean_pred(y_true, y_pred):
-    R = K.abs(y_pred)/K.clip(K.abs(y_true),
-                             K.epsilon(),
-                             None)
-    return K.mean(R)
+def make_loss(res, pred):
+    x = binned_statistic(res, res, statistic='mean', bins=50)[0]
+    y = binned_statistic(res, pred, statistic='std', bins=50)[0]
+    fitfunc = lambda c , x: c[0]*np.sqrt(x)+c[1]*x+c[2]
+    errfunc = lambda c , x, y: (y - fitfunc(c, x))
+    out = leastsq(errfunc, [1., 0.1, 0.], args=(x, y), full_output=1)
+    c = out[0]
+    
+    def likelihood_loss(y_true, y_pred):
+        epsilon = tf.constant(0.0000001)
+        mu = y_pred
+        sigma = c[0]*tf.sqrt(y_true)+c[1]*y_true+c[2]
+        first_part = tf.divide(tf.square(mu - y_true),
+                               2.*tf.square(sigma)+epsilon)
+        a = tf.divide(150.-mu, tf.sqrt(2.)*sigma+epsilon)
+        b = tf.divide(30.-mu, tf.sqrt(2.)*sigma+epsilon)
+        penalty = tf.erf(a) - tf.erf(b)
+        loss = first_part + tf.log(penalty+epsilon) + tf.log(tf.sqrt(2.*np.pi)*sigma+epsilon)
+        return tf.reduce_mean(loss)
+    return likelihood_loss
+
+##############################################################
+#                        _      _                            #
+#        /\/\   ___   __| | ___| |                           #
+#       /    \ / _ \ / _` |/ _ \ |                           #
+#      / /\/\ \ (_) | (_| |  __/ |                           #
+#      \/    \/\___/ \__,_|\___|_|                           #
+##############################################################
 
 
 # network architecture parameters
-ppm_sizes = (50, 100, 128)
-dense_sizes = (200, 100, 100, 50)
-
-
-def binned_max_likelihood_loss(y_true, y_pred):
-    epsilon = tf.constant(0.0000001)
-    mu = y_pred
-    sigma = 0.9*tf.sqrt(y_true)
-    first_part = tf.divide(tf.square(mu - y_true),
-                           2.*tf.square(sigma)+epsilon)
-    a = tf.divide(mu-30., tf.sqrt(2.)*sigma+epsilon)
-    b = tf.divide(mu-150., tf.sqrt(2.)*sigma+epsilon)
-    penalty = tf.erf(a) - tf.erf(b)
-    loss = first_part + tf.log(penalty+epsilon) + tf.log(sigma+epsilon)
-    value_range = [30., 150.]
-    # binning in y_true
-    indices = tf.histogram_fixed_width_bins(y_true, value_range, nbins=50)
-    # build mean per bin
-    loss_per_bin = tf.math.unsorted_segment_mean(loss, indices, 50)
-    return tf.reduce_mean(loss_per_bin, axis=None, keepdims=False)
-
-
-def likelihood_loss(y_true, y_pred):
-    epsilon = tf.constant(0.0000001)
-    mu = y_pred
-    sigma = 0.815*tf.sqrt(y_true)
-    first_part = tf.divide(tf.square(mu - y_true),
-                           2.*tf.square(sigma)+epsilon)
-    a = tf.divide(150.-mu, tf.sqrt(2.)*sigma+epsilon)
-    b = tf.divide(30.-mu, tf.sqrt(2.)*sigma+epsilon)
-    penalty = tf.erf(a) - tf.erf(b)
-    loss = first_part + tf.log(penalty+epsilon) + tf.log(sigma+epsilon)
-    return tf.reduce_mean(loss, axis=None, keepdims=False)
-
+ppm_sizes = (100, 100, 128)
+dense_sizes = (100, 100, 100)
 
 pfn = PFN(input_dim=4,
           ppm_sizes=ppm_sizes,
           dense_sizes=dense_sizes,
           output_dim=1,
           output_act='linear',
-          loss=binned_max_likelihood_loss,
-          metrics=[accuracy, mean_pred],
-          opt=adam)
+          loss='mse',
+          metrics=[accuracy])
 
-# pfn.model.load_weights("pfn_weights.h5")
+D = pfn.model
+
+n = 20 
+def produce_results(save_name):
+    D.save_weights("pfnet_weights.h5")
+    D.save_weights
+    pred = D.predict_generator(val_Gen)
+    pred = pred.reshape(len(pred),)
+    res = {'pred': pred,
+           'history' : history}
+    results[save_name] = res
 
 
 #############################################################
@@ -148,25 +171,41 @@ pfn = PFN(input_dim=4,
 #                                  |___/                    #
 #############################################################
 
-epochs = 30
-train_Gen = DataGenerator(batch_size=256, train=True)
-val_Gen = DataGenerator(batch_size=256, train=False)
+epochs = 5
+train_Gen = DataGenerator(batch_size=1024, train=True)
+val_Gen = DataGenerator(batch_size=1024, train=False)
+rmsprop = RMSprop(lr=0.0001)
 
-hist_update = pfn.model.fit_generator(train_Gen,
-                                      # use_multiprocessing=True,
-                                      # workers=3,
-                                      max_queue_size=10,
-                                      epochs=epochs,
-                                      validation_data=val_Gen,
-                                      validation_steps=len(val_Gen)).history
+results = {}
+results['y_true'] = val_Gen.dump_res()
 
-history.update([('loss', history['loss'] + hist_update['loss']),
-                ('val_loss', history['val_loss'] + hist_update['val_loss']),
-                ('accuracy', history['accuracy'] + hist_update['accuracy']),
-                ('val_accuracy', history['val_accuracy'] + hist_update['val_accuracy']),
-                ('mean_pred', history['mean_pred'] + hist_update['mean_pred']),
-                ('val_mean_pred', history['val_mean_pred'] + hist_update['val_mean_pred'])])
+###############################################################################
 
+D.compile(loss='mse', optimizer=rmsprop, metrics=[accuracy])
 
-pfn.model.save_weights("pfn_weights.h5")
-pickle.dump(history, open("pfn_history.p", "wb"))
+history = D.fit_generator(train_Gen,
+                          epochs=epochs,
+                          validation_data=val_Gen,
+                          validation_steps=3).history
+
+produce_results('first')
+
+###############################################################################
+epochs = 1
+for i in range(10):
+    pred = D.predict_generator(train_Gen)
+    res = train_Gen.dump_res()
+    pred = pred.reshape(len(pred),)
+
+    D.compile(loss=make_binned_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
+
+    history = D.fit_generator(train_Gen,
+                              epochs=epochs,
+                              validation_data=val_Gen,
+                              validation_steps=len(val_Gen)).history
+
+    produce_results(str(i))
+
+################################################################################
+
+pickle.dump(results, open("../results/pfnet_binned_2_results.p", "wb"))

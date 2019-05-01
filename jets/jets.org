@@ -126,8 +126,6 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 [[file:./obipy-resources/Yr0l3C.png]]
 :END:
 
-
-
 #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
   plt.plot(genjet_pt, R_reco, 'b.', alpha=0.002)
   plt.xlabel(r'GenJet $P_T$')

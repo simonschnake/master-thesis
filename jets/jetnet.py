@@ -19,15 +19,6 @@ from scipy.stats import binned_statistic
 from scipy.optimize import leastsq
 import tensorflow as tf
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-mpl.rcParams['text.usetex'] = True
-mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
-mpl.rcParams['mathtext.fontset'] = 'stix'
-mpl.rcParams['font.family'] = 'STIXGeneral'
-mpl.rcParams['font.size'] = 15
-mpl.rcParams['axes.labelsize'] = 15
-
 ##############################################################
 #  _                 _ _                  ___      _         #
 # | | ___   __ _  __| (_)_ __   __ _     /   \__ _| |_ __ _  #
@@ -65,27 +56,14 @@ class DataGenerator(Sequence):
         return self.y[:, 7][:len(self)*self.batch_size]
 
 
-history = {'loss': [], 'val_loss': []}
-
-##############################################################
-#                        _      _                            #
-#        /\/\   ___   __| | ___| |                           #
-#       /    \ / _ \ / _` |/ _ \ |                           #
-#      / /\/\ \ (_) | (_| |  __/ |                           #
-#      \/    \/\___/ \__,_|\___|_|                           #
-##############################################################
-
-inputs = Input(shape=(200, 4,))
-Dx = Flatten()(inputs)
-Dx = Dense(800, activation="relu")(Dx)
-Dx = Dense(700, activation="relu")(Dx)
-Dx = Dense(600, activation="relu")(Dx)D
-yx = Dense(500, activation="relu")(Dx)
-Dx = Dense(400, activation="relu")(Dx)
-Dx = Dense(300, activation="relu")(Dx)
-Dx = Dense(200, activation="relu")(Dx)
-Dx = Dense(1, activation="linear")(Dx)
-D = Model([inputs], [Dx], name='D')
+##################################################################
+#  _                    ______                _   _              #
+# | |                   |  ___|              | | (_)             #
+# | |     ___  ___ ___  | |_ _   _ _ __   ___| |_ _  ___  _ __   #
+# | |    / _ \/ __/ __| |  _| | | | '_ \ / __| __| |/ _ \| '_ \  #
+# | |___| (_) \__ \__ \ | | | |_| | | | | (__| |_| | (_) | | | | #
+# \_____/\___/|___/___/ \_|  \__,_|_| |_|\___|\__|_|\___/|_| |_| #
+##################################################################
 
 
 def mean_squared_percentage_error(y_true, y_pred):
@@ -102,6 +80,31 @@ def accuracy(y_true, y_pred):
     mu = K.abs(K.mean(R, axis=-1)-1.)
     sigma = K.std(R, axis=-1)
     return K.exp(-mu-sigma)
+
+def make_binned_loss(res, pred):
+    x = binned_statistic(res, res, statistic='mean', bins=50)[0]
+    y = binned_statistic(res, pred, statistic='std', bins=50)[0]
+    fitfunc = lambda c , x: c[0]*np.sqrt(x)+c[1]*x+c[2]
+    errfunc = lambda c , x, y: (y - fitfunc(c, x))
+    out = leastsq(errfunc, [1., 0.1, 0.], args=(x, y), full_output=1)
+    c = out[0]
+    def binned_max_likelihood_loss(y_true, y_pred):
+        epsilon = tf.constant(0.0000001)
+        mu = y_pred
+        sigma = 0.9*tf.sqrt(y_true)
+        first_part = tf.divide(tf.square(mu - y_true),
+                               2.*tf.square(sigma)+epsilon)
+        a = tf.divide(mu-30., tf.sqrt(2.)*sigma+epsilon)
+        b = tf.divide(mu-150., tf.sqrt(2.)*sigma+epsilon)
+        penalty = tf.erf(a) - tf.erf(b)
+        loss = first_part + tf.log(penalty+epsilon) + tf.log(sigma+epsilon)
+        value_range = [30., 150.]
+        # binning in y_true
+        indices = tf.histogram_fixed_width_bins(y_true, value_range, nbins=50)
+        # build mean per bin
+        loss_per_bin = tf.math.unsorted_segment_mean(loss, indices, 50)
+        return tf.reduce_mean(loss_per_bin, axis=None, keepdims=False)
+    return binned_max_likelihood_loss
 
 def make_loss(res, pred):
     x = binned_statistic(res, res, statistic='mean', bins=50)[0]
@@ -124,9 +127,36 @@ def make_loss(res, pred):
         return tf.reduce_mean(loss)
     return likelihood_loss
 
+##############################################################
+#                        _      _                            #
+#        /\/\   ___   __| | ___| |                           #
+#       /    \ / _ \ / _` |/ _ \ |                           #
+#      / /\/\ \ (_) | (_| |  __/ |                           #
+#      \/    \/\___/ \__,_|\___|_|                           #
+##############################################################
 
-rmsprop = RMSprop(lr=0.0001)
-D.compile(loss='mse', optimizer=rmsprop, metrics=[accuracy])
+inputs = Input(shape=(200, 4,))
+Dx = Flatten()(inputs)
+Dx = Dense(800, activation="relu")(Dx)
+Dx = Dense(700, activation="relu")(Dx)
+Dx = Dense(600, activation="relu")(Dx)
+yx = Dense(500, activation="relu")(Dx)
+Dx = Dense(400, activation="relu")(Dx)
+Dx = Dense(300, activation="relu")(Dx)
+Dx = Dense(200, activation="relu")(Dx)
+Dx = Dense(1, activation="linear")(Dx)
+D = Model([inputs], [Dx], name='D')
+
+n = 20 
+def produce_results(save_name):
+    D.save_weights("jetnet_weights.h5")
+    D.save_weights
+    pred = D.predict_generator(val_Gen)
+    pred = pred.reshape(len(pred),)
+    res = {'pred': pred,
+           'history' : history}
+    results[save_name] = res
+
 
 #############################################################
 #  _____           _       _                   __     _     #
@@ -137,83 +167,41 @@ D.compile(loss='mse', optimizer=rmsprop, metrics=[accuracy])
 #                                  |___/                    #
 #############################################################
 
-epochs = 1
+epochs = 5
 train_Gen = DataGenerator(batch_size=1024, train=True)
 val_Gen = DataGenerator(batch_size=1024, train=False)
+rmsprop = RMSprop(lr=0.0001)
 
-hist_update = D.fit_generator(train_Gen,
+results = {}
+results['y_true'] = val_Gen.dump_res()
+
+###############################################################################
+
+D.compile(loss='mse', optimizer=rmsprop, metrics=[accuracy])
+
+history = D.fit_generator(train_Gen,
+                          epochs=epochs,
+                          validation_data=val_Gen,
+                          validation_steps=3).history
+
+produce_results('first')
+
+###############################################################################
+epochs = 1
+for i in range(10):
+    pred = D.predict_generator(train_Gen)
+    res = train_Gen.dump_res()
+    pred = pred.reshape(len(pred),)
+
+    D.compile(loss=make_binned_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
+
+    history = D.fit_generator(train_Gen,
                               epochs=epochs,
                               validation_data=val_Gen,
                               validation_steps=len(val_Gen)).history
 
-# history.update([('loss', history['loss'] + hist_update['loss']),
-#                 ('val_loss', history['val_loss'] +
-#                  hist_update['val_loss'])])
+    produce_results(str(i))
 
-D.save_weights("first_weights.h5")
+################################################################################
 
-pred = D.predict_generator(train_Gen)
-res = train_Gen.dump_res()
-pred = pred.reshape(len(pred),)
-
-D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
-
-hist_update = D.fit_generator(train_Gen,
-                              epochs=epochs,
-                              validation_data=val_Gen,
-                              validation_steps=len(val_Gen)).history
-
-history.update([('loss', history['loss'] + hist_update['loss']),
-                ('val_loss', history['val_loss'] +
-                 hist_update['val_loss'])])
-
-pred = D.predict_generator(train_Gen)
-res = train_Gen.dump_res()
-pred = pred.reshape(len(pred),)
-
-D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
-
-hist_update = D.fit_generator(train_Gen,
-                              epochs=epochs,
-                              validation_data=val_Gen,
-                              validation_steps=len(val_Gen)).history
-
-history.update([('loss', history['loss'] + hist_update['loss']),
-                ('val_loss', history['val_loss'] +
-                 hist_update['val_loss'])])
-
-D.save_weights("second_weights.h5")
-
-pred = D.predict_generator(train_Gen)
-res = train_Gen.dump_res()
-pred = pred.reshape(len(pred),)
-
-D.compile(loss=make_loss(res, pred), optimizer=rmsprop, metrics=[accuracy])
-
-hist_update = D.fit_generator(train_Gen,
-                              epochs=epochs,
-                              validation_data=val_Gen,
-                              validation_steps=len(val_Gen)).history
-
-history.update([('loss', history['loss'] + hist_update['loss']),
-                ('val_loss', history['val_loss'] +
-                 hist_update['val_loss'])])
-
-pred = D.predict_generator(train_Gen)
-res = train_Gen.dump_res()
-pred = pred.reshape(len(pred),)
-
-D.compile(loss=make_loss(res, pred), optimizer= RMSprop(lr=0.000001), metrics=[accuracy])
-
-hist_update = D.fit_generator(train_Gen,
-                              epochs=epochs,
-                              validation_data=val_Gen,
-                              validation_steps=len(val_Gen)).history
-
-history.update([('loss', history['loss'] + hist_update['loss']),
-                ('val_loss', history['val_loss'] +
-                 hist_update['val_loss'])])
-
-
-D.save_weights("third_weights.h5")
-pickle.dump(history, open("first_history.p", "wb"))
+pickle.dump(results, open("../results/jetnet_binned_results.p", "wb"))
