@@ -1887,11 +1887,39 @@ by the analysis. Further analysis is needed to investigate this.  In
 the same way, the alternative loss function could reduce the boundary
 effect, but not eliminate it altogether.
 
-** Conclusion and Outlook
+* Conclusion
+
+A calorimeter could be simulated during the work. This calorimeter was
+used to train various networks in energy determination. Using data
+augmentation the overfitting of the networks could be reduced. The
+application of Adversarial Training to reduce systematic errors was
+unsuccessful.  From the distribution of the values, a loss function
+could be inferred, which greatly reduces the systematic
+deviations. The principle behind this design is universal. It could be
+shown that a Convolutional Neural Net is better suited for the
+regression of calorimeter data than a Fully Connected Neural Net. The
+performance of the networks was significantly higher than that of a
+linear fit.
+
+In the second part of the analysis, networks for jet energy
+calibration were trained.  The approach of the Loss function design
+could be extended and reduced the systematic deviations caused by the
+limited value range. In addition to a Fully Connected Neural Net, a
+Particle Flow Network could also be trained. The overall performance
+of the two architecture types was approximately identical. Both
+network types performed about 15% better than the jet algorithm.
+
+All in all it could be shown that regression in particle physics is a
+good field to apply deep learning. This allows to achieve better
+performances than traditional algorithms. However, machine learning
+algorithms still lack robustness against systematic
+deviations. Further research is needed to overcome this
+problem. Neither the architectural design, the hyper parameter tuning
+nor the input variable design was really treated in the study. This
+will be investigated in further studies. Stay tuned.
+
 
 \include{_eidversicherung}
 
 bibliographystyle:unsrt
 bibliography:bibliography.bib
-
-
