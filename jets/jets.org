@@ -23,7 +23,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[2]:
+# Out[1]:
 :END:
 
 * Loading Data                                                     :noexport:
@@ -40,7 +40,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[3]:
+# Out[2]:
 :END:
 
 * Plots for SlimmedJet P_t Reco
@@ -62,7 +62,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[4]:
+# Out[3]:
 :END:
 
 Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSIM/NoPUNoAging_100X_upgrade2018_realistic_v10-v1
@@ -80,8 +80,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[5]:
-[[file:./obipy-resources/cR15yr.png]]
+# Out[4]:
+[[file:./obipy-resources/LOaTW3.png]]
 :END:
 
 
@@ -101,8 +101,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[6]:
-[[file:./obipy-resources/SX88a8.png]]
+# Out[5]:
+[[file:./obipy-resources/rA7ddh.png]]
 :END:
   
 #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
@@ -122,8 +122,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[7]:
-[[file:./obipy-resources/NLKODX.png]]
+# Out[6]:
+[[file:./obipy-resources/Yr0l3C.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
@@ -135,8 +135,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[8]:
-[[file:./obipy-resources/5QL6bn.png]]
+# Out[7]:
+[[file:./obipy-resources/BI6oGH.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
@@ -154,8 +154,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[9]:
-[[file:./obipy-resources/7aVk9t.png]]
+# Out[8]:
+[[file:./obipy-resources/TjPXIq.png]]
 :END:
 
 
@@ -175,8 +175,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[10]:
-[[file:./obipy-resources/n20wtx.png]]
+# Out[9]:
+[[file:./obipy-resources/RETcV6.png]]
 :END:
 
 
@@ -191,8 +191,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[11]:
-[[file:./obipy-resources/MyKEx2.png]]
+# Out[10]:
+[[file:./obipy-resources/SgxvRt.png]]
 :END:
 
 
@@ -207,8 +207,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[12]:
-[[file:./obipy-resources/2wDH06.png]]
+# Out[11]:
+[[file:./obipy-resources/ztrAgy.png]]
 :END:
 
 
@@ -221,8 +221,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[13]:
-[[file:./obipy-resources/itPcJO.png]]
+# Out[12]:
+[[file:./obipy-resources/dJjXNb.png]]
 :END:
 
 
@@ -238,8 +238,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[14]:
-[[file:./obipy-resources/l3DNG0.png]]
+# Out[13]:
+[[file:./obipy-resources/g9nQ2m.png]]
 :END:
 
 * Plot for Neural Net
@@ -260,7 +260,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
   Dx = Dense(1, activation="linear")(Dx)
   D = Model([inputs], [Dx], name='D')
 
-  D.load_weights("first_weights.h5")
+  D.load_weights("second_weights.h5")
 
   jet_pt_nn = D.predict(pfVal).reshape(len(pfVal),)
   R_nn = jet_pt_nn/genjet_pt
@@ -268,13 +268,107 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[15]:
+# Out[16]:
+:END:
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  D.load_weights("first_weights.h5")
+  jet_pt_first = D.predict(pfVal).reshape(len(pfVal),)
+  D.load_weights("second_weights.h5")
+  jet_pt_second = D.predict(pfVal).reshape(len(pfVal),)
+  D.load_weights("third_weights.h5")
+  jet_pt_third = D.predict(pfVal).reshape(len(pfVal),)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[20]:
+:END:
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  b = 20
+
+  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=b)[0]
+
+  y = binned_statistic(genjet_pt, jet_pt-genjet_pt, statistic=t_mean, bins=b)[0]
+  plt.plot(x, y)
+
+  y = binned_statistic(genjet_pt, jet_pt_first-genjet_pt, statistic=t_mean, bins=b)[0]
+  plt.plot(x, y)
+  
+  y = binned_statistic(genjet_pt, jet_pt_second-genjet_pt, statistic=t_mean, bins=b)[0]
+  plt.plot(x, y)
+
+  y = binned_statistic(genjet_pt, jet_pt_third-genjet_pt, statistic=t_mean, bins=b)[0]
+  plt.plot(x, y)
+
+  plt.ylim([-10.,10.])
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[63]:
+: (-10.0, 10.0)
+[[file:./obipy-resources/S8urYy.png]]
 :END:
 
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  b = 20
+
+  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=b)[0]
+
+  y = binned_statistic(genjet_pt, jet_pt/np.sqrt(genjet_pt), statistic=t_std, bins=b)[0]
+  plt.plot(x, y)
+
+  y = binned_statistic(genjet_pt, jet_pt_first/np.sqrt(genjet_pt), statistic=t_std, bins=b)[0]
+  plt.plot(x, y)
+
+  y = binned_statistic(genjet_pt, jet_pt_third/np.sqrt(genjet_pt), statistic=t_std, bins=b)[0]
+  plt.plot(x, y)
+
+  plt.ylim([0.5, 1.5])
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[65]:
+: (0.5, 1.5)
+[[file:./obipy-resources/4Jxd6x.png]]
+:END:
+
+
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  b = 20
+
+  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=b)[0]
+
+  y = binned_statistic(genjet_pt, jet_pt_first, statistic=t_std, bins=b)[0]
+  plt.plot(x, y)
+
+  y = binned_statistic(genjet_pt, jet_pt, statistic=t_std, bins=b)[0]
+  plt.plot(x, y)
+
+  y = binned_statistic(genjet_pt, jet_pt_second, statistic=t_std, bins=b)[0]
+  plt.plot(x, y)
+
+  y = binned_statistic(genjet_pt, jet_pt_third, statistic=t_std, bins=b)[0]
+  plt.plot(x, y)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[64]:
+: [<matplotlib.lines.Line2D at 0x7fb8242b2910>]
+[[file:./obipy-resources/NZ5UVj.png]]
+:END:
+
+
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
   plt.plot(genjet_pt, jet_pt, 'r.', alpha=0.002)
-  plt.plot(genjet_pt, jet_pt_nn, 'b.', alpha=0.002)
+  plt.plot(genjet_pt, jet_pt_third, 'b.', alpha=0.002)
   plt.xlabel(r'GenJet $P_T$')
   plt.ylabel(r'RecoJet $P_T$')
   plt.ylim([0., 200.]);
@@ -282,8 +376,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[16]:
-[[file:./obipy-resources/T3e2C5.png]]
+# Out[59]:
+[[file:./obipy-resources/CuCyWY.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
@@ -297,8 +391,8 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[17]:
-[[file:./obipy-resources/RbGtji.png]]
+# Out[60]:
+[[file:./obipy-resources/lzDKAu.png]]
 :END:
 
 #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
@@ -444,7 +538,35 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 #+RESULTS:
 :RESULTS:
-# Out[24]:
-[[file:./obipy-resources/eLXTXj.png]]
+# Out[215]:
+[[file:./obipy-resources/ANAVph.png]]
 :END:
 
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=50)[0]
+  y = binned_statistic(genjet_pt, jet_pt_nn, statistic='std', bins=50)[0]
+
+  fitfunc = lambda c , x: c[0]*np.sqrt(x)+c[1]*x+c[2]
+  errfunc = lambda c , x, y: (y - fitfunc(c, x))
+  out = leastsq(errfunc, [1., 0.1, 0.], args=(x, y), full_output=1)
+  c = out[0]
+  plt.plot(x, y)
+  plt.plot(x, fitfunc(c, x), 'b-')     # Fit
+
+  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=50)[0]
+  y = binned_statistic(genjet_pt, jet_pt, statistic='std', bins=50)[0]
+
+  fitfunc = lambda c , x: c[0]*np.sqrt(x)+c[1]*x+c[2]
+  errfunc = lambda c , x, y: (y - fitfunc(c, x))
+  out = leastsq(errfunc, [1., 0.1, 0.], args=(x, y), full_output=1)
+  c = out[0]
+  plt.plot(x, y)
+  plt.plot(x, fitfunc(c, x), 'b-')     # Fit
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[216]:
+[[file:./obipy-resources/918eTo.png]]
+:END:
