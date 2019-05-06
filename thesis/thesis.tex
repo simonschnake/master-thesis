@@ -325,8 +325,10 @@ Figure \ref{bremsstrahlung}.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.8 \textwidth]{../images/bremsstrahlung.png}
-\caption{\label{fig:org38d2e17}
-Illustration of the different fractions of energy loss of electrons and positrons when passing through lead \cite{PhysRevD.98.030001}.}
+\label{bremsstrahlung}
+\caption{ Illustration of the different fractions of energy loss of
+  electrons and positrons when passing through lead
+  \cite{PhysRevD.98.030001}.}
 \end{figure}
 
 \section{Hadronic Interactions With Matter}
@@ -523,7 +525,7 @@ state. The classes, which are used to describe the components, are
 transferred to the \texttt{RunManager} from this state
 \cite{geant4-doc} . There are three required and five optional
 classes. The required classes are the
-\texttt{G4VUserDetectorConstruction} class, a physics list, and a
+\texttt{G4VUserDetector Construction} class, a physics list, and a
 \texttt{G4PrimaryGeneratorAction} class, which is used to generate
 primary particles and vertices. The used detector geometry is defined
 by the \texttt{G4VUserDetectorConstruction} class. The
@@ -538,7 +540,7 @@ direction. Furthermore, there is the option to generate several
 particles at once or to assign a polarization direction to the
 particle \cite{geant4-doc}. After the submission of the classes to the
 \texttt{RunManager} the initialization of the kernel takes place. It
-starts with calling the \texttt{Initialize()} method of the
+starts with calling the \texttt{Initialize} method of the
 \texttt{RunManager}. During the initialization the application is in
 the initialization state and changes to the standby state after
 successful execution \cite{geant4-doc}. From this state the start of a
@@ -751,7 +753,7 @@ The Compact Muon Solenoid Detector was specially developed to
 characterize the proton-proton collisions at a center-of-mass energy
 of 14 TeV. The CMS detector runs cylindrically around the beam axis
 with a radius of 15m and a length of 21.6m. The basic setup including
-the subcomponents of the CMS detector is shown in Figure
+the subcomponents of the CMS detector is shown in figure
 \ref{cms-detector} in the transverse plane.  From the inside out, the
 detector consists of a track detector, an electromagnetic calorimeter
 (ECAL), a hadronic calorimeter (HCAL) and a muon system.  Inside the
@@ -942,22 +944,25 @@ Hz and 1 kHz.
 \section{Particle Flow}
 \label{sec:org5293ff6}
 
-The particle flow reconstruction algorithm is used in the CMS experiment. The
-identification and reconstruction of individual particles from the proton-proton
-collisions at the LHC is achieved by combining the information from the
-different detector systems. By combining the energy deposition in the
-calorimeters with the data measured by the trace detector and the muon system,
-very small uncertainties on the measured particle four-vectors are achieved. The
-combination of the information is carried out with a view to an optimal
-determination of the direction and energy of the particles. Due to the different
-interactions in the detector, the observed particle type can be determined with
-high probability.  The CMS detector is ideally suited for the use of this
-algorithm as it has a precise tracker. As shown in Figure xx, the muons traverse
-all detector components and then leave signals in the inner source detector and
-in the muon chambers. Photons deposit most of their energy in the ECAL, whereas
-the charged leptons leave additional traces in the trace detector. The pulse of
-the charged hadrons is recorded in all positions up to HCAL, while neutral
-hadrons can only be measured in the HCAL.
+The particle flow reconstruction algorithm is used in the CMS
+experiment. The identification and reconstruction of individual
+particles from the proton-proton collisions at the LHC is achieved by
+combining the information from the different detector systems. By
+combining the energy deposition in the calorimeters with the data
+measured by the trace detector and the muon system, very small
+uncertainties on the measured particle four-vectors are achieved. The
+combination of the information is carried out with a view to an
+optimal determination of the direction and energy of the
+particles. Due to the different interactions in the detector, the
+observed particle type can be determined with high probability.  The
+CMS detector is ideally suited for the use of this algorithm as it has
+a precise tracker. As shown in Figure \ref{cms-detector}, the muons
+traverse all detector components and then leave signals in the inner
+source detector and in the muon chambers. Photons deposit most of
+their energy in the ECAL, whereas the charged leptons leave additional
+traces in the trace detector. The pulse of the charged hadrons is
+recorded in all positions up to HCAL, while neutral hadrons can only
+be measured in the HCAL.
 
 In the first step, the PF algorithm reconstructs the detected muons and elctrons
 and subtracts them from the measured signals for further processing in order to
@@ -992,12 +997,12 @@ distance between particles i and j in eta-phi space via
 \Delta_{ij}^{2} = (\eta_{i} - \eta_{j})^{2} + (\phi_{i} - \phi_{j})^{2}
 \end{align}
 
-and R specifies the maximum radius if the shape of the jet is assumed to be a
-cone in r-eta-phi space. The factor k determines the behavior of the
-algorithm. For k=1 the equation \eqref{jet_algo} describes the
-so-called k\_t algorithm, for k=-1 the anti k\_t algorithm and for k=0 the
-Cambridge/Aachen algorithm. Figure \todo{bild einfügen} shows how the different
-algorithms differ from each other.
+and R specifies the maximum radius if the shape of the jet is assumed
+to be a cone in r-eta-phi space. The factor k determines the behavior
+of the algorithm. For k=1 the equation \eqref{jet_algo} describes the
+so-called k\_t algorithm, for k=-1 the anti k\_t algorithm and for k=0
+the Cambridge/Aachen algorithm.
+% Figure \todo{bild einfügen} shows how the different algorithms differ from each other.
 
 These algorithms fulfill two essential properties. They provide collinear and
 infrared security. A jet algorithm is referred to as infrared safe if the
@@ -1324,7 +1329,7 @@ f(\{x_1, ... , x_M \}) = f(\{x_{\pi(1)}, ... , x_{\pi(M)}\})
 Such a function is permutations invariant if it can be decomposed into
 the form
 \begin{align}
-\rho\left( \sum_{x\in X} \phi(x) \right.  
+\rho\left( \sum_{x\in X} \phi(x) \right)gy.  
 \end{align}
 
 Moreover, for a sufficiently large \(l\) with the continuous functions
@@ -1368,20 +1373,21 @@ simulation data. In addition, existing adversities were overcome.
 Geant4 \cite{geant_simul_toolk} was used to simulate a calorimeter
 with a layer structure similar to the structure of the CMS hadron
 calorimeter. The calorimeter has a length of 931.5 mm and a height and
-width of 300 mm. The layer structure is listed in table x. The first
-layer consists of a 9mm thick scintillator layer and a 40mm thick
-stainless steel layer. The steel layers in CMS HCAL are the carriers
-holding the calorimeter. The first layer is followed by 8 layers, each
-consisting of a 3.7 mm thick scintillator and a 50.5 mm thick brass
-absorber. This is followed by layers of 3.7 mm thick scintillators,
-whereas 56.5 mm thick brass plates follow.  The last two layers
-consist of a 3.7 mm scintillator, followed by a 75 mm steel holder,
-completed with a 9 mm scintillator. Each scintillator layer consists
-of 64 equal-sized scintillator tiles with each with a height and width
-of 75 mm.
+width of 300 mm. The layer structure is listed in table
+\ref{fcn_structure}. The first layer consists of a 9mm thick
+scintillator layer and a 40mm thick stainless steel layer. The steel
+layers in CMS HCAL are the carriers holding the calorimeter. The first
+layer is followed by 8 layers, each consisting of a 3.7 mm thick
+scintillator and a 50.5 mm thick brass absorber. This is followed by
+layers of 3.7 mm thick scintillators, whereas 56.5 mm thick brass
+plates follow.  The last two layers consist of a 3.7 mm scintillator,
+followed by a 75 mm steel holder, completed with a 9 mm
+scintillator. Each scintillator layer consists of 64 equal-sized
+scintillator tiles with each with a height and width of 75 mm.
 
 \begin{table}[htbp]
-\caption{\label{tab:org9d1e87f}
+  \label{fcn_structure}
+\caption{
 The structure of the layers in the simulation is reflected in the values listed below.}
 \centering
 \begin{tabular}{rrrl}
@@ -1456,7 +1462,8 @@ distribution. The result is shown in Figure \ref{e-vs-sum_n_fit}.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../images/data_display.pdf}
-\caption{\label{fig:org7b634ac}
+\label{data_display}
+\caption{
 The three-dimensional structure of a data sample is visulaized by an example event of an incoming electron with 9.14172 GeV}
 \end{figure}
 
@@ -1469,8 +1476,14 @@ compared with the fully connected neural net.
 The layer structure of the first network is shown in table \ref{fcn_structure}.
 
 \begin{table}[htbp]
-\caption{\label{tab:org9c50f0f}
-The structure of the fully connected network is shown. The first column shows the different types of layers of the network, which here are only dense mapping the Keras type of a fully connected layer. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column shows the number of free parameters or weights of each layer.}
+  \label{fcn$_{structure}$}
+  \caption{ The structure of the fully connected network is shown. The
+    first column shows the different types of layers of the network,
+    which here are only dense mapping the Keras type of a fully
+    connected layer. The second column shows the number of nodes in
+    each layer. The third column shows all activation functions and
+    the last column shows the number of free parameters or weights of
+    each layer.}
 \centering
 \begin{tabular}{lrlr}
 Type & \(\#\) Nodes & Activation & \(\#\) Params\\
@@ -1494,8 +1507,14 @@ connected network is linked. The layer structure is shown in table
 \ref{conv_structure}.
 
 \begin{table}[htbp]
-\caption{\label{tab:org1045333}
-The structure of the 3D convolutional network is presented. The first column shows the different types of layers of the network. The 3D vectors behind the Conv3D are the kernel dimensions. The second column shows the number of nodes in each layer. The third column shows all activation functions and the last column shows the number of free parameters or weights of each layer.}
+  \label{conv_structure}
+  \caption{The structure of the 3D convolutional network is
+    presented. The first column shows the different types of layers of
+    the network. The 3D vectors behind the Conv3D are the kernel
+    dimensions. The second column shows the number of nodes in each
+    layer. The third column shows all activation functions and the
+    last column shows the number of free parameters or weights of each
+    layer.}
 \centering
 \begin{tabular}{lrlr}
 Type & \(\#\) Nodes & Activation & \(\#\) Params\\
@@ -1524,8 +1543,10 @@ of 128.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../images/dense_loss.pdf}
-\caption{\label{fig:orge8cf1b9}
-The Graph shows the evolution of the loss function for the training set and the validation set. The trained network was the fully connected network described above.}
+\label{dense_loss}
+\caption{The Graph shows the evolution of the loss function for the
+  training set and the validation set. The trained network was the
+  fully connected network described above.}
 \end{figure}
 
 In figure \ref{dense_loss} the loss function is shown. While the loss
@@ -1537,8 +1558,11 @@ each point of the data set and not the structure of the data.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../images/dense_scatter.pdf}
-\caption{\label{fig:org886b7bf}
-10000 data points are plotted in a scatter plot between \(E_\text{pred}\) and Etrue for the network and the fit. The blue background shows the results of the linear fit. In the foreground, the results of the fully connected neural net are shown in black.}
+\label{dense_scatter}
+\caption{ 10000 data points are plotted in a scatter plot between
+  \(E_\text{pred}\) and Etrue for the network and the fit. The blue
+  background shows the results of the linear fit. In the foreground,
+  the results of the fully connected neural net are shown in black.}
 \end{figure} 
 
 In the scatter plot in figure \ref{dense_scatter} the results of the
@@ -1551,8 +1575,14 @@ the distribution.  The network shows hardly any values for
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../images/dense_res.pdf}
-\caption{\label{fig:org4b8f228}
-The results of the neural network and the linear fit are compared with each other in the two graphs. The total data points were divided into 20 bins and then the mean and standard deviation of these bins were calculated. The upper graph shows the deviation of the mean values of Epred versus the mean values of Etrue. In the lower plot the standard deviation of Epred is plotted for each bin divided by the root of the mean energy.}
+\label{dense_res}
+\caption{ The results of the neural network and the linear fit are
+  compared with each other in the two graphs. The total data points
+  were divided into 20 bins and then the mean and standard deviation
+  of these bins were calculated. The upper graph shows the deviation
+  of the mean values of Epred versus the mean values of Etrue. In the
+  lower plot the standard deviation of Epred is plotted for each bin
+  divided by the root of the mean energy.}
 \end{figure} 
 
 The results of the neural network and the linear fit are compared with each
@@ -1597,8 +1627,12 @@ necessarily the case with real detector data.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../images/data_augment_loss.pdf}
-\caption{\label{fig:orgf671fb1}
-The value of the loss function is shown after each epoch for the fully connected network. Val and train stand for the value of the loss function on the validation set and the training set. Neural net denotes the network without data augmentation, while data augmentation stands for the network with data augmentation.}
+\label{da_loss}
+\caption{The value of the loss function is shown after each epoch for
+  the fully connected network. Val and train stand for the value of
+  the loss function on the validation set and the training set. Neural
+  net denotes the network without data augmentation, while data
+  augmentation stands for the network with data augmentation.}
 \end{figure} 
 
 As shown in figure \ref{da_loss}, the overfitting for our dataset can be
@@ -1852,8 +1886,14 @@ network has no tendency to higher values.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../images/likelihood_res.pdf}
-\caption{\label{fig:orgac188af}
-The results of the neural network and the linear fit are compared in the two graphs. The total data points were divided into 20 bins and then the mean and standard deviation of these bins were calculated. The upper graph shows the deviation of the mean values of Epred versus the mean values of Etrue. In the lower plot the standard deviation of Epred is plotted for each Bin divided by the root of the mean energy.}
+\label{likelihood_res}
+\caption{ The results of the neural network and the linear fit are
+  compared in the two graphs. The total data points were divided into
+  20 bins and then the mean and standard deviation of these bins were
+  calculated. The upper graph shows the deviation of the mean values
+  of Epred versus the mean values of Etrue. In the lower plot the
+  standard deviation of Epred is plotted for each Bin divided by the
+  root of the mean energy.}
 \end{figure}
 
 \section{Comparison of network architectures}
@@ -1870,14 +1910,15 @@ likelihood loss to solve the boundary problems.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../images/arch_comparison.pdf}
-\caption{\label{fig:org83b4caf} The results of the fully connected
-  network and the convolutional network are presented and the linear
-  fit are compared in the two graphs. The total data points were
-  divided into 20 bins and then the mean and standard deviation of
-  these bins were calculated. The upper graph shows the deviation of
-  the mean values of Epred versus the mean values of Etrue. In the
-  lower plot the standard deviation of Epred is plotted for each Bin
-  divided by the root of the mean energy.}
+\label{arch_comparison}
+\caption{ The results of the fully connected network and the
+  convolutional network are presented and the linear fit are compared
+  in the two graphs. The total data points were divided into 20 bins
+  and then the mean and standard deviation of these bins were
+  calculated. The upper graph shows the deviation of the mean values
+  of Epred versus the mean values of Etrue. In the lower plot the
+  standard deviation of Epred is plotted for each Bin divided by the
+  root of the mean energy.}
 \end{figure}
 
 Figure \ref{arch_comparison} shows the different resolutions of the
@@ -1915,8 +1956,9 @@ taken into account in contrast to the last chapter.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../images/jet_distri.pdf}
-\caption{\label{fig:orga8fe027}
-The distribution of the jets after \(P_T\) on generator level is plotted.}
+\label{jet_distri}
+\caption{ The distribution of the jets after \(P_T\) on generator
+  level is plotted.}
 \end{figure}
 
 In total the training set consists of 14786472 jets which were divided
@@ -2027,11 +2069,10 @@ R = \frac{P_{T, \text{Reco}}}{P_{T, \text{Gen}}}.
 The resulting \(R\) points of the Reco algorithm and the Jetnet in relation to \(P_{T, \text{Gen}}\) are displayed.}
 \end{figure}
 
-The figure \ref{jetnet_R_scatter} shows the results of the Reco
-algorithm and the neural network in a scatter plot. MSE was used as
-loss function for the neural network. Through the truncated value
-range the systematic deviations similar to the previous chapter can be
-seen.
+Figure \ref{jetnet_R_scatter} shows the results of the Reco algorithm
+and the neural network in a scatter plot. MSE was used as loss
+function for the neural network. Through the truncated value range the
+systematic deviations similar to the previous chapter can be seen.
 
  
 \begin{figure}[htbp]
@@ -2054,9 +2095,9 @@ persist even after multiple iterations.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../images/jetnet_res.pdf}
-\label{fig:orgd3e3a0f}
-\caption{
-  The standard deviation by the root of \(P_{T, \text{Gen}}\) in relation to \(P_{T, \text{Gen}}\) is represented.
+\label{jetnet_res}
+\caption{ The standard deviation by the root of \(P_{T, \text{Gen}}\)
+  in relation to \(P_{T, \text{Gen}}\) is represented.}
 \end{figure}
 
 In figure \ref{jetnet_res} the resolution is shown. You can see that all
@@ -2082,7 +2123,7 @@ three layers of 100 nodes each followed by a linear output node.
 The mean values of the R distribution are represented as a function of \(P_{T, \text{Gen}}\). Reco stands for the Reco algorithm. MSE for the PFNet with 'mse' as loss function. 1st and 2nd stand for the first and second iteration with different loss function.}
 \end{figure}
 
-The figure \ref{pfnet_R} shows the mean values of the R
+Figure \ref{pfnet_R} shows the mean values of the R
 distribution. The results are very similar to those of the Jetnet. You
 can see that the alternative loss function helps to eliminate the kink
 at the beginning.  Overall the entire distribution has a systematic
@@ -2106,7 +2147,7 @@ second iteration.
 
 The last paragraph compares the two networks. In Fig. \ref{comp_R} it can be seen that the R distribution of the two network types is almost identical.
 
-\todo{farben fixen}
+% \todo{farben fixen}
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../images/comp_R.pdf}
@@ -2121,7 +2162,7 @@ The mean values of the R distribution are represented in dependence to \(P_{T, \
 The standard deviation by the root of \(P_{T, \text{Gen}}\) in relation to \(P_{T, \text{Gen}}\) is represented.}
 \end{figure}
 
-The figure \ref{comp_res} shows that this also applies to the
+Figure \ref{comp_res} shows that this also applies to the
 resolution. The PFNet has fewer deviations from the edges. In the
 middle, however, the lines are comparable.
 
