@@ -1,0 +1,589 @@
+#+Title: Jets
+#+Author: Simon Schnake
+#+LATEX_HEADER: \usepackage{physics}
+#+LATEX_HEADER: \usepackage{amssymb}
+#+OPTIONS: toc:nil
+
+* Setup                                                            :noexport:
+Here are the needed packages. Also to config matplotlib for latex export
+
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  # !cd /home/schnakes/master-thesis
+  import matplotlib as mpl
+  import matplotlib.pyplot as plt
+  import matplotlib.mlab as mlab
+  mpl.rcParams['text.usetex'] = True
+  mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+  mpl.rcParams['mathtext.fontset'] = 'stix'
+  mpl.rcParams['font.family'] = 'STIXGeneral'
+  mpl.rcParams['font.size'] = 15
+  mpl.rcParams['axes.labelsize'] = 15
+  %matplotlib inline
+
+  import numpy as np
+  import pickle
+  from scipy.stats import binned_statistic
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[3]:
+:END:
+
+* JETVERTEILUNG
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  y = pickle.load(open('./results/y_values.p', 'rb'))
+
+  event_nr = y[:, 0]
+  jet_nr = y[:, 1]
+  event_weight = y[:, 2]
+  jet_pt = y[:, 3]
+  partonflavour = y[:, 6]
+  genjet_pt = y[:, 7]
+  genjet_eta = y[:, 8]
+  genjet_phi = y[:, 9]
+
+ #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[4]:
+:END:
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  plt.hist(genjet_pt, bins=np.arange(30., 151., 10), log=True, alpha=0.75, color='#1f77b4')
+  plt.xlim([30.,150.])
+  # plt.ylim([10**2.,10**4.])
+  plt.xlabel(r'Gen $P_{T}$')
+  plt.ylabel(r'Numb. of Jets');
+
+  plt.savefig('images/jet_distri.pdf', bbox_inches = 'tight', transparent=True)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[10]:
+[[file:./obipy-resources/HFQ9kN.png]]
+:END:
+
+
+* JETNET
+** Data Loading
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  
+  jetnet = pickle.load(open('./results/jetnet_binned2_results.p', 'rb'))
+
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[2]:
+:END:
+
+** Scatter MSE
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+
+  func = lambda c, x: c[0]*x+c[1] 
+  fig, ax = plt.subplots()
+  plt.plot(genjet_pt[:10000], jet_pt[:10000]/genjet_pt[:10000], '.', alpha=0.25, markersize=3, color='#BF616A')
+  plt.plot(genjet_pt[:10000], jetnet['first']['pred'][:10000]/genjet_pt[:10000], '.', alpha=0.25, markersize=3, color='k')
+  
+  plt.ylim([0., 2.])
+  # plt.xlim([0.,10])
+
+  plt.text(135, 0.5, 'MSE', ha='left', va='center', size=18, weight='bold', color='k')
+  plt.text(135, 1.4, 'Reco', ha='left', va='center', size=18, color='#BF616A', weight='bold')
+  plt.xlabel(r"$P_{T, \text{Gen}}$")
+  plt.ylabel(r"$R$")
+
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)  
+  ax.spines["left"].set_visible(False)
+  ax.spines["bottom"].set_visible(False)  
+  plt.savefig('images/jetnet_R_scatter.pdf', bbox_inches = 'tight', transparent=True)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[3]:
+[[file:./obipy-resources/2vdZIH.png]]
+:END:
+
+** Mean R
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  fig, ax = plt.subplots()
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)
+ 
+  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_pt, jet_pt, statistic='mean', bins=25)[0]
+  plt.plot(x, y/x, '-', linewidth=3.0, color='#BF616A')
+  plt.text(x[-1] + 1, y[-1]/x[-1], 'Reco', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
+
+  y = binned_statistic(genjet_pt, jetnet['first']['pred'], statistic='mean', bins=25)[0]
+  plt.plot(x, y/x, '-', color='k', linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/x[-1], 'MSE', ha='left', va='center', size=15,  color='k', weight='bold')
+
+
+  y = binned_statistic(genjet_pt, jetnet['1']['pred'], statistic='mean', bins=25)[0]
+  plt.plot(x, y/x, '-', color='#D08770' , linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/x[-1], '1st', ha='left', va='center', size=15,  color='#D08770', weight='bold')
+
+  
+  y = binned_statistic(genjet_pt, jetnet['4']['pred'], statistic='mean', bins=25)[0]
+  plt.plot(x, y/x, '-', color='#3B4252', linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/x[-1], '2nd', ha='left', va='center', size=15,  color='#3B4252', weight='bold')
+  
+  plt.ylim([0.9, 1.15])
+
+
+  plt.xlabel(r"$P_{T, \text{Gen}}$")
+  plt.ylabel(r"$R$")
+  plt.savefig('images/jetnet_R.pdf', bbox_inches = 'tight', transparent=True)
+
+
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[951]:
+[[file:./obipy-resources/ak97sV.png]]
+:END:
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  fig, ax = plt.subplots()
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)
+ 
+  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_pt, jet_pt, statistic='std', bins=25)[0]
+  plt.plot(x, y/np.sqrt(x), 'k-', linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1], 'Reco', ha='left', va='center', size=15,  color='k', weight='bold')
+
+  r1 = np.mean(y/np.sqrt(x))
+
+
+  y = binned_statistic(genjet_pt, jetnet['first']['pred'], statistic='std', bins=25)[0]
+  plt.plot(x, y/np.sqrt(x), '-', color='#BF616A', linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1], 'MSE', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
+
+
+  y = binned_statistic(genjet_pt, jetnet['1']['pred'], statistic='std', bins=25)[0]
+  plt.plot(x, y/np.sqrt(x), '-', color='#D08770' , linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]+0.01, '1st', ha='left', va='center', size=15,  color='#D08770', weight='bold')
+
+  
+  y = binned_statistic(genjet_pt, jetnet['3']['pred'], statistic='std', bins=25)[0]
+  plt.plot(x, y/np.sqrt(x), '-', color='#3B4252', linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]-0.01, '2nd', ha='left', va='center', size=15,  color='#3B4252', weight='bold')
+
+  plt.xlabel(r"$P_{T, \text{Gen}}$")
+  plt.ylabel(r"$\sigma/\sqrt{P_{T, \text{Gen}}}$")
+  plt.savefig('images/jetnet_res.pdf', bbox_inches = 'tight', transparent=True)
+
+  r2 = np.mean(y[3:]/np.sqrt(x[3:]))
+  print(r1/r2-1)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[952]:
+[[file:./obipy-resources/sdcn85.png]]
+:END:
+
+* PFNET
+
+
+#+RESULTS:
+:RESULTS:
+# Out[8]:
+:END:
+
+** Data Loading
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  pfnet = pickle.load(open('./results/pfnet_binned_2_results.p', 'rb'))
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[946]:
+:END:
+
+** Scatter MSE
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+
+  func = lambda c, x: c[0]*x+c[1] 
+  fig, ax = plt.subplots()
+  plt.plot(genjet_pt[:10000], jet_pt[:10000]/genjet_pt[:10000], '.', alpha=0.25, markersize=3, color='#BF616A')
+  plt.plot(genjet_pt[:10000], pfnet['first']['pred'][:10000]/genjet_pt[:10000], '.', alpha=0.25, markersize=3, color='k')
+  
+  plt.ylim([0., 2.])
+  # plt.xlim([0.,10])
+
+  plt.text(135, 0.5, 'MSE', ha='left', va='center', size=18, weight='bold', color='k')
+  plt.text(135, 1.4, 'Reco', ha='left', va='center', size=18, color='#BF616A', weight='bold')
+  plt.xlabel(r"$P_{T, \text{Gen}}$")
+  plt.ylabel(r"$R$")
+
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)  
+  ax.spines["left"].set_visible(False)
+  ax.spines["bottom"].set_visible(False)  
+  plt.savefig('images/pfnet_R_scatter.pdf', bbox_inches = 'tight', transparent=True)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[953]:
+[[file:./obipy-resources/dS3dyD.png]]
+:END:
+
+** Mean R
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  fig, ax = plt.subplots()
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)
+ 
+  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_pt, jet_pt, statistic='mean', bins=25)[0]
+  plt.plot(x, y/x, '-', linewidth=3.0, color='#BF616A')
+  plt.text(x[-1] + 1, y[-1]/x[-1], 'Reco', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
+
+  y = binned_statistic(genjet_pt, pfnet['first']['pred'], statistic='mean', bins=25)[0]
+  plt.plot(x, y/x, '-', color='k', linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/x[-1], 'MSE', ha='left', va='center', size=15,  color='k', weight='bold')
+
+
+  y = binned_statistic(genjet_pt, pfnet['1']['pred'], statistic='mean', bins=25)[0]
+  plt.plot(x, y/x, '-', color='#D08770' , linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/x[-1]-0.001, '1st', ha='left', va='center', size=15,  color='#D08770', weight='bold')
+
+  
+  y = binned_statistic(genjet_pt, pfnet['8']['pred'], statistic='mean', bins=25)[0]
+  plt.plot(x, y/x, '-', color='#3B4252', linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/x[-1]+0.001, '2nd', ha='left', va='center', size=15,  color='#3B4252', weight='bold')
+
+  plt.ylim([0.9, 1.15])
+
+  plt.xlabel(r"$P_{T, \text{Gen}}$")
+  plt.ylabel(r"$R$")
+  plt.savefig('images/pfnet_R.pdf', bbox_inches = 'tight', transparent=True)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[948]:
+[[file:./obipy-resources/mX6E9B.png]]
+:END:
+
+** Scatter MSE
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  fig, ax = plt.subplots()
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)
+ 
+  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_pt, jet_pt, statistic='std', bins=25)[0]
+  plt.plot(x, y/np.sqrt(x), 'k-', linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1], 'Reco', ha='left', va='center', size=15,  color='k', weight='bold')
+
+  r1 = np.mean(y/np.sqrt(x))
+
+
+  y = binned_statistic(genjet_pt, pfnet['first']['pred'], statistic='std', bins=25)[0]
+  plt.plot(x, y/np.sqrt(x), '-', color='#BF616A', linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]+0.01, 'MSE', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
+
+
+  y = binned_statistic(genjet_pt, pfnet['1']['pred'], statistic='std', bins=25)[0]
+  plt.plot(x, y/np.sqrt(x), '-', color='#D08770' , linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]-0.01, '1st', ha='left', va='center', size=15,  color='#D08770', weight='bold')
+
+  
+  y = binned_statistic(genjet_pt, pfnet['5']['pred'], statistic='std', bins=25)[0]
+  plt.plot(x, y/np.sqrt(x), '-', color='#3B4252', linewidth=3.0)
+  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]-0.02, '2nd', ha='left', va='center', size=15,  color='#3B4252', weight='bold')
+
+  plt.xlabel(r"$P_{T, \text{Gen}}$")
+  plt.ylabel(r"$\sigma/\sqrt{P_{T, \text{Gen}}}$")
+  
+  plt.savefig('images/pfnet_res.pdf', bbox_inches = 'tight', transparent=True)
+
+  r2 = np.mean(y[3:]/np.sqrt(x[3:]))
+  print(r1/r2-1)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[954]:
+[[file:./obipy-resources/8XrYk8.png]]
+:END:
+
+
+* Comparison
+
+*** Mean R
+ #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+   fig, ax = plt.subplots()
+   ax.spines["top"].set_visible(False)
+   ax.spines["right"].set_visible(False)
+ 
+   x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
+   y = binned_statistic(genjet_pt, jet_pt, statistic='mean', bins=25)[0]
+   plt.plot(x, y/x, '-', linewidth=3.0, color='#BF616A')
+   plt.text(x[-1] + 1, y[-1]/x[-1], 'Reco', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
+
+   y = binned_statistic(genjet_pt, pfnet['8']['pred'], statistic='mean', bins=25)[0]
+   plt.plot(x, y/x, '-', color='k', linewidth=3.0)
+   plt.text(x[-1] + 1, y[-1]/x[-1]-0.01, 'PFNET', ha='left', va='center', size=15,  color='k', weight='bold')
+
+  
+   y = binned_statistic(genjet_pt, jetnet['4']['pred'], statistic='mean', bins=25)[0]
+   plt.plot(x, y/x, '-', color='#BF616A', linewidth=3.0)
+   plt.text(x[-1] + 1, y[-1]/x[-1]+0.01, 'JETNET', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
+
+   plt.ylim([0.9, 1.15])
+
+   plt.xlabel(r"$P_{T, \text{Gen}}$")
+   plt.ylabel(r"$R$")
+   plt.savefig('images/comp_R.pdf', bbox_inches = 'tight', transparent=True)
+ #+END_SRC
+
+ #+RESULTS:
+ :RESULTS:
+ # Out[955]:
+ [[file:./obipy-resources/scTW4G.png]]
+ :END:
+
+
+ #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+   fig, ax = plt.subplots()
+   ax.spines["top"].set_visible(False)
+   ax.spines["right"].set_visible(False)
+ 
+   x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
+   y = binned_statistic(genjet_pt, jet_pt, statistic='std', bins=25)[0]
+   plt.plot(x, y/np.sqrt(x), '-', linewidth=3.0, color='#BF616A')
+   plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1], 'Reco', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
+
+   y = binned_statistic(genjet_pt, pfnet['8']['pred'], statistic='std', bins=25)[0]
+   plt.plot(x, y/np.sqrt(x), '-', color='k', linewidth=3.0)
+   plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]-0.002, 'PFNET', ha='left', va='center', size=15,  color='k', weight='bold')
+
+  
+   y = binned_statistic(genjet_pt, jetnet['4']['pred'], statistic='std', bins=25)[0]
+   plt.plot(x, y/np.sqrt(x), '-', color='#BF616A', linewidth=3.0)
+   plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]+0.005, 'JETNET', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
+
+   plt.xlabel(r"$P_{T, \text{Gen}}$")
+   plt.ylabel(r"$R$")
+
+   plt.xlabel(r"$P_{T, \text{Gen}}$")
+   plt.ylabel(r"$\sigma/\sqrt{P_{T, \text{Gen}}}$")
+   
+   plt.savefig('images/comp_res.pdf', bbox_inches = 'tight', transparent=True)
+   
+   r2 = np.mean(y[3:]/np.sqrt(x[3:]))
+   print(r1/r2-1)
+ #+END_SRC
+
+ #+RESULTS:
+ :RESULTS:
+ # Out[950]:
+ [[file:./obipy-resources/RoOeJ2.png]]
+ :END:
+
+* Plots for other Values
+
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+jet_pt_nn = pfnet['8']['pred']
+R_nn = jet_pt_nn/genjet_pt
+R_reco = jet_pt/genjet_pt
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[92]:
+:END:
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  plt.plot(genjet_pt, jet_pt, 'r.', alpha=0.002)
+  plt.plot(genjet_pt, jet_pt_nn, 'b.', alpha=0.002)
+  plt.xlabel(r'GenJet $P_T$')
+  plt.ylabel(r'RecoJet $P_T$')
+  plt.ylim([0., 200.]);
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[93]:
+[[file:./obipy-resources/tcgSEL.png]]
+:END:
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_pt, jet_pt_nn, statistic='mean', bins=25)[0]
+  dy = binned_statistic(genjet_pt, jet_pt, statistic='std', bins=25)[0]
+  plt.errorbar(x, y, yerr=dy, fmt='o', color='k')
+  plt.xlabel(r'GenJet $P_T$')
+  plt.ylabel(r'NNJet $P_T$');
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[94]:
+[[file:./obipy-resources/LrONR7.png]]
+:END:
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  plt.hist(genjet_pt, bins=np.arange(30., 151., 10), log=True, alpha=0.65, color='r', label='GenJet')
+  plt.hist(jet_pt_nn, bins=np.arange(30., 151., 10), log=True, alpha=0.65, color='#1f77b4', label='NNJet')
+  plt.xlim([30.,150.])
+  # plt.ylim([10**2.,10**4.])
+  plt.xlabel(r'Gen $P_{t}$')
+  plt.ylabel(r'Numb. of Jets')
+  plt.legend(frameon=False);
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[95]:
+[[file:./obipy-resources/5RmPMo.png]]
+:END:
+
+
+  
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  from scipy.stats import t as student_t
+  from scipy.stats import norm
+  n, bins, patches = plt.hist(R_reco, bins=np.arange(0.,2.1,0.01), normed=1, alpha=0.75, color='r', label='RecoJet')
+  n, bins, patches = plt.hist(R_nn, bins=np.arange(0.,2.1,0.01), normed=1, alpha=0.75, color='#1f77b4', label='NNJet')
+  (df, loc, scale) = student_t.fit(R_nn)
+  pdf_x = np.linspace(0.0,2,100)
+  pdf_y = student_t.pdf(pdf_x, df, loc, scale)
+  plt.plot(pdf_x,pdf_y, 'k--')
+  plt.text(0, 3.5, r'$\mu_{\text{nn}}=%.3f$'%loc)
+  plt.text(0, 3.25, r'$\sigma_{\text{nn}}=%.4f$'%scale)
+  (df, loc, scale) = student_t.fit(R_reco)
+  pdf_y = student_t.pdf(pdf_x, df, loc, scale)
+  plt.text(0, 2.5, r'$\mu_{\text{reco}}=%.3f$'%loc)
+  plt.text(0, 2.25, r'$\sigma_{\text{reco}}=%f$'%scale)
+  plt.plot(pdf_x,pdf_y, 'k--')
+  pdf_y = norm.pdf(pdf_x, loc, scale)
+  plt.title(r'$\text{student}_{\text{t}}$-Fit R-Distribution')
+  plt.xlabel('R')
+  plt.ylabel('pdf')
+  plt.legend(frameon=False);
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[98]:
+[[file:./obipy-resources/MOC7Rp.png]]
+:END:
+
+
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  plt.plot(genjet_pt, R_nn, '.', color='#1f77b4', alpha=0.003, label='NNJet')
+  plt.plot(genjet_pt, R_reco, '.', color='r', alpha=0.002, label='RecoJet')
+  plt.xlabel(r'GenJet $P_T$')
+  plt.ylabel('R')
+  plt.ylim([0.,2.])
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[99]:
+: (0.0, 2.0)
+[[file:./obipy-resources/15ugAZ.png]]
+:END:
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  from scipy.stats import binned_statistic
+
+  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_pt, R_nn, statistic='mean', bins=25)[0]
+  dy = binned_statistic(genjet_pt, R_nn, statistic='std', bins=25)[0]
+  plt.errorbar(x-1, y, yerr=dy, fmt='o', color='k', label='NNJet')
+  y = binned_statistic(genjet_pt, R_reco, statistic='mean', bins=25)[0]
+  dy = binned_statistic(genjet_pt, R_reco, statistic='std', bins=25)[0]
+  plt.errorbar(x+1, y, yerr=dy, fmt='o', color='r', label='RecoJet')
+  plt.xlabel(r'GenJet $P_T$')
+  plt.ylabel(r'$R$')
+  plt.legend(frameon=False);
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[101]:
+[[file:./obipy-resources/8cF920.png]]
+:END:
+
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  x = binned_statistic(genjet_pt[partonflavour == 21], genjet_pt[partonflavour == 21], statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_pt[partonflavour == 21], R_nn[partonflavour == 21], statistic='mean', bins=25)[0]
+  dy = binned_statistic(genjet_pt[partonflavour == 21], R_nn[partonflavour == 21], statistic='std', bins=25)[0]
+  plt.errorbar(x-1., y, yerr=dy, fmt='o', color='r', label='gluon')
+  x = binned_statistic(genjet_pt[partonflavour < 21], genjet_pt[partonflavour < 21], statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_pt[partonflavour < 21], R_nn[partonflavour < 21], statistic='mean', bins=25)[0]
+  dy = binned_statistic(genjet_pt[partonflavour < 21], R_nn[partonflavour < 21], statistic='std', bins=25)[0]
+  plt.errorbar(x+1., y, yerr=dy, fmt='o', color='k', label='quark')
+  plt.xlabel(r'GenJet $P_T$')
+  plt.ylabel(r'$R$');
+  plt.legend(frameon=False);
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[102]:
+[[file:./obipy-resources/YnRtW6.png]]
+:END:
+
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export 
+  x = binned_statistic(genjet_eta, genjet_eta, statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_eta, R_nn, statistic='mean', bins=25)[0]
+  dy = binned_statistic(genjet_eta, R_nn, statistic='std', bins=25)[0]
+  plt.errorbar(x+0.1, y, yerr=dy, fmt='o', color='k', label='NNJet')
+  y = binned_statistic(genjet_eta, R_reco, statistic='mean', bins=25)[0]
+  dy = binned_statistic(genjet_eta, R_reco, statistic='std', bins=25)[0]
+  plt.errorbar(x-0.1, y, yerr=dy, fmt='o', color='r', label='RecoJet')
+  plt.xlabel(r'GenJet $\eta$')
+  plt.ylabel(r'$R$')
+  plt.legend(frameon=False);
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[103]:
+[[file:./obipy-resources/CMIDBE.png]]
+:END:
+
+
+#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+  x = binned_statistic(genjet_phi, genjet_phi, statistic='mean', bins=25)[0]
+  y = binned_statistic(genjet_phi, R_nn, statistic='mean', bins=25)[0]
+  dy = binned_statistic(genjet_phi, R_nn, statistic='std', bins=25)[0]
+  plt.errorbar(x+0.05, y, yerr=dy, fmt='o', color='k', label='NNJet')
+  y = binned_statistic(genjet_phi, R_reco, statistic='mean', bins=25)[0]
+  dy = binned_statistic(genjet_phi, R_reco, statistic='std', bins=25)[0]
+  plt.errorbar(x-0.05, y, yerr=dy, fmt='o', color='r', label='RecoJet')
+  plt.xlabel(r'GenJet $\phi$')
+  plt.ylabel(r'$R$')
+  plt.legend(frameon=False);
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[104]:
+[[file:./obipy-resources/w9WYjs.png]]
+:END:
+
