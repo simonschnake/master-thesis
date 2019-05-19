@@ -1374,6 +1374,44 @@ Komiske et al \cite{komiske19_energ_flow_networ}.
 \chapter{Calorimetry Energy Analyis}
 \label{sec:orgb9c4fb7}
 
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[>=latex']
+    \tikzset{block/.style= {rectangle, draw, fill=blue!20, text width=6em, text centered, rounded corners, minimum height=4em, node distance=3.5cm},
+      input/.style={ % requires library shapes.geometric
+        draw,
+        minimum width=2cm,
+        align=center,
+        minimum height=1cm
+      },
+    }
+    \node [block] (calosim) {calo sim};
+    \node [block, right of=calosim] (linfit) {linear fit};
+    \node [block, right of=linfit] (fcn) {FCN};
+    \node [block, right of=fcn] (dataaug) {data augmentation};
+    \node [block, below right= 2cm and -0.5cm of calosim] (cnn) {ConvNet};
+    \node [block, right of=cnn] (adv) {adversarial training};
+    \node [block, right of=adv] (like) {likelihood loss};
+    \node [block, right of=like] (achiev) {achievments};
+
+    \node [coordinate, below right =1cm and 1cm of dataaug] (right) {};  %% Coordinate on right and middle
+    \node [coordinate,above left =1cm and 1cm of cnn] (left) {};  %% Coordinate on left and middle
+    
+    %% paths
+    \path[draw,->] (calosim) edge (linfit)
+    (linfit) edge (fcn)
+    (fcn) edge (dataaug)
+    (dataaug.east) -| (right) -- (left) |- (cnn)
+    (cnn) edge (adv)
+    (adv) edge (like)
+    (like) edge (achiev);
+  \end{tikzpicture}
+  \caption{\added{The Graph displayes the structure of the analysis
+      performed in this chapter}}
+  \label{calo-analysis-flow}
+\end{figure}
+
+
 In this chapter, the possibility to improve the resolution in the
 energy measurement of a calorimeter by using deep learning will be
 presented. For this purpose, two different networks are trained with
