@@ -40,8 +40,8 @@
 
 Particle collisions such as those at the Large Hadron Collider (LHC)
 \cite{lhc_machine} produce gigantic amounts of data. With the High
-Lumi Update \cite{bruening19_high_lumin_large_hadron_collid}, this
-amount will increase considerably, which will require new analysis
+Lumi Upgrade \cite{bruening19_high_lumin_large_hadron_collid}, this
+amount will increase considerably, requiring new analysis
 techniques to gain new insights from the data. The progress in the
 area of machine learning in recent years offers a toolbox of new
 analysis techniques that can be applied to particle physics. In this
@@ -49,36 +49,37 @@ thesis some possibilities of this application are presented.
 
 This work does not remain the only one in this pursuit, in recent
 years considerable progress has been made in certain areas of particle
-physics. One aspect is that existing searches can be supported by the
-help of deep learning
+physics using deep learning. One aspect is that existing searches can
+be supported by the help of deep learning
 \cite{baldi14_searc_exotic_partic_high_energ,baldi15_enhan_higgs_boson_to_with_deep_learn,santos17_machin_learn_techn_searc_decay_chann}.
 Furthermore it is also possible to use deep learning for model
 independent searches
-\cite{dagnolo19_learn_new_physic_from_machin,simone19_guidin_new_physic_searc_with_unsup_learn,heimel19_qcd_or_what}
+\cite{dagnolo19_learn_new_physic_from_machin,simone19_guidin_new_physic_searc_with_unsup_learn,heimel19_qcd_or_what}.
 Pile-up can be detected
 \cite{komiske17_pileup_mitig_with_machin_learn_pumml}.  In addition,
 machine learning can be used to identify jets
 \cite{komiske19_energ_flow_networ,cogan15_jet_images,oliveira16_jet_images_deep_learn_edition,baldi16_jet_subst_class_high_energ,barnard17_parton_shower_uncer_jet_subst,kasieczka17_deep_learn_top_tagger_or_end_qcd,datta17_how_much_infor_is_jet,komiske17_deep_learn_color}.
 These are merely a few examples from the broad field of research that
-has established itself in recent years.
+was established in recent years.
 
-This work will deal with low level data, especially calorimeter cell data, and
-with high level variables such as clustered particles from individual jets.  The
-aim here is to apply different techniques, such as resolution improvement.
+This work will deal with low level data, especially calorimeter cell
+data, and with high level variables such as clustered particles from
+individual jets.  The aim here is to apply different techniques in
+order to improve the energy resolution of those devices.
 
 The following chapter gives a brief overview of particle physics. The
-third chapter is following up with a discussion over particles in
-matter and calorimetry. Afterwards, Geant5, one of the most commonly
-used, analysis tools, is presented. In chapter 5 the Large Hadron
-Collider, the CMS Detector, the Particle Flow Algorithm as well as jet
-clustering and energy correction are described. Some aspects of deep
-learning that play an important role in this work are discussed
-afterwards. In the seventh chapter the first part of the analysis will
-be presented. This part presents the application of some deep learning
-algorithms in calorimetry resolution improvement. Followed by the
-second part of the analysis. Here the developed techniques and a
-special form of a neural net, the `Particle Flow Network` are applied
-to jet calibration. Chapter 9 concludes the work with a summary and an
+third chapter is following up with a discussion over particles
+introducing matter and of calorimetry. Afterwards, Geant5, one of the
+most commonly used analysis tools, is presented. In chapter 5 the
+Large Hadron Collider, the CMS Detector, the Particle Flow Algorithm
+as well as jet clustering and energy correction are described. Some
+aspects of deep learning that play an important role in this work are
+discussed afterwards. In the seventh chapter the first part of the
+analysis will be presented. This part presents the application of some
+deep learning algorithms in calorimetry resolution improvement. In the
+second part of the analysis, the developed techniques and a special
+form of a neural net, the `Particle Flow Network` are applied to jet
+calibration. Chapter 9 concludes the work with a summary and an
 outlook.
 
 \chapter{Particle Physics}
@@ -87,7 +88,7 @@ This chapter briefly outlines the core areas of particle
 physics. Which are relevant for this work. The Standard Model of
 Particle Physics and further topics are considered.
 
-\section{The Standard Model Of Particle Physics}
+\section{The Standard Model of Particle Physics}
 \label{sec:org862e92f}
 The Standard Model of Elementary Particle Physics summarizes the
 theoretical foundations of modern particle physics and describes the
@@ -103,7 +104,7 @@ to be point-like. Elementary particles can be divided into bosons and fermions
 according to their intrinsic angular momentum, the spin. Bosons have
 an integer positive spin and fermions have a positive half spin.
 
-\begin{figure}[h]
+\begin{figure}[H]
 
 \begin{tikzpicture}[x=1.2cm, y=1.2cm]
   \draw[round] (-0.5,0.5) rectangle (4.4,-1.5);
@@ -247,12 +248,13 @@ example, it becomes clear that it is more likely to find quarks for
 higher distances \(x\). In contrast, the gluons predominate within
 small distance.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.8 \textwidth]{../images/partondensity.jpeg}
 \caption{Representation of the distribution of the momentum fraction x of a parton multiplied by its parton distribution function f(x). The two graphs show the distribution at different energy transfers \cite{PhysRevD.98.030001}.}
-\end{figure}
 \label{bremsstrahlung}
+\end{figure}
+
 
 
 The new parton created during the collision will typically radiate
@@ -270,7 +272,7 @@ This chapter discusses the fundamental interactions between particles and
 matter.  Building on this, the principles of
 electromagnetic and hadronic calorimeters are explained.
 
-\section{Energy Loss Due To Ionisation}
+\section{Energy Loss Due to Ionisation}
 \label{sec:org57bbfcf}
 
 Charged particles moving through a medium lose energy through
@@ -293,7 +295,7 @@ their energy deposition is greatest when this range is reached. The
 characteristic peak in the energy deposition distribution is called
 the Bragg peak.
 
-\section{Interactions Of Electrons}
+\section{Interactions of Electrons}
 \label{sec:org978e80c}
 
 When passing through a material, electrons can deposit their energy in
@@ -322,16 +324,16 @@ energies is bremsstrahlung. With decreasing electron energy, the
 losses due to ionization increasingly dominate. This is shown in
 Figure \ref{bremsstrahlung}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.8 \textwidth]{../images/bremsstrahlung.png}
-\label{bremsstrahlung}
 \caption{ Illustration of the different fractions of energy loss of
   electrons and positrons when passing through lead
   \cite{PhysRevD.98.030001}.}
+\label{bremsstrahlung}
 \end{figure}
 
-\section{Hadronic Interactions With Matter}
+\section{Hadronic Interactions with Matter}
 \label{sec:org39e1a53}
 
 The development of hadronic showers is much more complicated than
@@ -412,7 +414,7 @@ noble gases, organic or inorganic scintillators are used in active layers
 of electromagnetic and hadronic calorimeters.
 
 \subsection{Electromagnetic Calorimeter}
-\label{sec:orgff20d8b}
+\label{sec:em-calo}
 
 The relative energy resolution of electromagnetic calorimeters is
 given by 
@@ -510,7 +512,7 @@ tracking by the detector and the simulation mechanisms. The last section of the
 chapter discusses with the definition of a detector geometry.
 
 
-\section{The Structure Of A Simulation}
+\section{The Structure of a Simulation}
 \label{sec:org08164e5}
 
 Each Geant4 application passes through different states during a
@@ -710,11 +712,12 @@ purpose it was designed with a centre-of-mass energy of \(\sqrt{s} = 14\) TeV an
 the associated luminosity of \(L = 10^{34} cm^{-2}s^{-1}\). 
 
 
-\label{4experiments}
-\begin{figure}[htbp]
+
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{../images/lhc.jpeg}
 \caption{The graph shows the four main experiments (ALICE, ATLAS, CMS and LHCb) at the LHC \cite{lhcmap}}
+\label{4experiments}
 \end{figure}
 
 
@@ -760,14 +763,14 @@ detector consists of a track detector, an electromagnetic calorimeter
 muon system there is a superconducting solenoid magnet with a diameter
 of about 6 m and a field strength of up to 4 T, which includes the
 calorimeters and trace detectors.
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.8 \textwidth]{../images/cms_detector.png}
-\label{cms-detector}
 \caption{Illustration of a tranverse slice of the CMS detector. Also specific particle interactions are shown \cite{sirunyan17}}
+\label{cms-detector}
 \end{figure}
 
-\subsection{Coordinate System And Conventions}
+\subsection{Coordinate System and Conventions} %
 \label{sec:org067f254}
 
 For a precise description of the functionality and the construction of
@@ -986,9 +989,9 @@ A large group of clustering algorithms can be defined by the general distance
 metrics
 
 \begin{align}
-d_{ij} = \min(p^{2k}_{T,i}, p^{2k}_{T,j}) \cdot \frac{\Delta^{2}_{ij}}{R^{2}}
+d_{ij} = \min(p^{2k}_{T,i}, p^{2k}_{T,j}) \cdot \frac{\Delta^{2}_{ij}}{R^{2}} \label{jet_algo}
 \end{align}
-\label{jet_algo}
+
 
  Here pt is the transverse momentum of a part l. delta describes the
 distance between particles i and j in eta-phi space via
@@ -1002,7 +1005,7 @@ to be a cone in r-eta-phi space. The factor k determines the behavior
 of the algorithm. For k=1 the equation \eqref{jet_algo} describes the
 so-called k\_t algorithm, for k=-1 the anti k\_t algorithm and for k=0
 the Cambridge/Aachen algorithm.
-% Figure \todo{bild einfügen} shows how the different algorithms differ from each other.
+%Figure \todo{bild einfügen} shows how the different algorithms differ from each other.
 
 These algorithms fulfill two essential properties. They provide collinear and
 infrared security. A jet algorithm is referred to as infrared safe if the
@@ -1078,19 +1081,20 @@ necessary and the procedure was individual for each case of
 application.  \emph{Deep learning}, on the other hand, is a type of
 representation learning where the raw data is presented to the machine
 and which automatically discovers the representation needed. In the
-case of deep learning this representation is obtained by composing
-non-linear layers which transform the representation in increasingly
-higher levels of abstraction.  With this composition, very manifold
-functions can be learned, which maps the raw input data into the
-desired solution. The core aspect of Deep Learning is that the
-features of the layers are not designed by humans but are learned from
-the machine.  Deep learning has lead to major breakthroughs in a wide
-variety of fields. The most prominent example would be the recognition
-of images \cite{szegedy15,NIPS2014_5573,farabet13,krizhevsky17} or
+case of deep learning with neural networks this representation is
+obtained by composing non-linear layers which transform the
+representation in increasingly higher levels of abstraction.  With
+this composition, very manifold functions can be learned, which maps
+the raw input data into the desired solution. The core aspect of Deep
+Learning is that the features of the layers are not designed by humans
+but are learned by the machine.  Deep learning has lead to major
+breakthroughs in a wide variety of fields. The most prominent example
+would be the recognition of images
+\cite{szegedy15,NIPS2014_5573,farabet13,krizhevsky17} or
 speech-to-text synthesis
-\cite{mikolov11_strat,hinton-speech,sainath13_deep} . However,
+\cite{mikolov11_strat,hinton-speech,sainath13_deep}. However,
 impressive success has also been achieved in completely different
-areas such as generating faces
+areas such as generating human faces
 \cite{karras17_progr_growin_gans_improv_qualit_stabil_variat} or
 predicting new drugs \cite{ma15_deep_neural_nets_as_method}.
 
@@ -1107,8 +1111,8 @@ input \(X\). This machine resembles an input-output mapping
 There are lots of ways to construct such a predictor. In deep learning this
 multivariate function, here denoted as the \emph{deep predictor} \(\hat{Y}(X)\), is
 constructed by blocks of hidden layers. Let \(\sigma^{[1]},...,\sigma^{[L]}\) be vectors of
-univariate non-linear activation functions. A semi-affine activation rule for
-each layer is given by
+univariate non-linear layer-wise activation functions. A semi-affine activation rule for
+each layer $l$ is given by
 
 \begin{align}
 \sigma^{[l]}_{W,b}(z) \coloneqq \sigma^{[l]}\left(W^{[l]} z + b^{[l]} \right)
@@ -1139,16 +1143,16 @@ This method to make machines learn was first developed by \emph{Frank
   Rosenblatt} \cite{rosenblatt58_percep}. He build his work on the
 model for neurons proposed by \emph{Warren McCulloch} and \emph{Walter
   Pitts} \cite{mcculloch43}, who showed that a neuron can be modeled
-as the summation of binary inputs and outputs a one or zero in
+as the summation of binary inputs and outputs, a one or zero in
 dependence upon an internal threshold. \emph{Rosenblatt's}
 \emph{Perceptron} contained one \emph{input layer}, one \emph{hidden
   layer} and one \emph{output layer}. He contributed to the idea of
-\emph{McCulloch} and \emph{Pitts} by describing a learning mechanics
+\emph{McCulloch} and \emph{Pitts} by describing a learning mechanism
 for the computational neuron. This algorithm starts with random
 inialized weighs and a training set. The output of the perceptron for
 the training set is computed. If the output is below the label the
 weights are increased. If the output is above the label the weights
-are decreased. This is iterated until outputs an labels are equal. The
+are decreased. This is iterated until output and labels are equal. The
 abstraction from the model of \emph{McCulloch} and \emph{Pitts} gives
 the predictor the name neural net.
 
@@ -1160,7 +1164,7 @@ is not linearly separable. The learning algorithm proposed by
 \emph{multilayer perceptron}, which are necessary for learning
 non-linearly separable functions. It was even proven that a multilayer
 perceptron is an universal approximator, which means that it is able
-to approximate any borel measurable function from one to finite
+to approximate any continuous function from one to finite
 dimensional space \cite{hornik89}. To compensate for learning
 inability of the multi layer perceptron the \emph{backpropagation}
 algorithm was developed.
@@ -1194,11 +1198,11 @@ To minimize \(\mathcal{L}\) the first order term has to be as negative as possib
 \begin{align}
 \abs{\pdv{\mathcal{L}(p)}{p} \Delta p} \leq \abs{\pdv{\mathcal{L}(p)}{p}} \abs{\Delta p} \quad &(\text{Cauchy-Schwarz}) \\
 \Rightarrow \Delta p = \eta \pdv{\mathcal{L}(p)}{p} \quad &(\text{maximum})\\
-\Leftrightarrow p \rightarrow p - \eta \pdv{\mathcal{L}(p)}{p}.
+\Leftrightarrow p \rightarrow p - \eta \pdv{\mathcal{L}(p)}{p} \quad &(0 \leq \eta \ll 1).
 \end{align}
 
 Here \(\eta\) is known as the learning rate, which is a hyperparameter, which
-value is not apriory distiguishable. The parameters \(p\) are updated until a
+value is not a priori determinable. The parameters \(p\) are updated until a
 minimization criterium is reached. The presented minimization technique is known
 as the \emph{steepest descent} or \emph{gradient descent} method \cite{cauchy}.
 
@@ -1215,8 +1219,12 @@ It is than straighforward to compute the derivation between the loss function an
  \pdv{\mathcal{L}}{b^{[l]}_{j}} &= \delta^{[l]}_{j}.
 \end{align}
 
-\begin{align}  \label{error-prop}
-\delta^{[l]}_{j}  = \pdv{\mathcal{L}}{z^{l}_{j}} = \sum^{N^{[l+1]}}_{k=1} \pdv{\mathcal{L}}{z_{k}^{[l+1]}}\pdv{{z_{k}^{[l+1]}}}{z_{j}^{[l]}} = \sum^{N^{[l+1]}}_{k=1} \delta^{[l+1]}_{k} \pdv{{z_{k}^{[l+1]}}}{z_{j}^{[l]}}.
+\begin{align}
+\delta^{[l]}_{j} = \pdv{\mathcal{L}}{z^{l}_{j}} =
+\sum^{N^{[l+1]}}_{k=1}
+\pdv{\mathcal{L}}{z_{k}^{[l+1]}}\pdv{{z_{k}^{[l+1]}}}{z_{j}^{[l]}} =
+\sum^{N^{[l+1]}}_{k=1} \delta^{[l+1]}_{k}
+\pdv{{z_{k}^{[l+1]}}}{z_{j}^{[l]}} \label{error-prop}.
 \end{align}
 
 With \eqref{z-def} the connection between \(z_{k}^{[l+1]}\) and \(z_{j}^{[l]}\),
@@ -1232,14 +1240,16 @@ In \eqref{error-prop} this gives
 \delta^{[l]}_{j} = \sum^{N^{[l+1]}}_{k=1} \delta^{[l+1]}_{k} W^{[l+1]}_{kj} \sigma'(z^{[l]}_{j}).
 \end{align}
 
-To conclude this discussion, as defined in \eqref{forward}, for computing
-\(a^{[l]}\) \(a^{[l-1]}\) is needed, so the whole computation of the predictor can
-be done in a \emph{forward pass} through the network. In opposition to that to
-compute the gradients for layer \(l\), the gradient of layer \(l+1\) is needed, so
-the computation of the gradients is a \emph{backward pass} through the network.
-This algorithm of computing the gradients is known as \emph{backpropagation}.
+To conclude this discussion, as defined in \eqref{forward}, for
+computing \(a^{[l]}\) the value of \(a^{[l-1]}\) is needed, so the
+whole computation of the predictor can be done in a \emph{forward
+  pass} through the network. In opposition to that to compute the
+gradients for layer \(l\), the gradient of layer \(l+1\) is needed, so
+the computation of the gradients is a \emph{backward pass} through the
+network.  This algorithm of computing the gradients is known as
+\emph{backpropagation}.
 
-Since the beginning of 1960s error minimisation through gradient
+Since the beginning of the 1960s error minimisation through gradient
 descent in systems related to deep learning were discussed
 \cite{Kelley1960,bryson1961,BRYSON-DENHAM-61A,PONTRYAGIN61A,dreyfus1962,Wilkinson1965,Amari1967TAP,bryson1969applied}.
 These algorithms were already efficient, as their derivative
@@ -1254,15 +1264,15 @@ Werbos in 1981 \cite{Werbos:81sensitivity}.
 \section{Convolutional Neural Networks}
 \label{sec:orgf8e2395}
 
-In this section a special form of a neural net, which is called the
-\emph{convolutional neural net}, is described. The basic idea behind
+In this section a special form of a neural network, which is called the
+\emph{convolutional neural network}(ConvNet), is described. The basic idea behind
 this algorith is that for data types like pictures features next to
-each other are more important than featured far away from each other.
+each other are more important than features far away from each other.
 
 A \emph{convolution} is a mathematical operation on two functions
 
 \begin{align}
- (x * w)(t) = \int x(a) w(t-a)\dd t.
+ (x * w)(t) = \int x(a) w(t-a)\dd a.
 \end{align}
 
 So the convolution for a given \(t\) is the average of \(x\) weighted
@@ -1284,33 +1294,34 @@ multidimensional.
 The discrete convolution operation can be viewed as a matrix multiplication with a
 sparse matrix.
 
-Traditional neural networks treat every input of the last layer
-appriori the same, while a convolutional neural network has sparse
+Traditional neural networks treat every input of the last layer a
+priori the same, while a convolutional neural network has sparse
 connections, which means multipication with a smaller kernel
 size. This leads also to smaller memory requirements for addional
-layers, because the weight sharing between the matrices.  Another key
+layers, due to weight sharing between the matrices.  Another key
 feature is that by parameter sharing a property called
 \emph{equivariance} is introduced, which means objects inside the data
 are processed translational invariant.
 
-In a typical application a convolutional filter is composed by three components.
-At first multiple convolutions are applied to the previous layer. Their output
-is than feed to an activation function, analog to a traditional neural net.  In
-the last stage the output is modified by a \emph{pooling} layer. A pooling function
-is a function which returns a statistics of an local area. A typical variant
-would be the maximum of a view adjacent data points. This modification is
+In a typical application a convolutional filter is composed by three
+components.  At first multiple convolutions are applied to the
+previous layer. Their output is than feed to an activation function,
+analog to a traditional neural net.  In the last stage the output is
+modified by a \emph{pooling} layer. A pooling function is a function
+which returns a statistics of a local area. A typical variant would be
+the maximum of a few adjacent data points. This modification is
 applied to reduce the dependence on small statistical fluctuations.
 
-The idea of convolutional filters is grouded in the paper of Hubel and
-Wiesel published in 1959 \cite{hubel59}. They showed that the visual
-cortex of cats contains neurons that responds to small regions of the
-visual space. They proposed a cascading model between this type of
-cells and more complex cells for pattern recognition. The first
+The idea of convolutional filters is grounded in the paper of Hubel
+and Wiesel published in 1959 \cite{hubel59}. They showed that the
+visual cortex of cats contains neurons that responds to small regions
+of the visual space. They proposed a cascading model between this type
+of cells and more complex cells for pattern recognition. The first
 convolutional neural net ever implemented was based on this work and
 introduced by Fukushima in 1980 \cite{neocognitron}. Fukushimas
 \emph{Neocognitron} implemented all fundamental ideas behind ConvNets.
-The first convolutional network trained by the backpropagation
-algoritm was the \emph{Time delay neural net} by Waibel et
+The first ConvNet trained by the backpropagation algoritm was the
+\emph{Time delay neural net} by Waibel et
 al. \cite{hampshire89,waibel90}, trained for speech recognition. Also
 the work by LeCun et al. has to be mentioned. They demonstrated the
 application of a backpropagating ConvNet to the recognition of
@@ -1320,34 +1331,34 @@ handwritting zip code digits \cite{lecun89}.
 \label{sec:orgde973b7}
 
 A set is a collection of objects that remain invariant under permutation. Each function that maps from a set \(X = \{x_1, ... , x_M \}\) to a space \(Y\) must have
-therefore be invariant under all permutations of its arguments.
+therefore be invariant under all permutations $\pi$ of its arguments.
 
 \begin{align}
 f(\{x_1, ... , x_M \}) = f(\{x_{\pi(1)}, ... , x_{\pi(M)}\})
 \end{align}
 
-Such a function is permutations invariant if it can be decomposed into
-the form
+Such a function is permutation invariant if it can be decomposed into
+two function $\rho$ and $\phi$ in the form
 \begin{align}
-\rho\left( \sum_{x\in X} \phi(x) \right)gy.  
+\rho \left(\sum_{x\in X} \phi(x)\right).  
 \end{align}
 
 Moreover, for a sufficiently large \(l\) with the continuous functions
-\(F: X \rightarrow \mathbb{R}^l\) and
-\(\Phi: \mathbb{R}^l \rightarrow Y\),
+\(F: \mathbb{R}^l \rightarrow Y\) and \(\Phi: X \rightarrow
+\mathbb{R}^l\),
 
 \begin{align}
 f(\{x_1, ... , x_M \}) = F(\sum_{i=1}^M \Phi(x_i))
 \end{align}
 
-is an arbitrarily good approximation.A proof for this statement can be
+is an arbitrarily good approximation. A proof for this statement can be
 found in \cite{zaheer17_deep_sets}.
 
 In application to jet physics, a jet can be understood as a set of
-particles with arbitrary descriptive variables. \(\Phi\) is then a per
-particle mapping into a \$l\$-dimensional hyperspace.  Komiske et
-al. name this hyperspace \emph{latent space}. From this latent space \(F\) maps
-to the target space \(R\).
+particles with arbitrary descriptive variables \(x\). \(\Phi\) is then
+a per particle mapping into a \(l\)-dimensional hyperspace.  Komiske
+et al. name this hyperspace \emph{latent space}. From this latent
+space \(F\) maps to the target space \(R\).
 
 A Particle Flow Network \cite{komiske19_energ_flow_networ} consists of
 a \(\Phi\) network that maps from the particle's four momentum into
@@ -1355,9 +1366,10 @@ the latent space. For each jet, the resulting latent space vectors are
 summed up and mapped to the target space with a second network.
 
 This partitioning of the net to satisfy the permutation invariance of
-sets was first discussed by Zaheer et al.\cite{zaheer17_deep_sets}. The
-application of deep sets in particle jet physics and particle flow
-networks was first implemented by Komiske et al \cite{komiske19_energ_flow_networ}.
+sets was first discussed by Zaheer et
+al.\cite{zaheer17_deep_sets}. The application of deep sets in particle
+jet physics and particle flow networks was first implemented by
+Komiske et al \cite{komiske19_energ_flow_networ}.
 
 \chapter{Calorimetry Energy Analyis}
 \label{sec:orgb9c4fb7}
@@ -1365,61 +1377,65 @@ networks was first implemented by Komiske et al \cite{komiske19_energ_flow_netwo
 In this chapter, the possibility to improve the resolution in the
 energy measurement of a calorimeter by using deep learning will be
 presented. For this purpose, two different networks are trained with
-simulation data. In addition, existing adversities were overcome.
+simulation data. In addition, existing distribution displacements were
+overcome.
 
 \section{Calorimeter Simulation}
 \label{sec:org905cdeb}
 
 Geant4 \cite{geant_simul_toolk} was used to simulate a calorimeter
 with a layer structure similar to the structure of the CMS hadron
-calorimeter. The calorimeter has a length of 931.5 mm and a height and
-width of 300 mm. The layer structure is listed in table
+calorimeter. The calorimeter has a depth of 931.5 mm and a lateral
+dimension of 300 mm. The layer structure is listed in table
 \ref{fcn_structure}. The first layer consists of a 9mm thick
 scintillator layer and a 40mm thick stainless steel layer. The steel
-layers in CMS HCAL are the carriers holding the calorimeter. The first
-layer is followed by 8 layers, each consisting of a 3.7 mm thick
-scintillator and a 50.5 mm thick brass absorber. This is followed by
-layers of 3.7 mm thick scintillators, whereas 56.5 mm thick brass
-plates follow.  The last two layers consist of a 3.7 mm scintillator,
-followed by a 75 mm steel holder, completed with a 9 mm
-scintillator. Each scintillator layer consists of 64 equal-sized
-scintillator tiles with each with a height and width of 75 mm.
+layers in the CMS HCAL are the carriers holding the calorimeter. The
+first layer is followed by 8 layers, each consisting of a 3.7 mm thick
+scintillator and a 50.5 mm thick brass absorber. This is followed by 6
+layers of 3.7 mm thick scintillators, with 56.5 mm thick brass plates.
+The last two layers consist of a 3.7 mm scintillator, followed by a 75
+mm steel holder, completed with a 9 mm scintillator. Each scintillator
+layer consists of 64 equal-sized scintillator tiles each with a height
+and width of 75 mm.
 
 \begin{table}[htbp]
+  \centering
+  \begin{tabular}{rrrl}
+    layer & scint in mm & abs in mm & abs material\\
+    \hline
+    0 & 9 & 40 & steel\\
+    1-8 & 3.7 & 50.5 & brass\\
+    9-14 & 3.7 & 56.5 & brass\\
+    15 & 3.7 & 75 & steel\\
+    16 & 9 &  & \\
+  \end{tabular}
+  \caption{The structure of the layers in the simulation.}
   \label{fcn_structure}
-\caption{
-The structure of the layers in the simulation is reflected in the values listed below.}
-\centering
-\begin{tabular}{rrrl}
-layer & scint in mm & abs in mm & abs material\\
-\hline
-0 & 9 & 40 & steel\\
-1-8 & 3.7 & 50.5 & brass\\
-9-14 & 3.7 & 56.5 & brass\\
-15 & 3.7 & 75 & steel\\
-16 & 9 &  & \\
-\end{tabular}
 \end{table}
 
-In the simulation, the paths of incoming particles and their resulting particles
-are simulated. The incoming particles were electrons.
+In the simulation, the paths of incoming particles and their
+interaction products are simulated. The incoming particles were
+electrons.
 
-The momentum of the incoming particles is randomly initialized between 0 and 10
-GeV following a flat distribution. The point of arrival of the particles is
-always the exact center of the first detector layer.
+The momentum of the incoming particles is randomly initialized between
+0 and 10 GeV following a flat distribution. The point of arrival of
+the particles is always the exact center of the first detector layer.
 
 After the trajectories of the particles had been simulated, for each
 event the number of traces in each scintillator cell are counted.
 These 1088 values are then stored as data points for further
 analysis. An example simulation event is shown in figure \ref{sim_exp}.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.9 \textwidth]{../images/front-side.pdf}
-\label{sim_exp}
-\caption{
-Visualization of a typical  event simulation inside the detector.}
+\todo{simulationsbild überarbeiten, red green?}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9 \textwidth]{../images/front-side.pdf}
+  \caption{Visualization of a typical event simulation inside the
+    detector.}
+    \label{sim_exp}
 \end{figure}
+
+\todo{datenstruktur präsentieren siehe seite 38}
 
 \section{Energy Regression By Linear Fitting}
 \label{sec:orgd10286d}
@@ -1429,8 +1445,8 @@ is to sum up the energies of the individual scintillator cells. This
 summation can still be influenced by weighting to compensate for
 detector effects. The simulation does not determine the energy in the
 individual cells but the number of charged traces. This should be
-linear to the deposited energy. Detector effects can also be neglected
-in a simulation.
+linear to the deposited energy. Detector effects such as
+inhomogeneities can also be neglected in a simulation.
 
 To calibrate the calorimeter, the straight line with the smallest mean
 square deviation from the data points is determined. Here, the weights
@@ -1441,93 +1457,110 @@ N(E) = c_0 \cdot E + c_1
 \end{align}
 
 are determined and the straight line is then inverted. The inversion
-is necessary to prevent distortions due to the restricted
-distribution. The result is shown in Figure \ref{e-vs-sum_n_fit}.
+is necessary to prevent distortions due to the restricted distribution
+of the output energy spectrum. The result is shown in Figure
+\ref{e-vs-sum_n_fit}.
 
-\label{e-vs-sum_n_fit}
-\begin{figure}[htbp]
+
+\begin{figure}[H]
 \centering
 \includegraphics[width=.9\linewidth]{../images/e-vs-sum_n_fit.pdf}
-\label{e-vs-sum_n_fit}
 \caption{ The graph shows the relation between the energies of the
   incoming particle \(E_{\text{true}}\) in GeV and the absolute number
-  of charged particles in all scintillator cells.  10000 points from
-  the data are plotted. The black straight is the result of the fit
-  described above.}
+  of charged particles in all scintillator cells.  10000 particles
+  from the data are plotted here. The black straight line is the
+  result of the fit described above.}
+\label{e-vs-sum_n_fit}
 \end{figure}
 
 \section{Deep Learning Setup}
 \label{sec:orgb3e1899}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/data_display.pdf}
-\label{data_display}
-\caption{
-The three-dimensional structure of a data sample is visulaized by an example event of an incoming electron with 9.14172 GeV}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/data_display.pdf}
+  \caption{The three-dimensional structure of a data sample is
+    visulaized by an example event of an incoming electron with
+    9.14172 GeV}
+  \label{data_display}
 \end{figure}
 
 The data structure is visualized in figure \ref{data_display} and is a
-three-dimensional pixel structure. First a simple fully connected
-network is applied whose structure is not adapted to the structure of
-the data. Then a three-dimensional convolutional neural net is
-compared with the fully connected neural net.
+three-dimensional pixel structure, where each pixel contains the
+number of traces. First a simple fully connected network (FCN) is
+applied whose structure is not adapted to the structure of the
+data. \added{The data tensor is flatten into a 1088 dimensional vector
+  to fit the input space of the FCN}. Then a three-dimensional
+convolutional neural net is compared with the fully connected neural
+net.
+
+\todo{struktur erklären}
+\todo{aufsplitten der beschreibung CONVNET}
+\todo{idea: local pattern by conv-net followed by dense net}
+\todo{wie zu struktur gekommen}
+\todo{training validation test split satz}
+\todo{training hyperparameters}
 
 The layer structure of the first network is shown in table \ref{fcn_structure}.
 
 \begin{table}[htbp]
-  \label{fcn$_{structure}$}
-  \caption{ The structure of the fully connected network is shown. The
+  \centering
+  \begin{tabular}{lrlr}
+    Type & \(\#\) Nodes & Activation & \(\#\) Params\\
+    \hline
+    FC & 500 & ReLU & 544500\\
+    FC & 128 & ReLU & 64128\\
+    FC & 128 & ReLU & 16512\\
+    FC & 128 & ReLU & 16512\\
+    FC & 128 & ReLU & 16512\\
+    FC & 10 & ReLU & 1290\\
+    FC & 1 & Linear & 11\\
+  \end{tabular}
+  \caption{The structure of the fully connected network is shown. The
     first column shows the different types of layers of the network,
-    which here are only dense mapping the Keras type of a fully
-    connected layer. The second column shows the number of nodes in
-    each layer. The third column shows all activation functions and
-    the last column shows the number of free parameters or weights of
-    each layer.}
-\centering
-\begin{tabular}{lrlr}
-Type & \(\#\) Nodes & Activation & \(\#\) Params\\
-\hline
-Dense & 500 & ReLU & 544500\\
-Dense & 128 & ReLU & 64128\\
-Dense & 128 & ReLU & 16512\\
-Dense & 128 & ReLU & 16512\\
-Dense & 128 & ReLU & 16512\\
-Dense & 10 & ReLU & 1290\\
-Dense & 1 & Linear & 11\\
-\end{tabular}
+    \added{which here are only fully connected layers denoted with
+      FC}. The second column shows the number of nodes in each
+    layer. The third column shows all activation functions and the
+    last column shows the number of free parameters or weights of each
+    layer.}
+  \label{fcn_structure}
 \end{table}
 
-It has 659,465 free parameters and each layer consists of nodes
-connected to all nodes of the previous layer. With the exception of
-the output node, all nodes have ReLU as their activation function.
+\todo{activation function erklären, warum linear letzte, wie bin ich zu der struktur gekommen}
+\todo{inputkanäle}
+
+It has 659,465 free parameters and each layer \added{is fully connected to
+the previous layer}. With the exception of the output node, all nodes
+have ReLU as their activation function.
 
 The second network consists of a convolutional part to which a fully
 connected network is linked. The layer structure is shown in table
 \ref{conv_structure}.
 
+\todo{überarbeiten + node / filter}
 \begin{table}[htbp]
-  \label{conv_structure}
+  \centering
+  \begin{tabular}{lrlr}
+    Type & \(\#\) Nodes & Activation & \(\#\) Params\\
+    \hline
+    Conv3D(3,3,3) & 32 & ReLU & 896\\
+    Conv3D(3,3,3) & 10 & ReLU & 8650\\
+    Conv3D(5,5,5) & 5 & ReLU & 6255\\
+    Dense & 128 & ReLU & 28288\\
+    Dense & 128 & ReLU & 16512\\
+    Dense & 128 & ReLU & 16512\\
+    Dense & 10 & ReLU & 1290\\
+    Dense & 1 & Linear & 11\\
+  \end{tabular}
+
   \caption{The structure of the 3D convolutional network is
     presented. The first column shows the different types of layers of
-    the network. The 3D vectors behind the Conv3D are the kernel
+    the network. The 3D tuples behind the Conv3D are the kernel
     dimensions. The second column shows the number of nodes in each
     layer. The third column shows all activation functions and the
     last column shows the number of free parameters or weights of each
     layer.}
-\centering
-\begin{tabular}{lrlr}
-Type & \(\#\) Nodes & Activation & \(\#\) Params\\
-\hline
-Conv3D(3,3,3) & 32 & ReLU & 896\\
-Conv3D(3,3,3) & 10 & ReLU & 8650\\
-Conv3D(5,5,5) & 5 & ReLU & 6255\\
-Dense & 128 & ReLU & 28288\\
-Dense & 128 & ReLU & 16512\\
-Dense & 128 & ReLU & 16512\\
-Dense & 10 & ReLU & 1290\\
-Dense & 1 & Linear & 11\\
-\end{tabular}
+  \label{conv_structure}
 \end{table}
 
 The alternative structure reduces the number of free parameters to 78,414.
@@ -1535,34 +1568,37 @@ The alternative structure reduces the number of free parameters to 78,414.
 \section{Energy Regression with the Fully Connected Network}
 \label{sec:orgdf3234b}
 
-The network is trained with the RMSprop optimizer and the loss function is the
-mean squared error between the true energy values and the predicted energy
-values. We train the fully connected network for 150 epochs with a batch size
-of 128.
+The network is trained with the RMSprop optimizer and the loss
+function is the mean squared error between the true energy values and
+the predicted energy values. We train the fully connected network for
+150 epochs with a batch size of 128.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/dense_loss.pdf}
-\label{dense_loss}
-\caption{The Graph shows the evolution of the loss function for the
-  training set and the validation set. The trained network was the
-  fully connected network described above.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/dense_loss.pdf}
+  \caption{The Graph shows the evolution of the loss function for the
+    training set and the validation set. The trained network was the
+    fully connected network described above.}
+  \label{dense_loss}
 \end{figure}
 
-In figure \ref{dense_loss} the loss function is shown. While the loss
-function for the training set decreases over time, the loss function for the
-validation set increases. This implies that our model is overfitting,
-which means that the model uses the amount of parameters to remember
-each point of the data set and not the structure of the data.
+\todo{axen einfügen}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/dense_scatter.pdf}
-\label{dense_scatter}
-\caption{ 10000 data points are plotted in a scatter plot between
-  \(E_\text{pred}\) and Etrue for the network and the fit. The blue
-  background shows the results of the linear fit. In the foreground,
-  the results of the fully connected neural net are shown in black.}
+In figure \ref{dense_loss} the loss function is shown. While the loss
+function for the training set decreases over time, the loss function
+for the validation set increases. This implies that our model is
+overfitting, which means that the model uses the amount of parameters
+to remember each point of the data set and not the structure of the
+data.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/dense_scatter.pdf}
+  \caption{ 10000 data points are plotted in a scatter plot between
+    \(E_\text{pred}\) and Etrue for the network and the fit. The blue
+    background shows the results of the linear fit. In the foreground,
+    the results of the fully connected neural net are shown in black.}
+  \label{dense_scatter}
 \end{figure} 
 
 In the scatter plot in figure \ref{dense_scatter} the results of the
@@ -1572,17 +1608,19 @@ other. Soley the decrease of the network is visible towards the end of
 the distribution.  The network shows hardly any values for
 \(E_{\text{pred}}\) above 10 GeV.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/dense_res.pdf}
-\label{dense_res}
-\caption{ The results of the neural network and the linear fit are
-  compared with each other in the two graphs. The total data points
-  were divided into 20 bins and then the mean and standard deviation
-  of these bins were calculated. The upper graph shows the deviation
-  of the mean values of Epred versus the mean values of Etrue. In the
-  lower plot the standard deviation of Epred is plotted for each bin
-  divided by the root of the mean energy.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/dense_res.pdf}
+  \caption{ The results of the neural network and the linear fit are
+    compared with each other in the two graphs. The total data points
+    were divided into 20 bins and then the mean \(\mu\) and standard
+    deviation \(\sigma\) of these bins were calculated. The upper graph
+    shows the deviation of the mean values of Epred versus the mean
+    values of Etrue. In the lower plot the standard deviation of Epred
+    is plotted for each bin divided by the root of the mean
+    energy. \added{The graph shows the path from the middle of the first
+      to the middle of the last bin.}}
+  \label{dense_res}
 \end{figure} 
 
 The results of the neural network and the linear fit are compared with each
@@ -1590,18 +1628,19 @@ other in Figure \ref{dense_res}. In the upper plot the decrease of the mean valu
 of the energies at the edge of the spectrum is visible. In addition, it is
 noticeable that the values are slightly shifted upwards globally.
 
-The lower graph shows the progression of the mean values of the standard
-deviations through the root of the energies. The quantity is a measure for the
-resolution of the calorimeter and it is noticeable that the global performance
-of the neuronal network is weaker than th one of the linear fit. Only at the end
-of the distribution is it significantly better than the resolution of the linear
-fit.
+The lower graph shows the dependence of the mean values of the
+standard deviations on the root of the energies. The quantity is a
+measure for the resolution of the calorimeter, as described in section
+\ref{sec:em-calo} and it is noticeable that the global performance of
+the neuronal network is weaker than the one of the linear fit. Only at
+the end of the distribution is it significantly better than the
+resolution of the linear fit.
 
 It can be noted that the neural network optimizes its resolution by
 respecting the fact that the distribution is limited between 0 and 10
 GeV. The result is a drop in the value spectrum that is not physically
-motivated, but arises solely from the restricted statistics.  The
-slightly global shift to higher values is the result of the mean
+motivated, but arises solely from the restricted output statistics.
+The global shift slightly to higher values is the result of the mean
 squared error as a loss function. Thus the residuals of values with
 higher energies are greater than those of small energies. The network
 therefore optimizes itself to these higher values. Since the network
@@ -1613,41 +1652,46 @@ described.
 \section{Data Augmentation}
 \label{sec:org4a347fb}
 
-In order to solve the overfitting problem, the technique of data augmentation
-was used. In this application data augmentation means that all valid symmetry
-transformations were used to increase the number of data points. Each data point
-is randomly rotated up to 3 times by 90 degrees and randomly mirrored in beam
-direction. This increases the possible data points eightfold and should enable
-the network to learn the symmetries in the system. The data points were then
-moved in every direction to make the data independent of their arrival point. At
-this point it should be noted that these transformations are only valid because
-the simulation is absolutely homogeneous and symmetrical. This is not
-necessarily the case with real detector data.
+In order to solve the overfitting problem, the technique of data
+augmentation was used. In this application data augmentation means
+that all valid symmetry transformations were used to increase the
+number of data points. Each data point is randomly rotated up to 3
+times by 90 degrees and randomly mirrored horizontally. This increases
+the possible data points eightfold and should enable the network to
+learn the symmetries in the system. The data points were then moved in
+every direction discrete in cell size to make the data independent of
+their arrival point. At this point it should be noted that these
+transformations are only valid because the simulation is absolutely
+homogeneous and symmetrical. This is not necessarily the case with
+real detector data.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/data_augment_loss.pdf}
-\label{da_loss}
-\caption{The value of the loss function is shown after each epoch for
-  the fully connected network. Val and train stand for the value of
-  the loss function on the validation set and the training set. Neural
-  net denotes the network without data augmentation, while data
-  augmentation stands for the network with data augmentation.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/data_augment_loss.pdf}
+  \caption{The value of the loss function is shown after each epoch
+    for the fully connected network. Val and train stand for the value
+    of the loss function on the validation set and the training
+    set. Neural net denotes the network without data augmentation,
+    while data augmentation stands for the network with data
+    augmentation.}
+  \label{da_loss}
 \end{figure} 
 
-As shown in figure \ref{da_loss}, the overfitting for our dataset can be
-completely reduced with this method.  The fluctuations in the values
-of the loss function for the validation sample result from the higher
-statistical fluctuation of a smaller amount of data. With data
-augmentation, the global course follows asymptotically to the loss for
-the training set. It does not possess the increase of the validation
-set without data augmentation. This indicates that the network is not
-overfitted.
+As shown in figure \ref{da_loss}, the overfitting for our dataset can
+be completely removed with this method.  The fluctuations in the
+values of the loss function for the validation sample result from the
+higher statistical fluctuation of a smaller amount of data. With data
+augmentation, the global trend follows asymptotically the loss for the
+training set. It does not longer show the increase of loss function
+for the validation set without data augmentation. This indicates that
+the network is not overfitting any longer.
 
 \section{Adversarial Training}
 \label{sec:org30a0273}
 
-\begin{figure}[h]
+\todo{move to chapter deep learning part}
+
+\begin{figure}[H]
   \centering
   \usetikzlibrary{arrows}
   \def\layersep{1cm}
@@ -1731,16 +1775,21 @@ overfitted.
 \end{figure}
 
 In order to reduce the unphysical deviations at the end of the
-distribution, an adversarial network was used. The theoretical basis
-for this type of training was first described in the article ``Learning
-to Pivot with Adversarial Networks'' by G. Louppe et al. Here a
-modification of this training process was applied.
+distribution, an adversarial training was tried. The theoretical basis
+for this type of training was first described in the article
+``Learning to Pivot with Adversarial Networks'' by \emph{G. Louppe et
+  al}. Here a modification of this training process was applied.
 
+\todo{überarbeiten}
 The basic idea was that a quantity should be calculated from the
-result of the neural network, which should be independent for all
-values. In this case, the goal is a constant distribution of the
-values of
-\((E_{\text{pred}}-E_{\text{true}})/\sqrt{E_{\text{true}}}\). 
+result of the neural network. This quantity should be be independent
+from the energy distribution. In this case, the goal is a constant
+distribution of the values of
+
+\((E_{\text{pred}}-E_{\text{true}})/\sqrt{E_{\text{true}}}\).
+
+\added{Which is an approximation for the resolution of a Calorimeter,
+  see section \ref{sec:em-calo}.}
 
 For this purpose, an adversarial network was attached to the
 pre-trained neural network, whose target is to deduce
@@ -1749,39 +1798,41 @@ in figure \ref{adv-training}. The adversarial network was trained
 with a Categorial Cross Entropy as loss function.
 
 \begin{align}
-\mathcal{L}_r = - \sum \mathcal{C}\left(Y_{\text{true}}\right) \log(r\left(\frac{f(X)-Y_{\text{true}}}{\sqrt{Y_{\text{true}}}}\right)).
+\mathcal{L}_r = - \sum \mathcal{C}\left(Y_{\text{true}}\right)
+\log(r\left(\frac{f(X)-Y_{\text{true}}}{\sqrt{Y_{\text{true}}}}\right)).
 \end{align}
 
 Here \(f\) and \(r\) are the function of the network and its
 adversary. \(\mathcal{C}\) is the function that divides all values
-from 0. to 10. GeV into 20 equal categories and then maps each
-category to a 20-dimensional base vector.
+from 0. to 10. GeV into 20 categories equal in distance and then maps
+each category to a 20-dimensional base vector.
 
 The neuronal net and its adversary were trained alternately. The
 neural net was trained with the loss function
 
 \begin{align}
-\mathcal{L}_f = \sum (Y_{\text{true}} - f(X))^2 - \lambda \mathcal{L}_r.
+\mathcal{L}_f = \sum (Y_{\text{true}} - f(X))^2 - \lambda
+\mathcal{L}_r.
 \end{align}
 
 By integrating the adversary negatively, the network tries to make the
 performance of the antagonist network as poor as possible. When
 training the adversary, the weights of the first net are recorded and
 vice versa. \(\lambda\) is an arbitrary factor that has been set to 2.5
-here.
+here. \todo{reason einfügen}
 
 The training course consisted of alternating training of both networks
 for 5 epochs each. This process was repeated ten times before the
 results for the test sample of the neural network were recorded.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=.9\linewidth]{../images/adv_scatter.png}
+\caption{ The results of the neural network after every of the 9
+  subsequent steps are presented, see numbers. To improve clarity, no
+  axes or labels were shown, they are the same as in figure
+  \ref{dense_scatter}.}
 \label{adv_scatter}
-\caption{ The results of the neural network
-  after every of the 9 subsequent steps are presented, The findings
-  are numbered to their sequence. To improve clarity, no axes or
-  labels were used \ref{dense_scatter}.}
 \end{figure}
 
 This process was repeated nine times and generated nine results, which
@@ -1798,20 +1849,25 @@ As the Adversarial Training did not lead to desired results in the
 following part the compensation of the deviations in the distribution
 by changing the loss function was examined.
 
-Besides in the previous part a modified loss function was used. It is
-outlined how an adequate loss function can be determined with respect
-to the underlying distribution of values.
+Different to the previous parts a modified loss function was used. It
+is outlined how an adequate loss function can be determined with
+respect to the underlying distribution of labels.
 
 By transforming the mean squared error and adding permissible values,
 a maximum likelihood can be derived
 
 \begin{align}
-    &\text{min} \sum (y_{\text{true}}-y_{\text{pred}})^2 \\
-    =&\text{max} \sum\frac{-(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2} - \ln(\sqrt{2\pi \sigma^2}) \\
-    = &\text{max} \sum \ln(\exp(-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2})) - \ln(\sqrt{2\pi \sigma^2}) \\
-    = &\text{max} \sum \ln( \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}) \\
-    = &\text{max} \ln \prod \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}\\
-    = &\text{max} \prod \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}.
+    &\text{min} \sum (y_{\text{true}}-y_{\text{pred}})^2
+  \\ =&\text{max} \sum\frac{-(y_{\text{true}}-y_{\text{pred}})^2}{2
+    \sigma^2} - \ln(\sqrt{2\pi \sigma^2}) \\ = &\text{max} \sum
+  \ln(\exp(-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2})) -
+  \ln(\sqrt{2\pi \sigma^2}) \\ = &\text{max} \sum \ln(
+  \frac{1}{\sqrt{2\pi \sigma^2}}
+  e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}) \\ =
+  &\text{max} \ln \prod \frac{1}{\sqrt{2\pi \sigma^2}}
+  e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}\\ =
+  &\text{max} \prod \frac{1}{\sqrt{2\pi \sigma^2}}
+  e^{-\frac{(y_{\text{true}}-y_{\text{pred}})^2}{2 \sigma^2}}.
 \end{align}
 
 The assumption that the mean squared error is the valid minimization
@@ -1821,104 +1877,134 @@ deviation.
 
 However, no constant standard deviation is given for a calorimeter. In
 addition, the assumption that the values have a full Gaussian
-distribution is not applicable at the edges. Here the absence of the
-data points must be compensated with a normalization factor. These
-effects are shown in figure \ref{gaussian-shift}.
+distribution is not applicable at the edges. Here the absence of
+entries for higher energies must be compensated with a normalization
+factor. These effects are shown in figure \ref{gaussian-shift}.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/gaussian_shift.png}
-\label{gaussian-shift}
-\caption{ The different likelihoods of two Gaussian functions are
-  shown. One with normalization and one without.}
+
+\todo{überarbeiten mean=9.9}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/gaussian_shift.png}
+  \caption{The different likelihoods of two Gaussian functions for a
+    mean of 10.5 are shown. One with proper normalization (red) and
+    one without(blue).}
+  \label{gaussian-shift}
 \end{figure}
 
 In order to consider the truncated distribution the probability
 density function is calculated,
 
 \begin{align}
-\text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)},
+\text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}}
+  e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi
+      \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} =
+\frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2
+      \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right)
+  - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)},
 \end{align}
 
 where \(a\) and \(b\) here are 0.0 and 10.0 GeV. The loss function
 which has to be minimized for the neural net can than be derived,
 
 \begin{align}
-&\text{max}\left[ \prod \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)} \right]\\
-&=\text{min}\left[ -\ln \prod \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)}\right] \\
-&=\text{min}\left[ -\sum \ln(e^{-\frac{(x-\mu)^2}{2 \sigma^2}}{\sqrt{\frac{\pi \sigma^2}{2}}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)})\right] \\
-&=\text{min}\left[ -\sum -\frac{(x-\mu)^2}{2 \sigma^2}-\ln(\sqrt{\frac{\pi \sigma^2}{2}}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right))\right] \\
-&=\text{min}  \sum \frac{(x-\mu)^2}{\sigma^2} + \ln(\frac{\pi \sigma^2}{2}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right) - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)^2) \label{likelihood-loss}
+&\text{max}\left[ \prod \frac{\frac{1}{\sqrt{2\pi \sigma^2}}
+      e^{-\frac{(x-\mu)^2}{2
+          \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right)
+      - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)}
+    \right]\\ &=\text{min}\left[ -\ln \prod \frac{\frac{1}{\sqrt{2\pi
+          \sigma^2}} e^{-\frac{(x-\mu)^2}{2
+          \sigma^2}}}{1/2\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right)
+      -
+      \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)}\right]
+  \\ &=\text{min}\left[ -\sum \ln(e^{-\frac{(x-\mu)^2}{2
+        \sigma^2}}{\sqrt{\frac{\pi
+          \sigma^2}{2}}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right)
+      -
+      \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)})\right]
+  \\ &=\text{min}\left[ -\sum -\frac{(x-\mu)^2}{2
+      \sigma^2}-\ln(\sqrt{\frac{\pi
+        \sigma^2}{2}}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right)
+    -
+    \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right))\right]
+  \\ &=\text{min} \sum \frac{(x-\mu)^2}{\sigma^2} + \ln(\frac{\pi
+    \sigma^2}{2}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right)
+  -
+  \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)^2) \label{likelihood-loss}
 \end{align}
 
-The resulting loss function consists of q mean weighted squared error
-part. This weighting prevents the global shift of the values towards
-higher values. Since values with high energies contribute the same
-contributions to the total loss function as values with low
+\todo{überarbeiten ->\\
+The resulting loss function consists of a mean weighted squared error
+part \added{and a correction term}. This weighting prevents the global
+shift of the mean $\mu$ towards higher values. Because values with
+high energies contribute to the total loss function as values with low
 energies. The second term is a correction factor that takes into
 account the ends of the distribution and reduces its effects.
+
 
 Effects of distribution on the results are a general fitting problem
 and do not only refer to neural networks. In the first part these
 effects were solved by inverting the problem. This is possible with a
-linear fit, but not with a neural network.
+linear fit, but not with a neural network.}
 
-\begin{figure}[htbp] \centering
-\includegraphics[width=.9\linewidth]{../images/e-vs-sum_n_like.pdf}
-\label{e-vs-sum_n_like}
-\caption{ The graph compares two minimizations of a linear fit to the
-  summed entries of the calorimeter cells. The blue straight line
-  represents the linear fit optimized with the minimization function
-  derived above. For the black line, the mean squared error has been
-  minimized.}
+\todo{dritte gerade einfügen oder schreiben liegt unter likelihood fit}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/e-vs-sum_n_like.pdf}
+  \caption{ The graph compares two minimizations of a linear fit to the
+    summed entries of the calorimeter cells. The blue straight line
+    represents the linear fit optimized with the minimization function
+    derived above. For the black line, the mean squared error has been
+    minimized.}
+  \label{e-vs-sum_n_like}
 \end{figure}
 
 This is shown for the linear fit in figure \ref{e-vs-sum_n_like}. You
-can see how the mse is slightly tilted to the side compared to the
-mean course of the data. This is fixed by the maximum likelihood fit.
+can see how the mse is slightly tilted relative to the data. This is
+fixed by the maximum likelihood fit.
 
-The pre-trained neural net was then further trained with
-\eqref{likelihood-loss} as loss function for 50 epochs. The result is
-shown in figure \ref{likelihood_res}. The decrease of the mean values
-to high energy values was completely reduced. Globally, the neuronal
-network has no tendency to higher values.
+\todo{satz zu pretrained network} The pre-trained neural net was then
+further trained with \eqref{likelihood-loss} as loss function for 50
+epochs. The result is shown in figure \ref{likelihood_res}. The
+decrease of the mean values to high energy values was completely
+removed. Globally, the network has no tendency to higher values.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/likelihood_res.pdf}
-\label{likelihood_res}
-\caption{ The results of the neural network and the linear fit are
-  compared in the two graphs. The total data points were divided into
-  20 bins and then the mean and standard deviation of these bins were
-  calculated. The upper graph shows the deviation of the mean values
-  of Epred versus the mean values of Etrue. In the lower plot the
-  standard deviation of Epred is plotted for each Bin divided by the
-  root of the mean energy.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/likelihood_res.pdf}
+  \caption{ The results of the neural network and the linear fit are
+    compared in the two graphs. The total data points were divided into
+    20 bins and then the mean and standard deviation of these bins were
+    calculated. The upper graph shows the deviation of the mean values
+    of Epred versus the mean values of Etrue. In the lower plot the
+    standard deviation of Epred is plotted for each Bin divided by the
+    root of the mean energy.}
+  \label{likelihood_res}
 \end{figure}
 
-\section{Comparison of network architectures}
+\section{Comparison of Network Architectures}
 \label{sec:org1df3a0b}
 
-Finally, the performance of the two network architectures will be
-compared in the following section.
+Finally, the performance of the two network architectures are
+compared.
 
 Both the convolutional neural net and the fully connected neural net
 were each trained 150 epochs with mean squared error and data
 augmentation. Afterwards both networks were trained 50 epochs with the
 likelihood loss to solve the boundary problems.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/arch_comparison.pdf}
-\label{arch_comparison}
-\caption{ The results of the fully connected network and the
-  convolutional network are presented and the linear fit are compared
-  in the two graphs. The total data points were divided into 20 bins
-  and then the mean and standard deviation of these bins were
-  calculated. The upper graph shows the deviation of the mean values
-  of Epred versus the mean values of Etrue. In the lower plot the
-  standard deviation of Epred is plotted for each Bin divided by the
-  root of the mean energy.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/arch_comparison.pdf}
+  \caption{ The results of the fully connected network and the
+    convolutional network are presented and the linear fit are
+    compared in the two graphs. The total data points were divided
+    into 20 bins and then the mean and standard deviation of these
+    bins were calculated. The upper graph shows the deviation of the
+    mean values of Epred versus the mean values of Etrue. In the lower
+    plot the standard deviation of Epred is plotted for each Bin
+    divided by the root of the mean energy.}
+  \label{arch_comparison}
 \end{figure}
 
 Figure \ref{arch_comparison} shows the different resolutions of the
@@ -1931,6 +2017,8 @@ outside the focus of this work to show how much the resolution can be
 improved.  It should be noted that only the basic possibility of
 improvement is presented here. It is beyond the focus of this work to
 show how much the resolution can be improved.
+
+\todo{achievements einfügen}
 
 \chapter{Jet Calibration Analysis}
 \label{sec:org03a9b39}
@@ -1953,12 +2041,12 @@ distribution of the jets is shown in figure \ref{jet_distri}. The
 distribution is not flat.  For this reason the distribution in must be
 taken into account in contrast to the last chapter.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/jet_distri.pdf}
-\label{jet_distri}
-\caption{ The distribution of the jets after \(P_T\) on generator
-  level is plotted.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/jet_distri.pdf}
+  \caption{ The distribution of the jets after \(P_T\) on generator
+    level is plotted.}
+  \label{jet_distri}
 \end{figure}
 
 In total the training set consists of 14786472 jets which were divided
@@ -1990,25 +2078,25 @@ total the network has 2,043,201 free parameters. This network is
 referred to as \emph{JetNet} in the following.
 
 \begin{table}[htbp]
-  \label{jet_fcn_structure}
-  \caption{ The structure of the fully connected network is shown. The
+  \centering
+  \begin{tabular}{lrlr}
+    Type & \(\#\) Nodes & Activation & \(\#\) Params\\
+    \hline
+    Dense & 800 & ReLU & 640800\\
+    Dense & 700 & ReLU & 560700\\
+    Dense & 600 & ReLU & 420600\\
+    Dense & 400 & ReLU & 240400\\
+    Dense & 300 & ReLU & 120300\\
+    Dense & 200 & ReLU & 60200\\
+    Dense & 1 & Linear & 201\\
+  \end{tabular}
+  \caption{The structure of the fully connected network is shown. The
     first column shows the different types of layers of the
     network. The second column shows the number of nodes in each
     layer. The third column shows all activation functions and the
     last column the number of free parameters or weights of each
     layer.}
-\centering
-\begin{tabular}{lrlr}
-Type & \(\#\) Nodes & Activation & \(\#\) Params\\
-\hline
-Dense & 800 & ReLU & 640800\\
-Dense & 700 & ReLU & 560700\\
-Dense & 600 & ReLU & 420600\\
-Dense & 400 & ReLU & 240400\\
-Dense & 300 & ReLU & 120300\\
-Dense & 200 & ReLU & 60200\\
-Dense & 1 & Linear & 201\\
-\end{tabular}
+  \label{jet_fcn_structure}
 \end{table}
 
 In the training process, the data was processed by batch sizes
@@ -2061,12 +2149,12 @@ R = \frac{P_{T, \text{Reco}}}{P_{T, \text{Gen}}}.
 \section{Jetnet Analysis}
 \label{sec:org03235a3}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/jetnet_R_scatter.pdf}
-\label{jetnet_R_scatter}
-\caption{
-The resulting \(R\) points of the Reco algorithm and the Jetnet in relation to \(P_{T, \text{Gen}}\) are displayed.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/jetnet_R_scatter.pdf}
+  \caption{The resulting \(R\) points of the Reco algorithm and the
+    Jetnet in relation to \(P_{T, \text{Gen}}\) are displayed.}
+  \label{jetnet_R_scatter}
 \end{figure}
 
 Figure \ref{jetnet_R_scatter} shows the results of the Reco algorithm
@@ -2075,14 +2163,14 @@ function for the neural network. Through the truncated value range the
 systematic deviations similar to the previous chapter can be seen.
 
  
-\begin{figure}[htbp]
+\begin{figure}[H]
+  \includegraphics[width=.9\linewidth]{../images/jetnet_R.pdf}
   \caption{The mean values of the R distribution are represented as a
     function of \(P_{T, \text{Gen}}\). Reco stands for the Reco
     algorithm. MSE for the jetnet with MSE as loss function. 1st and
     2nd stand for the first and second iteration with the loss
     function described above.}
-\includegraphics[width=.9\linewidth]{../images/jetnet_R.pdf}
-\label{jetnet_R}
+  \label{jetnet_R}
 \end{figure}
 
 Figure \ref{jetnet_R} shows the resulting R values for the Jetnets and
@@ -2092,12 +2180,12 @@ results. This shift to higher values is not found after the second
 iteration. The boundary effects could not be removed completely and
 persist even after multiple iterations.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/jetnet_res.pdf}
-\label{jetnet_res}
-\caption{ The standard deviation by the root of \(P_{T, \text{Gen}}\)
-  in relation to \(P_{T, \text{Gen}}\) is represented.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/jetnet_res.pdf}
+  \caption{ The standard deviation by the root of \(P_{T, \text{Gen}}\)
+    in relation to \(P_{T, \text{Gen}}\) is represented.}
+  \label{jetnet_res}
 \end{figure}
 
 In figure \ref{jetnet_res} the resolution is shown. You can see that all
@@ -2116,11 +2204,15 @@ module consisting of three layers with 100, 100 and 128 nodes. So the
 latency space was 128 dimensional. The second network consisted of
 three layers of 100 nodes each followed by a linear output node.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/pfnet_R.pdf}
-\caption{\label{fig:orgfd0f576}
-The mean values of the R distribution are represented as a function of \(P_{T, \text{Gen}}\). Reco stands for the Reco algorithm. MSE for the PFNet with 'mse' as loss function. 1st and 2nd stand for the first and second iteration with different loss function.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/pfnet_R.pdf}
+  \caption{The mean values of the R distribution are represented as a
+    function of \(P_{T, \text{Gen}}\). Reco stands for the Reco
+    algorithm. MSE for the PFNet with 'mse' as loss function. 1st and
+    2nd stand for the first and second iteration with different loss
+    function.}
+  \label{pfnet_R}
 \end{figure}
 
 Figure \ref{pfnet_R} shows the mean values of the R
@@ -2129,12 +2221,12 @@ can see that the alternative loss function helps to eliminate the kink
 at the beginning.  Overall the entire distribution has a systematic
 skewness, but is quite linear.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/pfnet_res.pdf}
-\label{fig:orgdedc16a}
-\caption{The standard deviation by the root of \(P_{T, \text{Gen}}\)
-in relation to \(P_{T, \text{Gen}}\) is shown.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/pfnet_res.pdf}
+  \caption{The standard deviation by the root of \(P_{T, \text{Gen}}\)
+    in relation to \(P_{T, \text{Gen}}\) is shown.}
+  \label{pfnet_res}
 \end{figure} 
 
 In \ref{pfnet_res} the distribution of the resolutions is shown. All
@@ -2145,21 +2237,26 @@ second iteration.
 \section{Comparison}
 \label{sec:org638f190}
 
-The last paragraph compares the two networks. In Fig. \ref{comp_R} it can be seen that the R distribution of the two network types is almost identical.
+The last paragraph compares the two networks. In Fig. \ref{comp_R} it
+can be seen that the R distribution of the two network types is almost
+identical.
 
-% \todo{farben fixen}
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/comp_R.pdf}
-\caption{\label{fig:org944aa66}
-The mean values of the R distribution are represented in dependence to \(P_{T, \text{Gen}}\). The two networks after the second iteration and the Reco results are shown.}
+\todo{farben fixen}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/comp_R.pdf}
+  \caption{The mean values of the R distribution are represented in
+    dependence to \(P_{T, \text{Gen}}\). The two networks after the
+    second iteration and the Reco results are shown.}
+  \label{comp_R}
 \end{figure}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=.9\linewidth]{../images/comp_res.pdf}
-\caption{\label{fig:org3551bdf}
-The standard deviation by the root of \(P_{T, \text{Gen}}\) in relation to \(P_{T, \text{Gen}}\) is represented.}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/comp_res.pdf}
+  \caption{The standard deviation by the root of \(P_{T, \text{Gen}}\)
+    in relation to \(P_{T, \text{Gen}}\) is represented.}
+  \label{comp_res}
 \end{figure}
 
 Figure \ref{comp_res} shows that this also applies to the
