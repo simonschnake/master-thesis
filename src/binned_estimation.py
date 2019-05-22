@@ -4,9 +4,9 @@ from scipy.stats import t
 import scipy.optimize as optimize
 import matplotlib.pyplot as plt
 
-def binned_estimation(xy, bins=20):
+def binned_estimation(x, y, bins=20):
     '''binned_estimation devides the data in bins defined by bins and
-    estimates the mean and sigma of these components xy = [x, y],
+    estimates the mean and sigma of these components x, y.
     where x and y are numpy arrarrays. bins can be a integer, a list
     or a numpy array. if bins is an integer i , the the space between
     min(x) and max(x) is binned in equal distance with i as the number
@@ -16,13 +16,11 @@ def binned_estimation(xy, bins=20):
     sigma/)n**1/2 is calculated.
     
     returns len(bins-1) array with [bin_middle, mu, sigma, std_mu, std_sigma]
+
+    ÜBERARBEITEN
     '''
 
-    if len(xy) is not  2:
-        raise ValueError('xy have to be a array of two arrays')
 
-    x = xy[0]
-    y = xy[1]
     
     if len(x) != len(y):
         raise ValueError('xy[0] and xy[1] must be of the same length')

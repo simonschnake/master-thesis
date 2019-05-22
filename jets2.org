@@ -8,7 +8,7 @@
 Here are the needed packages. Also to config matplotlib for latex export
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   # !cd /home/schnakes/master-thesis
   import matplotlib as mpl
   import matplotlib.pyplot as plt
@@ -23,17 +23,16 @@ Here are the needed packages. Also to config matplotlib for latex export
 
   import numpy as np
   import pickle
-  from scipy.stats import binned_statistic
+  from src.binned_estimation import binned_estimation
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[3]:
 :END:
 
 * JETVERTEILUNG
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   y = pickle.load(open('./results/y_values.p', 'rb'))
 
   event_nr = y[:, 0]
@@ -49,10 +48,9 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[4]:
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   plt.hist(genjet_pt, bins=np.arange(30., 151., 10), log=True, alpha=0.75, color='#1f77b4')
   plt.xlim([30.,150.])
   # plt.ylim([10**2.,10**4.])
@@ -64,14 +62,13 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[10]:
-[[file:./obipy-resources/HFQ9kN.png]]
+[[file:./.ob-jupyter/5f4386913c9170d08c225cff32a522a73ce8363c.png]]
 :END:
 
 
 * JETNET
 ** Data Loading
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   
   jetnet = pickle.load(open('./results/jetnet_binned2_results.p', 'rb'))
 
@@ -79,12 +76,11 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[2]:
 :END:
 
 ** Scatter MSE
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
 
   func = lambda c, x: c[0]*x+c[1] 
   fig, ax = plt.subplots()
@@ -108,90 +104,71 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[3]:
-[[file:./obipy-resources/2vdZIH.png]]
+[[file:./.ob-jupyter/ec9f306415dd7cd04047f14287899568779a7244.png]]
 :END:
 
 ** Mean R
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
+  def plot(x, y, name, variable, color, textpos_x=1, textpos_y=0):
+      res = binned_estimation(x, y, bins=25)
+      x, mu, sigma, std_mu, std_sigma = res[0], res[1], res[2], res[3], res[4]
+      y = 0
+      if variable == 'R':
+          y = mu / x
+          err_y = std_mu / x
+      elif variable == 'res':
+          y = sigma/np.sqrt(x)
+          err_y = std_sigma/np.sqrt(x)
+      else: raise Exception("not a valid key for variable")
+      plt.plot(x, y, '-',  color=color)
+      plt.errorbar(x, y, yerr=err_y, color=color)
+      plt.text(x[-1] + textpos_x, y[-1]+textpos_y, name, ha='left', va='center', size=15, color=color, weight='bold')
+
   fig, ax = plt.subplots()
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
- 
-  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
-  y = binned_statistic(genjet_pt, jet_pt, statistic='mean', bins=25)[0]
-  plt.plot(x, y/x, '-', linewidth=3.0, color='#BF616A')
-  plt.text(x[-1] + 1, y[-1]/x[-1], 'Reco', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
 
-  y = binned_statistic(genjet_pt, jetnet['first']['pred'], statistic='mean', bins=25)[0]
-  plt.plot(x, y/x, '-', color='k', linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/x[-1], 'MSE', ha='left', va='center', size=15,  color='k', weight='bold')
-
-
-  y = binned_statistic(genjet_pt, jetnet['1']['pred'], statistic='mean', bins=25)[0]
-  plt.plot(x, y/x, '-', color='#D08770' , linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/x[-1], '1st', ha='left', va='center', size=15,  color='#D08770', weight='bold')
-
-  
-  y = binned_statistic(genjet_pt, jetnet['4']['pred'], statistic='mean', bins=25)[0]
-  plt.plot(x, y/x, '-', color='#3B4252', linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/x[-1], '2nd', ha='left', va='center', size=15,  color='#3B4252', weight='bold')
-  
-  plt.ylim([0.9, 1.15])
-
+  plot(genjet_pt, jet_pt, 'Reco', variable='R', color='k')
+  plot(genjet_pt, jetnet['first']['pred'], 'MSE', variable='R', color='#c71585')
+  plot(genjet_pt, jetnet['1']['pred'], '1st', variable='R', color='#0099cc')
+  plot(genjet_pt, jetnet['4']['pred'], '2nd', variable='R',color='#a47439')
 
   plt.xlabel(r"$P_{T, \text{Gen}}$")
   plt.ylabel(r"$R$")
   plt.savefig('images/jetnet_R.pdf', bbox_inches = 'tight', transparent=True)
-
-
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[951]:
-[[file:./obipy-resources/ak97sV.png]]
+: 4.799954833984375
+: 4.799954833984375
+: 4.799954833984375
+: 4.799954833984375
+[[file:./.ob-jupyter/b5c62157838c4aa1f11805bae1a2badcf03270b8.png]]
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   fig, ax = plt.subplots()
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
- 
-  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
-  y = binned_statistic(genjet_pt, jet_pt, statistic='std', bins=25)[0]
-  plt.plot(x, y/np.sqrt(x), 'k-', linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1], 'Reco', ha='left', va='center', size=15,  color='k', weight='bold')
 
-  r1 = np.mean(y/np.sqrt(x))
-
-
-  y = binned_statistic(genjet_pt, jetnet['first']['pred'], statistic='std', bins=25)[0]
-  plt.plot(x, y/np.sqrt(x), '-', color='#BF616A', linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1], 'MSE', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
-
-
-  y = binned_statistic(genjet_pt, jetnet['1']['pred'], statistic='std', bins=25)[0]
-  plt.plot(x, y/np.sqrt(x), '-', color='#D08770' , linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]+0.01, '1st', ha='left', va='center', size=15,  color='#D08770', weight='bold')
-
+  plot(genjet_pt, jet_pt, 'Reco', variable='res', color='k')
+  plot(genjet_pt, jetnet['first']['pred'], 'MSE', variable='res', color='#c71585')
+  plot(genjet_pt, jetnet['1']['pred'], '1st', variable='res', color='#0099cc', textpos_y=0.01)
+  plot(genjet_pt, jetnet['4']['pred'], '2nd', variable='res',color='#a47439', textpos_y=-0.01)
   
-  y = binned_statistic(genjet_pt, jetnet['3']['pred'], statistic='std', bins=25)[0]
-  plt.plot(x, y/np.sqrt(x), '-', color='#3B4252', linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]-0.01, '2nd', ha='left', va='center', size=15,  color='#3B4252', weight='bold')
-
   plt.xlabel(r"$P_{T, \text{Gen}}$")
   plt.ylabel(r"$\sigma/\sqrt{P_{T, \text{Gen}}}$")
   plt.savefig('images/jetnet_res.pdf', bbox_inches = 'tight', transparent=True)
-
-  r2 = np.mean(y[3:]/np.sqrt(x[3:]))
-  print(r1/r2-1)
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[952]:
-[[file:./obipy-resources/sdcn85.png]]
+: 4.799954833984375
+: 4.799954833984375
+: 4.799954833984375
+: 4.799954833984375
+[[file:./.ob-jupyter/4d18c98b3f1b09acbea702ffa5a121f59437f1b9.png]]
 :END:
 
 * PFNET
@@ -203,18 +180,17 @@ Here are the needed packages. Also to config matplotlib for latex export
 :END:
 
 ** Data Loading
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   pfnet = pickle.load(open('./results/pfnet_binned_2_results.p', 'rb'))
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[946]:
 :END:
 
 ** Scatter MSE
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
 
   func = lambda c, x: c[0]*x+c[1] 
   fig, ax = plt.subplots()
@@ -238,36 +214,19 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[953]:
-[[file:./obipy-resources/dS3dyD.png]]
+[[file:./.ob-jupyter/d2351181442fd2c2f7cfda5d5332e0f59c763d61.png]]
 :END:
 
 ** Mean R
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   fig, ax = plt.subplots()
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
  
-  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
-  y = binned_statistic(genjet_pt, jet_pt, statistic='mean', bins=25)[0]
-  plt.plot(x, y/x, '-', linewidth=3.0, color='#BF616A')
-  plt.text(x[-1] + 1, y[-1]/x[-1], 'Reco', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
-
-  y = binned_statistic(genjet_pt, pfnet['first']['pred'], statistic='mean', bins=25)[0]
-  plt.plot(x, y/x, '-', color='k', linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/x[-1], 'MSE', ha='left', va='center', size=15,  color='k', weight='bold')
-
-
-  y = binned_statistic(genjet_pt, pfnet['1']['pred'], statistic='mean', bins=25)[0]
-  plt.plot(x, y/x, '-', color='#D08770' , linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/x[-1]-0.001, '1st', ha='left', va='center', size=15,  color='#D08770', weight='bold')
-
-  
-  y = binned_statistic(genjet_pt, pfnet['8']['pred'], statistic='mean', bins=25)[0]
-  plt.plot(x, y/x, '-', color='#3B4252', linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/x[-1]+0.001, '2nd', ha='left', va='center', size=15,  color='#3B4252', weight='bold')
-
-  plt.ylim([0.9, 1.15])
+  plot(genjet_pt, jet_pt, 'Reco', variable='R', color='k')
+  plot(genjet_pt, pfnet['first']['pred'], 'MSE', variable='R', color='#c71585', textpos_y=+0.005)
+  plot(genjet_pt, pfnet['1']['pred'], '1st', variable='R', color='#0099cc')
+  plot(genjet_pt, pfnet['8']['pred'], '2nd', variable='R',color='#a47439', textpos_y=-0.005)
 
   plt.xlabel(r"$P_{T, \text{Gen}}$")
   plt.ylabel(r"$R$")
@@ -276,77 +235,55 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[948]:
-[[file:./obipy-resources/mX6E9B.png]]
+: 4.799954833984375
+: 4.799954833984375
+: 4.799954833984375
+: 4.799954833984375
+[[file:./.ob-jupyter/8c25e673dfc43a7a0494237f1adca3fe60365eb7.png]]
 :END:
 
 ** Scatter MSE
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   fig, ax = plt.subplots()
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
+
+  plot(genjet_pt, jet_pt, 'Reco', variable='res', color='k')
+  plot(genjet_pt, pfnet['first']['pred'], 'MSE', variable='res', color='#c71585')
+  plot(genjet_pt, pfnet['1']['pred'], '1st', variable='res', color='#0099cc', textpos_y=0.03)
+  plot(genjet_pt, pfnet['8']['pred'], '2nd', variable='res',color='#a47439', textpos_y=-0.02)
  
-  x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
-  y = binned_statistic(genjet_pt, jet_pt, statistic='std', bins=25)[0]
-  plt.plot(x, y/np.sqrt(x), 'k-', linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1], 'Reco', ha='left', va='center', size=15,  color='k', weight='bold')
-
-  r1 = np.mean(y/np.sqrt(x))
-
-
-  y = binned_statistic(genjet_pt, pfnet['first']['pred'], statistic='std', bins=25)[0]
-  plt.plot(x, y/np.sqrt(x), '-', color='#BF616A', linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]+0.01, 'MSE', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
-
-
-  y = binned_statistic(genjet_pt, pfnet['1']['pred'], statistic='std', bins=25)[0]
-  plt.plot(x, y/np.sqrt(x), '-', color='#D08770' , linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]-0.01, '1st', ha='left', va='center', size=15,  color='#D08770', weight='bold')
-
-  
-  y = binned_statistic(genjet_pt, pfnet['5']['pred'], statistic='std', bins=25)[0]
-  plt.plot(x, y/np.sqrt(x), '-', color='#3B4252', linewidth=3.0)
-  plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]-0.02, '2nd', ha='left', va='center', size=15,  color='#3B4252', weight='bold')
 
   plt.xlabel(r"$P_{T, \text{Gen}}$")
   plt.ylabel(r"$\sigma/\sqrt{P_{T, \text{Gen}}}$")
   
   plt.savefig('images/pfnet_res.pdf', bbox_inches = 'tight', transparent=True)
-
-  r2 = np.mean(y[3:]/np.sqrt(x[3:]))
-  print(r1/r2-1)
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[954]:
-[[file:./obipy-resources/8XrYk8.png]]
+: 4.799954833984375
+: 4.799954833984375
+: 4.799954833984375
+: 4.799954833984375
+[[file:./.ob-jupyter/6224421980219f3c744fa3b798c4879e6f1a2c7c.png]]
 :END:
 
 
 * Comparison
 
 *** Mean R
- #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+
+ #+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
    fig, ax = plt.subplots()
    ax.spines["top"].set_visible(False)
    ax.spines["right"].set_visible(False)
  
-   x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
-   y = binned_statistic(genjet_pt, jet_pt, statistic='mean', bins=25)[0]
-   plt.plot(x, y/x, '-', linewidth=3.0, color='#BF616A')
-   plt.text(x[-1] + 1, y[-1]/x[-1], 'Reco', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
-
-   y = binned_statistic(genjet_pt, pfnet['8']['pred'], statistic='mean', bins=25)[0]
-   plt.plot(x, y/x, '-', color='k', linewidth=3.0)
-   plt.text(x[-1] + 1, y[-1]/x[-1]-0.01, 'PFNET', ha='left', va='center', size=15,  color='k', weight='bold')
-
-  
-   y = binned_statistic(genjet_pt, jetnet['4']['pred'], statistic='mean', bins=25)[0]
-   plt.plot(x, y/x, '-', color='#BF616A', linewidth=3.0)
-   plt.text(x[-1] + 1, y[-1]/x[-1]+0.01, 'JETNET', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
-
+   plot(genjet_pt, jet_pt, 'Reco', variable='R', color='k')
+   plot(genjet_pt, jetnet['4']['pred'], 'JETNET', variable='R', color='#0099cc', textpos_y=0.005)
+   plot(genjet_pt, pfnet['8']['pred'], 'PFNET', variable='R',color='#a47439', textpos_y=-0.005)
+   
    plt.ylim([0.9, 1.15])
 
    plt.xlabel(r"$P_{T, \text{Gen}}$")
@@ -356,29 +293,21 @@ Here are the needed packages. Also to config matplotlib for latex export
 
  #+RESULTS:
  :RESULTS:
- # Out[955]:
- [[file:./obipy-resources/scTW4G.png]]
+: 4.799954833984375
+: 4.799954833984375
+: 4.799954833984375
+[[file:./.ob-jupyter/b0d3cfe05d7573f425720968ca45b40ffb71c2ee.png]]
  :END:
 
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+ #+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
    fig, ax = plt.subplots()
    ax.spines["top"].set_visible(False)
    ax.spines["right"].set_visible(False)
- 
-   x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
-   y = binned_statistic(genjet_pt, jet_pt, statistic='std', bins=25)[0]
-   plt.plot(x, y/np.sqrt(x), '-', linewidth=3.0, color='#BF616A')
-   plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1], 'Reco', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
 
-   y = binned_statistic(genjet_pt, pfnet['8']['pred'], statistic='std', bins=25)[0]
-   plt.plot(x, y/np.sqrt(x), '-', color='k', linewidth=3.0)
-   plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]-0.002, 'PFNET', ha='left', va='center', size=15,  color='k', weight='bold')
-
-  
-   y = binned_statistic(genjet_pt, jetnet['4']['pred'], statistic='std', bins=25)[0]
-   plt.plot(x, y/np.sqrt(x), '-', color='#BF616A', linewidth=3.0)
-   plt.text(x[-1] + 1, y[-1]/np.sqrt(x)[-1]+0.005, 'JETNET', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
+   plot(genjet_pt, jet_pt, 'Reco', variable='res', color='k')
+   plot(genjet_pt, jetnet['4']['pred'], 'JETNET', variable='res', color='#0099cc', textpos_y=0.005)
+   plot(genjet_pt, pfnet['8']['pred'], 'PFNET', variable='res',color='#a47439', textpos_y=-0.005)
 
    plt.xlabel(r"$P_{T, \text{Gen}}$")
    plt.ylabel(r"$R$")
@@ -387,21 +316,20 @@ Here are the needed packages. Also to config matplotlib for latex export
    plt.ylabel(r"$\sigma/\sqrt{P_{T, \text{Gen}}}$")
    
    plt.savefig('images/comp_res.pdf', bbox_inches = 'tight', transparent=True)
-   
-   r2 = np.mean(y[3:]/np.sqrt(x[3:]))
-   print(r1/r2-1)
  #+END_SRC
 
  #+RESULTS:
  :RESULTS:
- # Out[950]:
- [[file:./obipy-resources/RoOeJ2.png]]
+: 4.799954833984375
+: 4.799954833984375
+: 4.799954833984375
+[[file:./.ob-jupyter/7ac04f54bcbf61a2c0b9805ea4663877c8838f85.png]]
  :END:
 
 * Plots for other Values
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
 jet_pt_nn = pfnet['8']['pred']
 R_nn = jet_pt_nn/genjet_pt
 R_reco = jet_pt/genjet_pt
@@ -412,7 +340,7 @@ R_reco = jet_pt/genjet_pt
 # Out[92]:
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   plt.plot(genjet_pt, jet_pt, 'r.', alpha=0.002)
   plt.plot(genjet_pt, jet_pt_nn, 'b.', alpha=0.002)
   plt.xlabel(r'GenJet $P_T$')
@@ -426,7 +354,7 @@ R_reco = jet_pt/genjet_pt
 [[file:./obipy-resources/tcgSEL.png]]
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_pt, jet_pt_nn, statistic='mean', bins=25)[0]
   dy = binned_statistic(genjet_pt, jet_pt, statistic='std', bins=25)[0]
@@ -441,7 +369,7 @@ R_reco = jet_pt/genjet_pt
 [[file:./obipy-resources/LrONR7.png]]
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   plt.hist(genjet_pt, bins=np.arange(30., 151., 10), log=True, alpha=0.65, color='r', label='GenJet')
   plt.hist(jet_pt_nn, bins=np.arange(30., 151., 10), log=True, alpha=0.65, color='#1f77b4', label='NNJet')
   plt.xlim([30.,150.])
@@ -459,7 +387,7 @@ R_reco = jet_pt/genjet_pt
 
 
   
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   from scipy.stats import t as student_t
   from scipy.stats import norm
   n, bins, patches = plt.hist(R_reco, bins=np.arange(0.,2.1,0.01), normed=1, alpha=0.75, color='r', label='RecoJet')
@@ -490,7 +418,7 @@ R_reco = jet_pt/genjet_pt
 
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   plt.plot(genjet_pt, R_nn, '.', color='#1f77b4', alpha=0.003, label='NNJet')
   plt.plot(genjet_pt, R_reco, '.', color='r', alpha=0.002, label='RecoJet')
   plt.xlabel(r'GenJet $P_T$')
@@ -505,7 +433,7 @@ R_reco = jet_pt/genjet_pt
 [[file:./obipy-resources/15ugAZ.png]]
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   from scipy.stats import binned_statistic
 
   x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
@@ -527,7 +455,7 @@ R_reco = jet_pt/genjet_pt
 :END:
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_pt[partonflavour == 21], genjet_pt[partonflavour == 21], statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_pt[partonflavour == 21], R_nn[partonflavour == 21], statistic='mean', bins=25)[0]
   dy = binned_statistic(genjet_pt[partonflavour == 21], R_nn[partonflavour == 21], statistic='std', bins=25)[0]
@@ -548,7 +476,7 @@ R_reco = jet_pt/genjet_pt
 :END:
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export 
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export 
   x = binned_statistic(genjet_eta, genjet_eta, statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_eta, R_nn, statistic='mean', bins=25)[0]
   dy = binned_statistic(genjet_eta, R_nn, statistic='std', bins=25)[0]
@@ -568,7 +496,7 @@ R_reco = jet_pt/genjet_pt
 :END:
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_phi, genjet_phi, statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_phi, R_nn, statistic='mean', bins=25)[0]
   dy = binned_statistic(genjet_phi, R_nn, statistic='std', bins=25)[0]
