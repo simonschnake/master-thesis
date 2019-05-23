@@ -20,7 +20,7 @@
 % linktocpage=true, % toc etc: make page number active (not name)
 % ]{hyperref}        % clickabe references in .dvi
 % purposely included before color package
-\usepackage{color}     % color packages; needed by xy
+\usepackage[dvipsnames]{xcolor} % color packages; needed by xy
 \usepackage{graphicx}  % graphics packages
 \usepackage{tikzpagenodes}
 % for final version change all to some
@@ -92,7 +92,7 @@
 
 %%% make red todo notes
 \newcommand{\todo}[1]{\textcolor{red}{TODO: #1}\PackageWarning{TODO:}{#1!}}
-\newcommand{\added}[1]{\textcolor{green}{#1}}\PackageWarning{GREEN:}{#1!}}
+\newcommand{\added}[1]{\textcolor{Green}{#1}}\PackageWarning{GREEN:}{#1!}}
 
 
 \pagestyle{plain}               % pagestyle: headings, empty, plain

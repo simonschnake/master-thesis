@@ -8,7 +8,7 @@
 Here are the needed packages. Also to config matplotlib for latex export
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   # !cd /home/schnakes/master-thesis
   import matplotlib as mpl
   import matplotlib.pyplot as plt
@@ -32,7 +32,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 :END:
 
 ** Data Loading
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   y = pickle.load(open('./results/y_values.p', 'rb'))
   jetnet = pickle.load(open('./results/jetnet_binned2_results.p', 'rb'))
   pfnet = pickle.load(open('./results/pfnet_binnedresults.p', 'rb'))
@@ -75,7 +75,7 @@ the y lines contain 10 values
 * Results
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_pt, jet_pt/genjet_pt, statistic='mean', bins=25)[0]
   plt.plot(x, y, 'k-')
@@ -97,7 +97,7 @@ the y lines contain 10 values
 [[file:./obipy-resources/CfQpIi.png]]
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_pt, jet_pt/np.sqrt(genjet_pt), statistic='std', bins=25)[0]
   plt.plot(x, y, 'k-')
@@ -130,7 +130,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 \[ R = \frac{P_{T}^{{\text{reco}}}}{P_{T}^{{\text{gen}}}}\]
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   plt.hist(genjet_pt, bins=np.arange(30., 151., 10), log=True, alpha=0.75, color='#1f77b4')
   plt.xlim([30.,150.])
   # plt.ylim([10**2.,10**4.])
@@ -145,7 +145,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 :END:
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   from scipy.stats import norm
   n, bins, patches = plt.hist(R_reco, bins=np.arange(0.,2.1,0.01), normed=1, alpha=0.75, color='#1f77b4')
   (loc, scale) = norm.fit(R_reco)
@@ -165,7 +165,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 [[file:./obipy-resources/sdQPKa.png]]
 :END:
   
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   from scipy.stats import t as student_t
   n, bins, patches = plt.hist(R_reco, bins=np.arange(0.,2.1,0.01), normed=1, alpha=0.75, color='#1f77b4')
   (df, loc, scale) = student_t.fit(R_reco)
@@ -186,7 +186,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 [[file:./obipy-resources/pedthm.png]]
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   plt.plot(genjet_pt, R_reco, 'b.', alpha=0.002)
   plt.xlabel(r'GenJet $P_T$')
   plt.ylabel('R')
@@ -199,7 +199,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 [[file:./obipy-resources/a3nvti.png]]
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   from scipy.stats import binned_statistic
   t_mean = lambda x: student_t.fit(x)[1]
   t_std = lambda x: student_t.fit(x)[2]
@@ -219,7 +219,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 :END:
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_pt[partonflavour == 21], genjet_pt[partonflavour == 21], statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_pt[partonflavour == 21], R_reco[partonflavour == 21], statistic=t_mean, bins=25)[0]
   dy = binned_statistic(genjet_pt[partonflavour == 21], R_reco[partonflavour == 21], statistic=t_std, bins=25)[0]
@@ -240,7 +240,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 :END:
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export 
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export 
   x = binned_statistic(genjet_eta, genjet_eta, statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_eta, R_reco, statistic=t_mean, bins=25)[0]
   dy = binned_statistic(genjet_eta, R_reco, statistic=t_std, bins=25)[0]
@@ -256,7 +256,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 :END:
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_phi, genjet_phi, statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_phi, R_reco, statistic=t_mean, bins=25)[0]
   dy = binned_statistic(genjet_phi, R_reco, statistic=t_std, bins=25)[0]
@@ -272,7 +272,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 :END:
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   plt.plot(genjet_pt, jet_pt, 'r.', alpha=0.002)
   plt.xlabel(r'GenJet $P_T$')
   plt.ylabel(r'RecoJet $P_T$')
@@ -287,7 +287,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_pt, jet_pt, statistic='mean', bins=25)[0]
   dy = binned_statistic(genjet_pt, jet_pt, statistic='std', bins=25)[0]
@@ -303,7 +303,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 :END:
 * Plot for Neural Net
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   jet_pt_nn = pfnet['third']['pred']  
   R_nn = jet_pt_nn/genjet_pt
 
@@ -320,7 +320,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 [[file:./obipy-resources/BclQdI.png]]
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_pt, genjet_pt, statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_pt, jet_pt_nn, statistic=t_mean, bins=25)[0]
   dy = binned_statistic(genjet_pt, jet_pt, statistic=t_std, bins=25)[0]
@@ -335,7 +335,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 [[file:./obipy-resources/RbGtji.png]]
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   plt.hist(genjet_pt, bins=np.arange(30., 151., 10), log=True, alpha=0.65, color='r', label='GenJet')
   plt.hist(jet_pt_nn, bins=np.arange(30., 151., 10), log=True, alpha=0.65, color='#1f77b4', label='NNJet')
   plt.xlim([30.,150.])
@@ -353,7 +353,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 
   
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   from scipy.stats import t as student_t
   n, bins, patches = plt.hist(R_reco, bins=np.arange(0.,2.1,0.01), normed=1, alpha=0.75, color='r', label='RecoJet')
   n, bins, patches = plt.hist(R_nn, bins=np.arange(0.,2.1,0.01), normed=1, alpha=0.75, color='#1f77b4', label='NNJet')
@@ -383,7 +383,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   plt.plot(genjet_pt, R_nn, '.', color='#1f77b4', alpha=0.003, label='NNJet')
   plt.plot(genjet_pt, R_reco, '.', color='r', alpha=0.002, label='RecoJet')
   plt.xlabel(r'GenJet $P_T$')
@@ -398,7 +398,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 [[file:./obipy-resources/vjT3Sm.png]]
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   from scipy.stats import binned_statistic
   t_mean = lambda x: student_t.fit(x)[1]
   t_std = lambda x: student_t.fit(x)[2]
@@ -422,7 +422,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 :END:
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_pt[partonflavour == 21], genjet_pt[partonflavour == 21], statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_pt[partonflavour == 21], R_nn[partonflavour == 21], statistic=t_mean, bins=25)[0]
   dy = binned_statistic(genjet_pt[partonflavour == 21], R_nn[partonflavour == 21], statistic=t_std, bins=25)[0]
@@ -443,7 +443,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 :END:
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export 
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export 
   x = binned_statistic(genjet_eta, genjet_eta, statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_eta, R_nn, statistic=t_mean, bins=25)[0]
   dy = binned_statistic(genjet_eta, R_nn, statistic=t_std, bins=25)[0]
@@ -463,7 +463,7 @@ Data = RunIISpring18MiniAOD/QCD_Pt-15to3000_TuneCP5_Flat_13TeV_pythia8/MINIAODSI
 :END:
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports results :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
   x = binned_statistic(genjet_phi, genjet_phi, statistic='mean', bins=25)[0]
   y = binned_statistic(genjet_phi, R_nn, statistic=t_mean, bins=25)[0]
   dy = binned_statistic(genjet_phi, R_nn, statistic=t_std, bins=25)[0]

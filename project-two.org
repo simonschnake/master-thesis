@@ -1,7 +1,7 @@
 * Setup                                                            :noexport:
 
 Here are the needed packages. Also to config matplotlib for latex export
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   import numpy as np 
 
   from scipy.optimize import leastsq
@@ -20,12 +20,11 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[266]:
 :END:
 
 * Loading Data                                                     :noexport:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   dense_res = pickle.load(open('./results/dense_results.p', 'rb'))
   conv_res = pickle.load(open('./results/conv_results.p', 'rb'))
   #adv_res = pickle.load(open('./results/adv_results.p', 'rb'))
@@ -44,47 +43,45 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[267]:
 :END:
 
 * Loss Raw
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-history = dense_res['history']
-conv_history = conv_res['history']
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  history = dense_res['history']
+  conv_history = conv_res['history']
 
-epochs = range(len(history['loss']))
-fig, ax = plt.subplots()
-ax.spines['top'].set_visible(False)
-ax.spines['bottom'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.spines['left'].set_visible(False)
-plt.tick_params(axis='both', which='both', bottom=False, top=False,
-                labelbottom=True, left=True, right=False, labelleft=True)
-ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
+  epochs = range(len(history['loss']))
+  fig, ax = plt.subplots()
+  ax.spines['top'].set_visible(False)
+  # ax.spines['bottom'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  # ax.spines['left'].set_visible(False)
+  plt.tick_params(axis='both', which='both', bottom=True, top=False,
+		  labelbottom=True, left=True, right=False, labelleft=True)
+  # ax.xaxis.set_major_formatter(plt.FuncFormatter('{:.0f}'.format))
 
-plt.plot(epochs, history['loss'][:len(epochs)], 'k-')
-plt.plot(epochs, history['val_loss'][:len(epochs)], '-', color='#BF616A')
-# plt.plot(epochs, history['da_loss'], 'k-')
-# plt.plot(epochs, history['da_val_loss'], '-', color='#1f77b4')
+  plt.plot(epochs, history['loss'][:len(epochs)], 'k-')
+  plt.plot(epochs, history['val_loss'][:len(epochs)], '-', color='#BF616A')
+  # plt.plot(epochs, history['da_loss'], 'k-')
+  # plt.plot(epochs, history['da_val_loss'], '-', color='#1f77b4')
 
-plt.text(float(epochs[-1])+0.5, history['loss'][-1], 'training loss', ha='left', va='center', size=16)
-plt.text(float(epochs[-1])+0.5, history['val_loss'][-1], 'validation loss', ha='left', va='center', size=16, color='#BF616A')
+  plt.text(float(epochs[-1])+0.5, history['loss'][-1], 'training loss', ha='left', va='center', size=16)
+  plt.text(float(epochs[-1])+0.5, history['val_loss'][-1], 'validation loss', ha='left', va='center', size=16, color='#BF616A')
 
-plt.xlabel('epochs')
-plt.ylabel('loss')
-plt.ylim([0.1, 1.0])
-plt.savefig('images/dense_loss.pdf', bbox_inches = 'tight')
+  plt.xlabel('epochs')
+  plt.ylabel('loss')
+  plt.ylim([0.1, 1.0])
+  plt.savefig('images/dense_loss.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[268]:
-[[file:./obipy-resources/j1MhEJ.png]]
+[[file:./.ob-jupyter/a393232e9bd5a90162d6dbd989d2259e0fdd78b1.png]]
 :END:
 
 * Scatter Plot Raw
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
 
   func = lambda c, x: c[0]*x+c[1] 
   fig, ax = plt.subplots()
@@ -100,26 +97,25 @@ plt.savefig('images/dense_loss.pdf', bbox_inches = 'tight')
 
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)  
-  ax.spines["left"].set_visible(False)
-  ax.spines["bottom"].set_visible(False)
-  # plt.savefig('images/dense_scatter.pdf', bbox_inches = 'tight')
+
+  plt.savefig('images/dense_scatter.pdf', bbox_inches = 'tight')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[269]:
-[[file:./obipy-resources/4BzL3n.png]]
+[[file:./.ob-jupyter/09db3de8cd9991e9be707565dc94642fce4348ef.png]]
 :END:
 
 * Results Raw
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  import sys
-  sys.path.append('./src')
-  from utils import *
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   n = 20
+  from src.binned_estimation import binned_estimation
+  from scipy.stats import norm
 
-  y_f, mu_f, sigma_f = sliced_statistics(dense_res['y_true']['raw'], func(c_fit, sum_n), n) 
+  res = binned_estimation([dense_res['y_true']['raw'], func(c_fit, sum_n)], bins = 20)
+  y_f, mu_f, sigma_f, std_mu_f, std_sigma_f = res[0], res[1], res[2], res[3], res[4]
+
 
   fig = plt.figure()
   ax = fig.add_subplot(2,1,1)
@@ -142,6 +138,7 @@ plt.savefig('images/dense_loss.pdf', bbox_inches = 'tight')
 
   ax = fig.add_subplot(2,1,2)
   ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
+  ax.errorbar(y_f, sigma_f / np.sqrt(y_f), yerr=std_sigma_f/np.sqrt(y_f))
   ax.plot(dense_res['y']['raw'], dense_res['sigma']['raw'] / np.sqrt(dense_res['y']['raw']), 'k-')
   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
@@ -156,14 +153,14 @@ plt.savefig('images/dense_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[5]:
-: (0.0, 0.5)
-[[file:./obipy-resources/2klccn.png]]
+: 0.499909334
+| 0.0 | 0.5 |
+[[file:./.ob-jupyter/6c4d9d0d33a14950ff6b96db18449323b72521e4.png]]
 :END:
 
 * Loss Data Augmentation
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
 history = dense_res['history']
 conv_history = conv_res['history']
 epochs = range(len(history['da_loss']))
@@ -200,7 +197,7 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 
 * Scatter Likelihood
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
 
   func = lambda c, x: c[0]*x+c[1] 
   fig, ax = plt.subplots()
@@ -228,7 +225,7 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 
 * Comparison Loss Functions
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   fig, ax = plt.subplots()
 
   plt.plot(y_f, mu_f - y_f, '-', color='#BF616A', linewidth=3.0)
@@ -258,7 +255,7 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 
 * Comparison Fully Connected Net & Conv Net
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   fig, ax = plt.subplots()
 
   plt.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#BF616A', linewidth=3.0)
@@ -290,7 +287,7 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 :END:
 
 * Adversarial Scatter
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
 
   func = lambda c, x: c[0]*x+c[1] 
 

@@ -8,8 +8,9 @@
  
 * Setup                                                            :noexport:
 Here are the needed packages. Also to config matplotlib for latex export
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
-  !cd /home/schnakes/master-thesis
+
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  # !cd /home/schnakes/master-thesis
   import matplotlib as mpl
   import matplotlib.pyplot as plt
   mpl.rcParams['text.usetex'] = True
@@ -24,12 +25,12 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[1]:
 :END:
 
 * Loading Data                                                     :noexport:
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   import h5py
+  import numpy as np
 
   try:
       data = h5py.File('../data/electron.h5', 'r')
@@ -47,7 +48,6 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-# Out[2]:
 :END:
 
 * Experimental Setup
@@ -62,7 +62,7 @@ Comparing different models
 - Results charged particles in each scintialor cell
 - true energy
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   import numpy as np
   sum_n = np.sum(X_test[:10000], axis=1)
   energies = np.transpose(Y_test[:10000])[0]
@@ -70,13 +70,13 @@ Comparing different models
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
   plt.ylabel(r'$E_{\text{true}}$ [GeV]')
   plt.xlabel(r'$\sum_i n_i$')
-  plt.savefig('e-vs-sum_n.pdf')
+#  plt.savefig('e-vs-sum_n.pdf')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[3]:
-[[file:./obipy-resources/u0esu7.png]]
+: Text(0.5, 0, '$\\sum_i n_i$')
+[[file:./.ob-jupyter/ec48379ea89bf106bf38a3ac47fb9c564d7a8fbc.png]]
 :END:
 
 #+CAPTION: The graph shows the relation between the energies of the incoming particle $E_{\text{true}}$ in GeV and the absolute number of charged particles in all scintillator cells. 10000 points from the data are plotted.
@@ -84,7 +84,178 @@ Comparing different models
 [[./e-vs-sum_n.pdf]]
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  entries  = X_test[:10000]
+  energies = np.transpose(Y_test[:10000])[0]
+  plt.hist(energies, bins=np.arange(0., 10.1, 1), density=True, alpha=0.75, color='red')
+  plt.xlabel(r'$E_{\text{true}}$ [GeV]')
+  plt.ylabel(r'norm. to 1')
+  plt.xlim([-0.1, 10.1])
+  plt.ylim([0., 0.5])
+  plt.savefig('images/energy_distribution.pdf')
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/7df237a1a933e96740857d0352739fa74134ccac.png]]
+:END:
+
+
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  entries  = X_test[:10000]
+  energies = np.transpose(Y_test[:10000])[0]
+  sum_n = np.sum(entries, axis=1)
+  # entries.reshape((entries.shape[0], 17, 8, 8))
+  
+  plt.hist(sum_n, bins=np.arange(1, 372, 5), density=True, alpha=0.75, color='red')
+  plt.xlabel(r'$\sum_i n_i$')
+  plt.ylabel('norm. to 1')
+  # plt.xlim([0., 10.])
+  # plt.ylim([0., 0.01])
+  plt.savefig('images/sumn_distribution.pdf')
+  
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/ec5d76545ea959359be01f79741f3cd07afd2621.png]]
+:END:
+
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  entries  = X_test[:10000]
+  energies = np.transpose(Y_test[:10000])[0]
+  sum_n = np.sum(entries, axis=1)
+  # entries.reshape((entries.shape[0], 17, 8, 8))
+  
+  sum_n_e_8 = sum_n[(energies > 7.9) * (energies < 8.1)]
+
+  plt.hist(sum_n_e_8, bins=np.arange(1, 372, 5), density=True, alpha=0.5, color='red')
+
+  sum_n_e_2 = sum_n[(energies > 1.9) * (energies < 2.1)]
+
+  plt.hist(sum_n_e_2, bins=np.arange(1, 372, 5), density=True, alpha=0.5, color='blue')
+
+  plt.xlabel(r'$\sum_i n_i$')
+  
+  plt.ylabel('norm. to 1')
+  
+  plt.text(75, 0.03, r'$2\pm \Delta 0.1$ GeV', color='blue', size=13)
+  plt.text(250, 0.015, r'$8\pm \Delta 0.1$ GeV', color='red', size=13)
+  # plt.xlim([0., 10.])
+  # plt.ylim([0., 0.01])
+  plt.savefig('images/sumn_e28_distribution.pdf')
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/376ee575b089d638e282e9f4a010e8d44c2beb59.png]]
+:END:
+
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  entries_in_x = entries.reshape((entries.shape[0], 17, 64))
+  
+  sum_n = np.sum(entries_in_x, axis = 2)
+
+  sum_n = np.sum(sum_n, axis=0)
+  plt.hist(np.arange(0., 17), weights=sum_n, bins=np.arange(0, 17, 1), density=True, color='red', alpha=0.75)
+  
+  plt.xlabel(r'layer in x')
+  plt.ylabel('norm. to 1')
+  
+  # plt.xlim([0., 10.])
+  # plt.ylim([0., 0.01])
+  plt.savefig('images/x_distribution.pdf')
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/02ad5474b3b6891b64eed9bc89da47a1b180f90b.png]]
+:END:
+
+
+
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  entries_in_x = entries.reshape((entries.shape[0], 17, 64))
+  
+  sum_n = np.sum(entries_in_x, axis = 2)
+
+  sum_n_e_2 = sum_n[(energies > 1.9) * (energies < 2.1)]
+  sum_n_e_2 = np.sum(sum_n_e_2, axis=0)
+  plt.hist(np.arange(0., 17), weights=sum_n_e_2, bins=np.arange(0, 17, 1), density=True, alpha=0.5, color='blue')
+
+  sum_n_e_8 = sum_n[(energies > 7.9) * (energies < 8.1)]
+  sum_n_e_8 = np.sum(sum_n_e_8, axis=0)
+  plt.hist(np.arange(0., 17), weights=sum_n_e_8, bins=np.arange(0, 17, 1), density=True, alpha=0.5, color='red')
+  
+  plt.xlabel(r'layer in x')
+  plt.ylabel('norm. to 1')
+  
+  plt.text(4, 0.3, r'$2\pm \Delta 0.1$ GeV', color='blue', size=13)
+  plt.text(5, 0.15, r'$8\pm \Delta 0.1$ GeV', color='red', size=13)
+  # plt.xlim([0., 10.])
+  # plt.ylim([0., 0.01])
+  plt.savefig('images/x_e28_distribution.pdf')
+#+END_SRC
+
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/b44c3460d5c411f4dc80580c2a09c2fc8488cac1.png]]
+:END:
+
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  entries = entries.reshape((entries.shape[0], 17, 8, 8))
+  
+  sum_n = np.sum(entries, axis = 1)
+  sum_n = np.sum(sum_n, axis = 1)
+
+  sum_n_e_2 = sum_n[(energies > 1.9) * (energies < 2.1)]
+  sum_n_e_2 = np.sum(sum_n_e_2, axis=0)
+  plt.hist(np.arange(0., 8.), weights=sum_n_e_2, bins=np.arange(0.1, 8.1, 1), density=True, alpha=0.5, color='blue')
+
+  sum_n_e_8 = sum_n[(energies > 7.9) * (energies < 8.1)]
+  sum_n_e_8 = np.sum(sum_n_e_8, axis=0)
+  plt.hist(np.arange(0., 8), weights=sum_n_e_8, bins=np.arange(0.1, 8.1, 1), density=True, alpha=0.5, color='red')
+  
+  plt.xlabel(r'cell in y')
+  plt.ylabel('norm. to 1')
+  
+  plt.text(4.5, 0.3, r'$2\pm \Delta 0.1$ GeV', color='blue', size=13)
+  plt.text(4.5, 0.2, r'$8\pm \Delta 0.1$ GeV', color='red', size=13)
+  # plt.xlim([0., 10.])
+  # plt.ylim([0., 0.01])
+  plt.savefig('images/y_e28_distribution.pdf')
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/9c2fdca15f69e21af08ec1f993ec44e06b4cb1aa.png]]
+:END:
+
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  entries = entries.reshape((entries.shape[0], 17, 8, 8))
+  
+  sum_n = np.sum(entries, axis = 1)
+  sum_n = np.sum(sum_n, axis = 1)
+  sum_n = np.sum(sum_n, axis=0)
+
+  plt.hist(np.arange(0., 8.), weights=sum_n, bins=np.arange(0.1, 8.1, 1), density=True, color='red', alpha=0.75)
+
+  plt.xlabel(r'cell in y')
+  plt.ylabel('norm. to 1')
+  
+  # plt.xlim([0., 10.])
+  # plt.ylim([0., 0.01])
+  plt.savefig('images/y_distribution.pdf')
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/cb3bc8753f620dc814c526963e7eb9689eef254e.png]]
+:END:
+
+
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   from mpl_toolkits.mplot3d import Axes3D
   from matplotlib.colors import ListedColormap
 
@@ -123,13 +294,12 @@ Comparing different models
   ax.set_ylabel('X')
   ax.set_zlabel('Z')
   ax.text(5, 0, -4, str(Y_test[id][0])+' GeV')
-  plt.savefig('data_display.pdf')
+  plt.savefig('images/data_display.pdf')
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-# Out[4]:
-[[file:./obipy-resources/aM7u7c.png]]
+[[file:./.ob-jupyter/28eb50bfe56445d84e2dcfd4f7d322119a3da094.png]]
 :END:
 
 * Linear Fit
@@ -138,9 +308,12 @@ all scintillator cells as shown in  [cite:figure1] a linear fit to the
 energy \[E  = c_0\sum_i n_i  + c_1\] This is  done with the  method of
 least squares.
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   from scipy.optimize import leastsq
   # function to fit
+  
+  sum_n = np.sum(entries.reshape(entries.shape[0], 1088), axis=1)
+
   inv_fitfunc = lambda c , x: (x-c[1])/c[0]
 
   fitfunc = lambda c , x: x*c[0]+c[1]
@@ -164,8 +337,7 @@ least squares.
 
 #+RESULTS:
 :RESULTS:
-# Out[59]:
-[[file:./obipy-resources/1E6JEU.png]]
+[[file:./.ob-jupyter/0c20c83864c0ff98204ee83cdde19ebd65309d89.png]]
 :END:
 
 #+
@@ -176,12 +348,12 @@ CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is th
 
 The relation is bijectiv so the solution can be found by swapping the axes.
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   from scipy.optimize import leastsq
   # function to fit
-  fitfunc = lambda c , x: (x-c[1])/(abs(c[0])+0.0001)
+  fitfunc = lambda c , x: (x-c[1])/c[0]
   errfunc = lambda c , x, y: (y - fitfunc(c, x))
-  out = leastsq(errfunc, [0., 0.0], args=(energies, sum_n), full_output=1)
+  out = leastsq(errfunc, [0.1, 0.0], args=(energies, sum_n), full_output=1)
 
   c_fit = out[0]
   covar = out[1]
@@ -201,9 +373,8 @@ The relation is bijectiv so the solution can be found by swapping the axes.
 
 #+RESULTS:
 :RESULTS:
-# Out[6]:
-: Text(0.5,0,'$\\sum_i n_i$')
-[[file:./obipy-resources/BiFYq0.png]]
+: Text(0.5, 0, '$\\sum_i n_i$')
+[[file:./.ob-jupyter/d2b54c919e40184118b3d7c9ce8126abc9838e55.png]]
 :END:
 
 \[
@@ -239,7 +410,7 @@ particles in the scintillators is poisson distributed. So the
 estimator the energy has a standard deviance of $\sqrt{\mu}$.
 
 Which is 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   from scipy.special import erf
   from scipy.stats import norm
   from scipy import optimize
@@ -247,7 +418,7 @@ Which is
   def likelihood(par):
       epsilon = 0.0000001
       mu = sum_n*par[0]+par[1]
-      sigma = np.sqrt(np.abs(mu)) # 2/par[0] 
+      sigma = 0.4*np.sqrt(np.abs(mu)) # 2/par[0] 
       elements = norm.pdf(energies, mu, sigma)
       a = np.divide(mu-lower_border, np.sqrt(2)*sigma+epsilon)
       b = np.divide(mu-upper_border, np.sqrt(2)*sigma+epsilon)
@@ -272,21 +443,23 @@ Which is
   lower_border = 0  
   upper_border = 10
 
-  out = optimize.minimize(mse, np.array(c_fit), method='L-BFGS-B')
+  out = optimize.minimize(mse, np.array(c_fit), method='BFGS', tol=1)
   c_mse = out['x']
 
-  out = optimize.minimize(mwse, np.array(c_fit), method='L-BFGS-B')
+  out = optimize.minimize(mwse, np.array(c_fit), method='BFGS', tol=1)
   c_mwse = out['x']
 
-  out = optimize.minimize(likelihood, np.array(c_fit), method='L-BFGS-B')
+  out = optimize.minimize(likelihood, np.array(c_mse), method='BFGS', tol=1e-3)
   c_like = out['x']
 
 
   n1 = np.arange(0, 255, 0.5)
   n2 = np.arange(0, 240, 0.5)
+  n3 = np.arange(0, 245, 0.5)
   plt.plot(sum_n, energies, 'r.', alpha=0.06)
   plt.plot(n1, fitfunc(c_mse, n1), 'k-')     # Fit
   plt.plot(n2, fitfunc(c_like, n2), 'b-')     # Fit
+
 
   # n = np.arange(0, 10.1, 0.1)
   # plt.plot(energies, sum_n, 'r.', alpha=0.06)
@@ -304,8 +477,7 @@ Which is
 
 #+RESULTS:
 :RESULTS:
-# Out[65]:
-[[file:./obipy-resources/gfPb1o.png]]
+[[file:./.ob-jupyter/1b219d7960a34a029f2640608c0edc36b8c53a21.png]]
 :END:
 
 #+CAPTION: The graph is the same as in \cite{e-vs-sum_n}. The black straight is the result of the fit described above.
@@ -314,7 +486,7 @@ Which is
 
 * Systematic Shift
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   func = lambda c, x: c[0]*x+c[1] 
 
   fig = plt.figure()
@@ -356,8 +528,7 @@ Which is
 
 #+RESULTS:
 :RESULTS:
-# Out[18]:
-[[file:./obipy-resources/g6TxDR.png]]
+[[file:./.ob-jupyter/3d02ecc4c5e0654752aefd1d480e13354344c444.png]]
 :END:
 
 * Shape Learning
@@ -366,7 +537,7 @@ We are starting with a fully connected neural network. It is build out of 4 laye
 Our output layer is one neuron with a linear activation. We train the network with the rmsprop optimizer and our loss function is the mean squared error between
 the true energy values and our predicted energy values. We train the network for 10 epochs with a batch size of 128.
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   from keras.layers import Input, Dense, Conv3D, Flatten, BatchNormalization, Activation, AveragePooling3D, Dropout
   from keras.models import Model
   import h5py
@@ -397,7 +568,7 @@ the true energy values and our predicted energy values. We train the network for
 # Out[17]:
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
 import pickle
 
 history = pickle.load(open('src/shape_history.p', 'rb'))
@@ -436,7 +607,7 @@ increases. This implies that our model is overfitting, which means
 that the model learns the data and nothing about the underlying
 physics. Also 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   D.load_weights('src/shape_weights.h5')
   func = lambda c, x: c[0]*x+c[1] 
   fig, ax = plt.subplots()
@@ -477,7 +648,7 @@ We are starting with a fully connected neural network. It is build out of 4 laye
 Our output layer is one neuron with a linear activation. We train the network with the rmsprop optimizer and our loss function is the mean squared error between
 the true energy values and our predicted energy values. We train the network for 10 epochs with a batch size of 128.
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   from keras.models import Model
   from keras.layers import Dense, Input
   
@@ -506,7 +677,7 @@ the true energy values and our predicted energy values. We train the network for
 # Out[14]:
 :END:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
 import pickle
 
 history = pickle.load(open('src/first_history.p', 'rb'))
@@ -545,7 +716,7 @@ increases. This implies that our model is overfitting, which means
 that the model learns the data and nothing about the underlying
 physics. Also 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   D.load_weights('src/first_weights.h5')
   func = lambda c, x: c[0]*x+c[1] 
   fig, ax = plt.subplots()
@@ -595,7 +766,7 @@ transformations on incoming data into our network. So we do not
 tranform data we are not training on and we are not storing additional
 transformed datasets.
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
 import pickle
 
 history = pickle.load(open('src/data_augment_history.p', 'rb'))
@@ -624,7 +795,7 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 [[./images/data_augment_loss.pdf]]
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   D.load_weights('src/data_augment_weights.h5')
   func = lambda c, x: c[0]*x+c[1] 
   fig, ax = plt.subplots()
@@ -654,7 +825,7 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 [[./images/data_augment.pdf]]
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   import sys
   sys.path.append('./src')
   from utils import *
@@ -730,7 +901,7 @@ particles in the scintillators is poisson distributed. So the
 estimator the energy has a standard deviance of $\sqrt{\mu}$.
 
 Which is 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   from scipy.special import erf
   from scipy.stats import norm
   from scipy import optimize
@@ -775,7 +946,7 @@ To diminish the depency of the distribution of given true labels, the
 maximum likelihood fit, developed in the previous chapter, will be
 used as a loss function.
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
 import pickle
 history = pickle.load(open('src/likelihood_history.p', 'rb'))
 epochs = range(len(history['loss']))
@@ -800,7 +971,7 @@ plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
 #+NAME: Loss
 [[./likelihood_loss.pdf]]
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   D.load_weights('src/likelihood_weights.h5')
   fig, ax = plt.subplots()
   plt.plot(energies, func(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
@@ -823,7 +994,7 @@ plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
 [[./images/likelihood.pdf]]
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   import sys
   sys.path.append('./src')
   from utils import *
@@ -868,7 +1039,7 @@ plt.savefig('images/likelihood_loss.pdf', bbox_inches = 'tight')
 
 * Adversarial Solution                                             :noexport:
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   D.load_weights('src/data_augment_weights.h5')
   func = lambda c, x: c[0]*x+c[1] 
   fig, ax = plt.subplots()
@@ -891,7 +1062,7 @@ To diminish the depency of the distribution of given true labels, the
 maximum likelihood fit, developed in the previous chapter, will be
 used as a loss function.
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   D.load_weights('src/adversarial_weights.h5')
   fig, ax = plt.subplots()
   plt.plot(energies, func(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
@@ -914,7 +1085,7 @@ used as a loss function.
   plt.savefig('images/adversarial.pdf', bbox_inches = 'tight')
 #+END_SRC
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   import sys
   sys.path.append('./src')
   from utils import *
@@ -952,7 +1123,7 @@ used as a loss function.
 #+END_SRC
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   import pickle
   history = pickle.load(open('src/adversarial_history.p', 'rb'))
   epochs = range(len(history['D_loss']))
@@ -972,7 +1143,7 @@ used as a loss function.
   plt.ylabel('loss')
 #+END_SRC
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   import pickle
   history = pickle.load(open('src/adversarial_history.p', 'rb'))
   epochs_R = range(len(history['R_loss']))
@@ -992,7 +1163,7 @@ used as a loss function.
   plt.ylabel('loss')
 #+END_SRC
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   D.load_weights('src/adversarial_weights.h5')
   fig, ax = plt.subplots()
   plt.plot(energies, fitfunc(c_fit, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
@@ -1008,7 +1179,7 @@ used as a loss function.
   ax.spines["bottom"].set_visible(False)  
 #+END_SRC
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   n = 20
 
   y_true = np.array(Y_test).reshape(len(Y_test),)
@@ -1050,7 +1221,7 @@ used as a loss function.
 
 * Pions
 ** Loading Data                                                    :noexport:
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+ #+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
    import h5py
 
    try:
@@ -1075,7 +1246,7 @@ used as a loss function.
 
  The relation is bijectiv so the solution can be found by swapping the axixes.
 
- #+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+ #+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   from scipy.special import erf
   from scipy.stats import norm
   from scipy import optimize
@@ -1129,7 +1300,7 @@ used as a loss function.
 
 ** Neural Net
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
 import pickle
 history = pickle.load(open('src/pion_history.p', 'rb'))
 epochs = range(len(history['loss']))
@@ -1155,7 +1326,7 @@ plt.savefig('images/pion_loss.pdf', bbox_inches = 'tight')
 [[./images/pion_loss.pdf]]
 
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   D.load_weights('src/pion_weights.h5')
   fig, ax = plt.subplots()
   plt.plot(energies, fitfunc(c_like, sum_n) - energies, '.', alpha=0.25, markersize=3, color='#1f77b4')
@@ -1177,7 +1348,7 @@ plt.savefig('images/pion_loss.pdf', bbox_inches = 'tight')
 #+NAME: pion
 [[./images/pion.pdf]]
 
-#+BEGIN_SRC ipython :session :results raw drawer :exports none :eval no-export
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   import sys
   sys.path.append('./src')
   from utils import *

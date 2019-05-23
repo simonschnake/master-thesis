@@ -1,5 +1,5 @@
 # this file is for outsourcing python functions, to keep our notebooks clean
-import keras
+#import keras
 import numpy as np
 import random
 

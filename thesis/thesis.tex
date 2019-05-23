@@ -1005,7 +1005,6 @@ to be a cone in r-eta-phi space. The factor k determines the behavior
 of the algorithm. For k=1 the equation \eqref{jet_algo} describes the
 so-called k\_t algorithm, for k=-1 the anti k\_t algorithm and for k=0
 the Cambridge/Aachen algorithm.
-%Figure \todo{bild einfügen} shows how the different algorithms differ from each other.
 
 These algorithms fulfill two essential properties. They provide collinear and
 infrared security. A jet algorithm is referred to as infrared safe if the
@@ -1327,6 +1326,139 @@ the work by LeCun et al. has to be mentioned. They demonstrated the
 application of a backpropagating ConvNet to the recognition of
 handwritting zip code digits \cite{lecun89}.
 
+\section{Adversarial Networks}
+
+For some deep learning applications it is necessary that the results
+are independent of nuisance parameters. An example of this in particle
+physics would be a jet classification that is independent of the jet
+mass. In such a case correlations are to be eliminated that could
+otherwise lead to systematic errors that are difficult to characterize
+and control. One possibility to make a network independent of nuisance
+parameters is adversarial training.
+
+A distribution of data points \(p(X, Y, Z)\) is given in which \(X\)
+is the data, \(Y\) is the labels and \(Z\) is a nuisance parameter.
+Then the goal is that the results of the network \(\has Y\) is
+invariant by variation of the nuisance parameter \(Z\),
+
+\begin{align}
+p(\hat Y(X)| z) = p(\hat Y(X)| z') \forall z,z' \in Z.
+\end{align}
+
+It is the equivalent of demanding that \(\has Y\) and \(Z\) are
+independent random variables.
+
+\begin{figure}[H]
+  \centering
+  \usetikzlibrary{arrows}
+  \def\layersep{1cm}
+  \small
+  \begin{tikzpicture}[shorten >= 1pt, ->, node distance=\layersep,scale=.75]
+    \tikzstyle{neuron} = [circle, minimum size=0.25cm, draw=black!20, line width=0.3mm, fill=white]
+    % Classifier f
+    \node at (1.5,0) {Predictor $\hat Y$};
+    \draw (-1,-0.5) rectangle (4,-5.5);
+
+    \path[->, shorten >= 0pt] (-2,-3) edge (-1,-3);
+    \node[left] at (-2,-3) {$X$};
+
+    \path[->, shorten >= 0pt] (3.5,-3) edge (6.5,-3);
+    \node[above] at (5.25,-3) {$\hat Y(X))$};
+
+    \path[dashed,-] (5.25,-3) edge (5.25,-6.5);
+    \node[below] at (5.25,-6.5) {${\cal L}_Y(\hat Y(X), Y)$};
+
+    \foreach \name / \y in {1,...,3}
+    \node[neuron] (f-I-\name) at (-0.5,-1-\y) {};
+
+    \foreach \name / \y in {1,...,5}
+    \node[neuron] (f-H1-\name) at (-0.5cm+\layersep,-\y cm) {};
+    \foreach \name / \y in {1,...,5}
+    \node[neuron] (f-H2-\name) at (-0.5cm+3*\layersep,-\y cm) {};
+
+    \node[neuron] (f-O) at (-0.5cm+4*\layersep,-3cm) {};
+
+    \foreach \source in {1,...,3}
+    \foreach \dest in {1,...,5}
+    \path[black] (f-I-\source) edge (f-H1-\dest);
+
+    \foreach \source in {1,...,5}
+    \path[black] (f-H2-\source) edge (f-O);
+
+    \node[black] at (1.5,-3) {...};
+
+    % Adversary r
+    \node at (9,0) {Adversary $\hat Z$};
+    \draw (6.5,-0.5) rectangle (11.5,-5.5);
+
+    \node[above] at (14,-3) {$\hat Z(\hat Y(X))$};
+    \path[-o, shorten >= 0pt] (11,-3) edge (15,-3);
+
+    \foreach \name / \y in {1,...,1}
+    \node[neuron] (r-I-\name) at (7,-2-\y) {};
+
+    \foreach \name / \y in {1,...,5}
+    \node[neuron] (r-H1-\name) at (7cm+\layersep,-\y cm) {};
+    \foreach \name / \y in {1,...,5}
+    \node[neuron] (r-H2-\name) at (7cm+3*\layersep,-\y cm) {};
+
+    \node[neuron] (r-O1) at (7cm+4*\layersep,-2cm) {};
+    \node[neuron] (r-O2) at (7cm+4*\layersep,-3cm) {};
+    \node[neuron] (r-O3) at (7cm+4*\layersep,-4cm) {};
+
+    \foreach \source in {1,...,1}
+    \foreach \dest in {1,...,5}
+    \path[black] (r-I-\source) edge (r-H1-\dest);
+
+    \foreach \source in {1,...,5}
+    \path[black] (r-H2-\source) edge (r-O1);
+    \foreach \source in {1,...,5}
+    \path[black] (r-H2-\source) edge (r-O2);
+    \foreach \source in {1,...,5}
+    \path[black] (r-H2-\source) edge (r-O3);
+
+    \node[black] at (9,-3) {...};
+
+    \draw[dashed,-] (14.9,-6.5) -- (14.9,-3);
+    \node[below] at (15,-6.5) {${\cal L}_Z(\hat Z(\hat Y(X)), Z)$};
+  \end{tikzpicture}
+\caption{Visualization of the adversarial training setup}
+\label{adv-training}
+\end{figure}
+
+In order to gain independence of \(Z\), another network is attached to
+the first network. The task of the second network \( Z\) is to
+determine \(Z\) from the output of \(\hat Y\). This is illustrated in
+figure \label{adv-training}.
+
+To achieve this, the weights of the first network \(\hat Y\) are
+locked during the training and only the weights of the second network
+\(\hat Z\) are trained with the loss function
+
+\begin{align}
+  {\cal L}_Z(\hat Z(\hat Y(X)), Z).
+\end{align}
+
+In a further training step, the first network is trained by freeing
+the weights of the first network \(\hat Y\), while the weights of the
+second network \(\hat Z\) are fixed.
+
+The network is trained with the loss function
+
+\begin{align}
+{\cal L} = {\cal L}_Y(\hat Y(X), Y) - \lambda {\cal L}_Z(\hat Z(\hat Y(X)), Z).
+\end{align}
+
+The second term is a penalty term. It causes the network \(\hat Y\) to
+attempt to deteriorate the result of \(\hat Z\). This eliminates
+\(\hat Y\) dependency on the distribution of \(Z\). \(\lambda\) is a
+free hyperparameter.
+
+The two training steps are iterated until a balance between the two nets is achieved.
+
+This learning method was developed by \emph{G. Louppe et al} in the
+article ``Learning to Pivot with Adversarial Networks'' \cite{louppe16_learn_to_pivot}.
+
 \section{Particle Flow Networks}
 \label{sec:orgde973b7}
 
@@ -1464,15 +1596,6 @@ event the number of traces in each scintillator cell are counted.
 These 1088 values are then stored as data points for further
 analysis. An example simulation event is shown in figure \ref{sim_exp}.
 
-\todo{simulationsbild überarbeiten, red green?}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.9 \textwidth]{../images/front-side.pdf}
-  \caption{Visualization of a typical event simulation inside the
-    detector.}
-    \label{sim_exp}
-\end{figure}
-
 \todo{datenstruktur präsentieren siehe seite 38}
 
 \section{Energy Regression By Linear Fitting}
@@ -1532,12 +1655,12 @@ data. \added{The data tensor is flatten into a 1088 dimensional vector
 convolutional neural net is compared with the fully connected neural
 net.
 
+
 \todo{struktur erklären}
-\todo{aufsplitten der beschreibung CONVNET}
-\todo{idea: local pattern by conv-net followed by dense net}
-\todo{wie zu struktur gekommen}
-\todo{training validation test split satz}
-\todo{training hyperparameters}
+\todo{aufsplitten der beschreibung CONVNET} \todo{idea: local pattern
+  by conv-net followed by dense net} \todo{wie zu struktur gekommen}
+\todo{training validation test split satz} \todo{training
+  hyperparameters}
 
 The layer structure of the first network is shown in table \ref{fcn_structure}.
 
@@ -1564,8 +1687,7 @@ The layer structure of the first network is shown in table \ref{fcn_structure}.
   \label{fcn_structure}
 \end{table}
 
-\todo{activation function erklären, warum linear letzte, wie bin ich zu der struktur gekommen}
-\todo{inputkanäle}
+\added{Different structures were tried out. The presented version is the one with the best convergence.}
 
 It has 659,465 free parameters and each layer \added{is fully connected to
 the previous layer}. With the exception of the output node, all nodes
@@ -1724,99 +1846,18 @@ training set. It does not longer show the increase of loss function
 for the validation set without data augmentation. This indicates that
 the network is not overfitting any longer.
 
+\section{Energy Regression with the Convolutional Network}
+
+\todo{move everything here}
+
 \section{Adversarial Training}
 \label{sec:org30a0273}
 
 \todo{move to chapter deep learning part}
 
-\begin{figure}[H]
-  \centering
-  \usetikzlibrary{arrows}
-  \def\layersep{1cm}
-  \small
-  \begin{tikzpicture}[shorten >= 1pt, ->, node distance=\layersep,scale=.75]
-    \tikzstyle{neuron} = [circle, minimum size=0.25cm, draw=black!20, line width=0.3mm, fill=white]
-    % Classifier f
-    \node at (1.5,0) {Network $f$};
-    \draw (-1,-0.5) rectangle (4,-5.5);
-
-    \path[->, shorten >= 0pt] (-2,-3) edge (-1,-3);
-    \node[left] at (-2,-3) {$X$};
-
-    \path[-o, shorten >= 0pt] (1.5,-6.5) edge (1.5,-5.5);
-    \node[below] at (1.5,-6.5) {$\theta_f$};
-
-    \path[->, shorten >= 0pt] (3.5,-3) edge (6.5,-3);
-    \node[above] at (5.25,-3) {$f(X;\theta_f)$};
-
-    \path[dashed,-] (5.25,-3) edge (5.25,-6.5);
-    \node[below] at (5.25,-6.5) {${\cal L}_f(\theta_f)$};
-
-    \foreach \name / \y in {1,...,3}
-    \node[neuron] (f-I-\name) at (-0.5,-1-\y) {};
-
-    \foreach \name / \y in {1,...,5}
-    \node[neuron] (f-H1-\name) at (-0.5cm+\layersep,-\y cm) {};
-    \foreach \name / \y in {1,...,5}
-    \node[neuron] (f-H2-\name) at (-0.5cm+3*\layersep,-\y cm) {};
-
-    \node[neuron] (f-O) at (-0.5cm+4*\layersep,-3cm) {};
-
-    \foreach \source in {1,...,3}
-    \foreach \dest in {1,...,5}
-    \path[black] (f-I-\source) edge (f-H1-\dest);
-
-    \foreach \source in {1,...,5}
-    \path[black] (f-H2-\source) edge (f-O);
-
-    \node[black] at (1.5,-3) {...};
-
-    % Adversary r
-    \node at (9,0) {Adversary $r$};
-    \draw (6.5,-0.5) rectangle (11.5,-5.5);
-
-    \node[above] at (14,-3) {$r(f(X;\theta_f);\theta_r)$};
-    \path[-o, shorten >= 0pt] (11,-3) edge (15,-3);
-    \path[-o, shorten >= 0pt] (9,-6.5) edge (9,-5.5);
-    \node[below] at (9,-6.5) {$\theta_r$};
-
-    \foreach \name / \y in {1,...,1}
-    \node[neuron] (r-I-\name) at (7,-2-\y) {};
-
-    \foreach \name / \y in {1,...,5}
-    \node[neuron] (r-H1-\name) at (7cm+\layersep,-\y cm) {};
-    \foreach \name / \y in {1,...,5}
-    \node[neuron] (r-H2-\name) at (7cm+3*\layersep,-\y cm) {};
-
-    \node[neuron] (r-O1) at (7cm+4*\layersep,-2cm) {};
-    \node[neuron] (r-O2) at (7cm+4*\layersep,-3cm) {};
-    \node[neuron] (r-O3) at (7cm+4*\layersep,-4cm) {};
-
-    \foreach \source in {1,...,1}
-    \foreach \dest in {1,...,5}
-    \path[black] (r-I-\source) edge (r-H1-\dest);
-
-    \foreach \source in {1,...,5}
-    \path[black] (r-H2-\source) edge (r-O1);
-    \foreach \source in {1,...,5}
-    \path[black] (r-H2-\source) edge (r-O2);
-    \foreach \source in {1,...,5}
-    \path[black] (r-H2-\source) edge (r-O3);
-
-    \node[black] at (9,-3) {...};
-
-    \draw[dashed,-] (14.9,-6.5) -- (14.9,-3);
-    \node[below] at (15,-6.5) {${\cal L}_r(\theta_f, \theta_r)$};
-  \end{tikzpicture}
-\caption{Visualisation of the adversarial training setup}
-\label{adv-training}
-\end{figure}
-
 In order to reduce the unphysical deviations at the end of the
-distribution, an adversarial training was tried. The theoretical basis
-for this type of training was first described in the article
-``Learning to Pivot with Adversarial Networks'' by \emph{G. Louppe et
-  al}. Here a modification of this training process was applied.
+distribution, an adversarial network was used. Here a modification of
+this training process was applied.
 
 \todo{überarbeiten}
 The basic idea was that a quantity should be calculated from the
