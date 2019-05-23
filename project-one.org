@@ -21,14 +21,8 @@ Here are the needed packages. Also to config matplotlib for latex export
   mpl.rcParams['axes.labelsize'] = 15
 
   %matplotlib inline
-#+END_SRC
+  # Loading Data
 
-#+RESULTS:
-:RESULTS:
-:END:
-
-* Loading Data                                                     :noexport:
-#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   import h5py
   import numpy as np
 
@@ -293,7 +287,7 @@ Comparing different models
   ax.set_xlabel('Y')
   ax.set_ylabel('X')
   ax.set_zlabel('Z')
-  ax.text(5, 0, -4, str(Y_test[id][0])+' GeV')
+  #ax.text(5, 0, -4, str(Y_test[id][0])+' GeV')
   plt.savefig('images/data_display.pdf')
 #+END_SRC
 

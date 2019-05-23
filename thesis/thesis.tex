@@ -1593,10 +1593,60 @@ the particles is always the exact center of the first detector layer.
 
 After the trajectories of the particles had been simulated, for each
 event the number of traces in each scintillator cell are counted.
-These 1088 values are then stored as data points for further
-analysis. An example simulation event is shown in figure \ref{sim_exp}.
+These 1088 values are then stored as data points for further analysis.
 
 \todo{datenstruktur präsentieren siehe seite 38}
+
+\begin{figure}[H]%
+    \centering
+    \includegraphics[width=0.8 \textwidth]{../images/energy_distribution.pdf} }
+    \caption{\added{The energy distribution of the incoming particles}}%
+    \label{fig:e-distr}%
+\end{figure}
+
+In Abbildung \ref{fig:e-distr} is die Verteilung der Energien der
+einlaufenden simulierten Teilchen dargestellt. Die Energien wurden
+zufällig einer uniformen Verteilung folgend gewählt.
+
+\begin{figure}[H]%
+    \centering
+    \subfloat[complete spectrum]{{\includegraphics[width=0.45 \textwidth]{../images/sumn_distribution.pdf} }}%
+    \qquad
+    \subfloat[spectrum at 2 and 8 GeV]{{\includegraphics[width=0.45 \textwidth]{../images/sumn_e28_distribution.pdf} }}%
+    \caption{\added{Distribution of summed up traced in the calorimeter cells}}%
+    \label{fig:n-distri}%
+\end{figure}
+
+\added{In the following figures the complete spectrum is shown on the left, while on the right two samples from the distribution are shown. In this case only values in a range of $2\pm 0.1$ and $8 \pm 0.1$ GeV are shown.}
+
+
+\added{The figures \ref{fig:n-distri} show the distribution of the total summated traces in the calorimeter cells. \ref{fig:n-distri}a shows that the distribution follows the flat energy spectrum, only at the end of the distribution the
+values and are no longer uniformly distributed. In \ref{fig:n-distri}b you can see that as expected higher energies lead to more traces in the detector and their distribution gets wider.}
+
+\begin{figure}[H]%
+    \centering
+    \subfloat[complete spectrum]{{\includegraphics[width=0.4 \textwidth]{../images/x_distribution.pdf} }}%
+    \qquad
+    \subfloat[spectrum at 2 and 8 GeV]{{\includegraphics[width=0.4 \textwidth]{../images/x_e28_distribution.pdf} }}%
+    \caption{\added{Distribution of summed up traces in the direction of the incoming particle}}%
+    \label{fig:x-distri}%
+\end{figure}
+
+\added{Figure \ref{fig:x-distri} shows the distribution of the summed traces in the individual layers in the beam direction. \ref{fig:x-distri}a shows that electrons in the selected energy range with the selected calorimeter architecture almost exclusively interact with the first layers. In \ref{fig:x-distri}b you can see that the variation between 2 and 8 GeV electrons is visible in beam direction In \ref{fig:x-distries}b you can see that the variation between 2 and 8 GeV electrons is clearly visible in beam direction but there are no major differences.}
+
+\begin{figure}[H]%
+    \centering
+    \subfloat[complete spectrum]{{\includegraphics[width=0.4 \textwidth]{../images/y_distribution.pdf}}}%
+    \qquad
+    \subfloat[spectrum at 2 and 8 GeV]{{\includegraphics[width=0.4 \textwidth]{../images/y_e28_distribution.pdf} }}%
+    \caption{\added{Distribution of summed up traces perpendicular to  the direction of the incoming particle}}%
+    \label{fig:y-distri}%
+\end{figure}
+
+Figure \ref{fig:y-distri} shows the distribution of the summed traces
+in the individual cells perpendicular to the beam direction. It can be
+seen that there is no energy information perpendicular to the beam
+direction.
 
 \section{Energy Regression By Linear Fitting}
 \label{sec:orgd10286d}
@@ -1642,7 +1692,7 @@ of the output energy spectrum. The result is shown in Figure
   \includegraphics[width=.9\linewidth]{../images/data_display.pdf}
   \caption{The three-dimensional structure of a data sample is
     visulaized by an example event of an incoming electron with
-    9.14172 GeV}
+    9.14 GeV}
   \label{data_display}
 \end{figure}
 

@@ -16,18 +16,12 @@ Here are the needed packages. Also to config matplotlib for latex export
 
   %matplotlib inline
   import pickle
-#+END_SRC
 
-#+RESULTS:
-:RESULTS:
-:END:
+  # Loading Data
 
-* Loading Data                                                     :noexport:
-
-#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   dense_res = pickle.load(open('./results/dense_results.p', 'rb'))
   conv_res = pickle.load(open('./results/conv_results.p', 'rb'))
-  #adv_res = pickle.load(open('./results/adv_results.p', 'rb'))
+  adv_res = pickle.load(open('./results/adv_results.p', 'rb'))
   # linear fit
   leng = len(dense_res['y_true']['raw'])
   sum_n = pickle.load(open('./results/sum_n.p', 'rb'))[:leng]
@@ -113,7 +107,7 @@ Here are the needed packages. Also to config matplotlib for latex export
   from src.binned_estimation import binned_estimation
   from scipy.stats import norm
 
-  res = binned_estimation([dense_res['y_true']['raw'], func(c_fit, sum_n)], bins = 20)
+  res = binned_estimation(dense_res['y_true']['raw'], func(c_fit, sum_n), bins = 20)
   y_f, mu_f, sigma_f, std_mu_f, std_sigma_f = res[0], res[1], res[2], res[3], res[4]
 
 
@@ -121,7 +115,6 @@ Here are the needed packages. Also to config matplotlib for latex export
   ax = fig.add_subplot(2,1,1)
 
   # mu plot
-
   ax.plot(y_f, mu_f - y_f, '-', color='#1f77b4')
   ax.plot(dense_res['y']['raw'], dense_res['mu']['raw'] - dense_res['y']['raw'], 'k-')
   plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1]+0.02, 'linear fit', ha='left', va='center', size=15, color='#1f77b4')
@@ -138,7 +131,6 @@ Here are the needed packages. Also to config matplotlib for latex export
 
   ax = fig.add_subplot(2,1,2)
   ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
-  ax.errorbar(y_f, sigma_f / np.sqrt(y_f), yerr=std_sigma_f/np.sqrt(y_f))
   ax.plot(dense_res['y']['raw'], dense_res['sigma']['raw'] / np.sqrt(dense_res['y']['raw']), 'k-')
   plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
@@ -155,7 +147,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 :RESULTS:
 : 0.499909334
 | 0.0 | 0.5 |
-[[file:./.ob-jupyter/6c4d9d0d33a14950ff6b96db18449323b72521e4.png]]
+[[file:./.ob-jupyter/45c7cfc9931ea24fc6ea30f4040ff80babe5fa6e.png]]
 :END:
 
 * Loss Data Augmentation
@@ -191,8 +183,7 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[6]:
-[[file:./obipy-resources/ipMWaz.png]]
+[[file:./.ob-jupyter/85df140ee606d5c62fb0885493d8746b9491b43d.png]]
 :END:
 
 * Scatter Likelihood
@@ -219,8 +210,7 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[7]:
-[[file:./obipy-resources/62Ewfv.png]]
+[[file:./.ob-jupyter/88f1ac5fae2082560366f3c529f27d868d1883d6.png]]
 :END:
 
 * Comparison Loss Functions
@@ -228,11 +218,11 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 #+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   fig, ax = plt.subplots()
 
-  plt.plot(y_f, mu_f - y_f, '-', color='#BF616A', linewidth=3.0)
-  plt.plot(dense_res['y']['da'], dense_res['mu']['da'] - dense_res['y']['raw'], '-', color='#D08770', linewidth=3.0)
-  plt.plot(dense_res['y']['likeli'], dense_res['mu']['likeli'] - dense_res['y']['likeli'], '-', color='#3B4252', linewidth=3.0)
+  plt.plot(y_f, mu_f - y_f, '-', color='#c71585')
+  plt.plot(dense_res['y']['da'], dense_res['mu']['da'] - dense_res['y']['raw'], '-', color='#D08770', )
+  plt.plot(dense_res['y']['likeli'], dense_res['mu']['likeli'] - dense_res['y']['likeli'], '-', color='#3B4252', )
 
-  plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1], 'linear fit', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
+  plt.text(y_f[-1] + 0.1, mu_f[-1] - y_f[-1], 'linear fit', ha='left', va='center', size=15,  color='#c71585', weight='bold')
   plt.text(dense_res['y']['da'][-1] + 0.1, dense_res['mu']['da'][-1] - dense_res['y']['raw'][-1], 'mse', ha='left', va='center', size=15,  color='#D08770', weight='bold')
   plt.text(dense_res['y']['likeli'][-1] + 0.1, dense_res['mu']['likeli'][-1] - dense_res['y']['likeli'][-1], 'likelihood', ha='left', va='center', size=15,  color='#3B4252', weight='bold')
 
@@ -249,8 +239,7 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[8]:
-[[file:./obipy-resources/7XldQh.png]]
+[[file:./.ob-jupyter/74e7f1e1744aa7ad859a4c389156de9885cd6932.png]]
 :END:
 
 * Comparison Fully Connected Net & Conv Net
@@ -258,11 +247,11 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 #+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
   fig, ax = plt.subplots()
 
-  plt.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#BF616A', linewidth=3.0)
-  plt.plot(dense_res['y']['likeli'], dense_res['sigma']['likeli'] / np.sqrt(conv_res['y']['likeli']), '-', color='#D08770', linewidth=3.0)
-  plt.plot(conv_res['y']['likeli'], conv_res['sigma']['likeli'] / np.sqrt(conv_res['y']['likeli']), '-', color='#3B4252', linewidth=3.0)
+  plt.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#c71585')
+  plt.plot(dense_res['y']['likeli'], dense_res['sigma']['likeli'] / np.sqrt(conv_res['y']['likeli']), '-', color='#D08770')
+  plt.plot(conv_res['y']['likeli'], conv_res['sigma']['likeli'] / np.sqrt(conv_res['y']['likeli']), '-', color='#3B4252')
 
-  plt.text(y_f[-1] + 0.1, sigma_f[-1]/np.sqrt(y_f[-1]), 'linear fit', ha='left', va='center', size=15,  color='#BF616A', weight='bold')
+  plt.text(y_f[-1] + 0.1, sigma_f[-1]/np.sqrt(y_f[-1]), 'linear fit', ha='left', va='center', size=15,  color='#c71585', weight='bold')
   plt.text(dense_res['y']['likeli'][-1] + 0.1, dense_res['sigma']['likeli'][-1]/np.sqrt(dense_res['y']['likeli'][-1]), 'dense', ha='left', va='center', size=15,  color='#D08770', weight='bold')
   plt.text(conv_res['y']['likeli'][-1] + 0.1, conv_res['sigma']['likeli'][-1]/np.sqrt(conv_res['y']['likeli'][-1]), 'conv', ha='left', va='center', size=15,  color='#3B4252', weight='bold')
 
@@ -282,8 +271,10 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
 
 #+RESULTS:
 :RESULTS:
-# Out[11]:
-[[file:./obipy-resources/ZZpjMr.png]]
+: 0.36334587812383645
+: 0.3266467786504851
+: 0.31944836012595457
+[[file:./.ob-jupyter/39baac73e9fdcc4c2e127385016fcae83e4f1072.png]]
 :END:
 
 * Adversarial Scatter
@@ -314,6 +305,11 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
       ax.spines["bottom"].set_visible(False)  
   plt.savefig('images/adv_scatter.pdf', bbox_inches = 'tight')
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/c00b14da88235e1c0fb0dc34ba6b1a2fc65fcf35.png]]
+:END:
 
 
 
