@@ -1595,8 +1595,6 @@ After the trajectories of the particles had been simulated, for each
 event the number of traces in each scintillator cell are counted.
 These 1088 values are then stored as data points for further analysis.
 
-\todo{datenstruktur präsentieren siehe seite 38}
-
 \begin{figure}[H]%
     \centering
     \includegraphics[width=0.8 \textwidth]{../images/energy_distribution.pdf} }
@@ -1604,9 +1602,9 @@ These 1088 values are then stored as data points for further analysis.
     \label{fig:e-distr}%
 \end{figure}
 
-In Abbildung \ref{fig:e-distr} is die Verteilung der Energien der
-einlaufenden simulierten Teilchen dargestellt. Die Energien wurden
-zufällig einer uniformen Verteilung folgend gewählt.
+\added{Figure \ref{fig:e-distr} shows the distribution of the energies
+  of the incoming simulated particles. The energies were chosen
+  randomly following a uniform distribution.}
 
 \begin{figure}[H]%
     \centering
@@ -1632,7 +1630,7 @@ values and are no longer uniformly distributed. In \ref{fig:n-distri}b you can s
     \label{fig:x-distri}%
 \end{figure}
 
-\added{Figure \ref{fig:x-distri} shows the distribution of the summed traces in the individual layers in the beam direction. \ref{fig:x-distri}a shows that electrons in the selected energy range with the selected calorimeter architecture almost exclusively interact with the first layers. In \ref{fig:x-distri}b you can see that the variation between 2 and 8 GeV electrons is visible in beam direction In \ref{fig:x-distries}b you can see that the variation between 2 and 8 GeV electrons is clearly visible in beam direction but there are no major differences.}
+\added{Figure \ref{fig:x-distri} shows the distribution of the summed traces in the individual layers in the beam direction. \ref{fig:x-distri}a shows that electrons in the selected energy range with the selected calorimeter architecture almost exclusively interact with the first layers. In \ref{fig:x-distri}b you can see that the variation between 2 and 8 GeV electrons is visible in beam direction In \ref{fig:x-distri}b you can see that the variation between 2 and 8 GeV electrons is clearly visible in beam direction but there are no major differences.}
 
 \begin{figure}[H]%
     \centering
@@ -1643,10 +1641,10 @@ values and are no longer uniformly distributed. In \ref{fig:n-distri}b you can s
     \label{fig:y-distri}%
 \end{figure}
 
-Figure \ref{fig:y-distri} shows the distribution of the summed traces
+\added{Figure \ref{fig:y-distri} shows the distribution of the summed traces
 in the individual cells perpendicular to the beam direction. It can be
 seen that there is no energy information perpendicular to the beam
-direction.
+direction.}
 
 \section{Energy Regression By Linear Fitting}
 \label{sec:orgd10286d}
@@ -1696,25 +1694,18 @@ of the output energy spectrum. The result is shown in Figure
   \label{data_display}
 \end{figure}
 
+The training data set consists of 253064 simulated events and the
+validation set of 28,119 simulated events.
+
 The data structure is visualized in figure \ref{data_display} and is a
 three-dimensional pixel structure, where each pixel contains the
 number of traces. First a simple fully connected network (FCN) is
-applied whose structure is not adapted to the structure of the
-data. \added{The data tensor is flatten into a 1088 dimensional vector
-  to fit the input space of the FCN}. Then a three-dimensional
-convolutional neural net is compared with the fully connected neural
-net.
+applied % whose structure is not adapted to the structure of the data.
+\added{The data tensor is flatten into a 1088 dimensional vector to
+  fit the input space of the FCN}.
 
-
-\todo{struktur erklären}
-\todo{aufsplitten der beschreibung CONVNET} \todo{idea: local pattern
-  by conv-net followed by dense net} \todo{wie zu struktur gekommen}
-\todo{training validation test split satz} \todo{training
-  hyperparameters}
-
-The layer structure of the first network is shown in table \ref{fcn_structure}.
-
-\begin{table}[htbp]
+\todo{neural net grafik einfügen}
+\begin{table}[H]
   \centering
   \begin{tabular}{lrlr}
     Type & \(\#\) Nodes & Activation & \(\#\) Params\\
@@ -1737,43 +1728,13 @@ The layer structure of the first network is shown in table \ref{fcn_structure}.
   \label{fcn_structure}
 \end{table}
 
-\added{Different structures were tried out. The presented version is the one with the best convergence.}
-
-It has 659,465 free parameters and each layer \added{is fully connected to
-the previous layer}. With the exception of the output node, all nodes
-have ReLU as their activation function.
-
-The second network consists of a convolutional part to which a fully
-connected network is linked. The layer structure is shown in table
-\ref{conv_structure}.
-
-\todo{überarbeiten + node / filter}
-\begin{table}[htbp]
-  \centering
-  \begin{tabular}{lrlr}
-    Type & \(\#\) Nodes & Activation & \(\#\) Params\\
-    \hline
-    Conv3D(3,3,3) & 32 & ReLU & 896\\
-    Conv3D(3,3,3) & 10 & ReLU & 8650\\
-    Conv3D(5,5,5) & 5 & ReLU & 6255\\
-    Dense & 128 & ReLU & 28288\\
-    Dense & 128 & ReLU & 16512\\
-    Dense & 128 & ReLU & 16512\\
-    Dense & 10 & ReLU & 1290\\
-    Dense & 1 & Linear & 11\\
-  \end{tabular}
-
-  \caption{The structure of the 3D convolutional network is
-    presented. The first column shows the different types of layers of
-    the network. The 3D tuples behind the Conv3D are the kernel
-    dimensions. The second column shows the number of nodes in each
-    layer. The third column shows all activation functions and the
-    last column shows the number of free parameters or weights of each
-    layer.}
-  \label{conv_structure}
-\end{table}
-
-The alternative structure reduces the number of free parameters to 78,414.
+The layer structure of the first network is shown in table
+\ref{fcn_structure}.
+\added{Different structures were tried out. The presented version is
+  the one with the best convergence.} It has 659,465 free parameters
+and each layer \added{is fully connected to the previous layer}. With
+the exception of the output node, all nodes have ReLU as their
+activation function.
 
 \section{Energy Regression with the Fully Connected Network}
 \label{sec:orgdf3234b}
@@ -1792,7 +1753,6 @@ the predicted energy values. We train the fully connected network for
   \label{dense_loss}
 \end{figure}
 
-\todo{axen einfügen}
 
 In figure \ref{dense_loss} the loss function is shown. While the loss
 function for the training set decreases over time, the loss function
@@ -1898,16 +1858,76 @@ the network is not overfitting any longer.
 
 \section{Energy Regression with the Convolutional Network}
 
-\todo{move everything here}
+In this section a three-dimensional convolutional neural net is
+compared with the fully connected neural net.
+
+The network consists of a convolutional part to which a fully
+connected network is linked. The layer structure is shown in table
+\ref{conv_structure}.
+
+\todo{struktur-grafik}
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lrlr}
+    Type & \(\#\) Nodes & Activation & \(\#\) Params\\
+    \hline
+    Conv3D(3,3,3) & 32 & ReLU & 896\\
+    Conv3D(3,3,3) & 10 & ReLU & 8650\\
+    Conv3D(5,5,5) & 5 & ReLU & 6255\\
+    Dense & 128 & ReLU & 28288\\
+    Dense & 128 & ReLU & 16512\\
+    Dense & 128 & ReLU & 16512\\
+    Dense & 10 & ReLU & 1290\\
+    Dense & 1 & Linear & 11\\
+  \end{tabular}
+
+  \caption{The structure of the 3D convolutional network is
+    presented. The first column shows the different types of layers of
+    the network. The 3D tuples behind the Conv3D are the kernel
+    dimensions. The second column shows the number of nodes in each
+    layer. The third column shows all activation functions and the
+    last column shows the number of free parameters or weights of each
+    layer.}
+  \label{conv_structure}
+\end{table}
+
+\added{The convolutionaln network has 78,414 free parameters, which
+  are only 12 percent of the parameters of the fully connected network
+  previously used.}
+
+\todo{überarbeiten + node / filter}
+\todo{aufsplitten der beschreibung CONVNET}
+\todo{idea: local pattern by conv-net followed by dense net}
+\todo{wie zu struktur gekommen}
+\todo{resultate einfügen}
 
 \section{Adversarial Training}
 \label{sec:org30a0273}
 
-\todo{move to chapter deep learning part}
-
 In order to reduce the unphysical deviations at the end of the
-distribution, an adversarial network was used. Here a modification of
-this training process was applied.
+distribution, an adversarial network was used.
+
+\todo{Describe modification of this training process.}
+
+- erstes Netzwerk ConvNet
+- dann größe errechnen
+- zweites Netzwerk 
+
+\begin{center}
+\begin{tabular}{lrr}
+Type & Nodes & Param \#\\
+\hline
+Dense & 50 & 100\\
+Dense & 50 & 2550\\
+Dense & 50 & 2550\\
+Dense & 50 & 2550\\
+Dense & 128 & 6528\\
+Dense & 20 & 2580\\
+\end{tabular}
+\end{center}
+
+
+Trainable params: 95,272
 
 \todo{überarbeiten}
 The basic idea was that a quantity should be calculated from the
@@ -2000,32 +2020,45 @@ a maximum likelihood can be derived
 \end{align}
 
 The assumption that the mean squared error is the valid minimization
-function of the neural network is therefore based on the assumption
-that the values are Gaussian distributed and have a constant standard
-deviation.
+function of the neural network is therefore equivalent to the
+assumption that the values are Gaussian distributed and have a
+constant standard deviation.
 
 However, no constant standard deviation is given for a calorimeter. In
 addition, the assumption that the values have a full Gaussian
 distribution is not applicable at the edges. Here the absence of
 entries for higher energies must be compensated with a normalization
-factor. These effects are shown in figure \ref{gaussian-shift}.
-
-
-\todo{überarbeiten mean=9.9}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=.9\linewidth]{../images/gaussian_shift.png}
-  \caption{The different likelihoods of two Gaussian functions for a
-    mean of 10.5 are shown. One with proper normalization (red) and
-    one without(blue).}
-  \label{gaussian-shift}
-\end{figure}
-
-In order to consider the truncated distribution the probability
-density function is calculated,
+factor. To illustrate this in figure \ref{gaussian-cut} random values
+normal distributed with a mean of 9.5 and a standard deviation of
+$\sqrt{9.5}$ are shown. To this data two maximum likelihood fits are
+applied. One for a gaussian distribution and one for a gaussian
+distribution divided  by the cumulitive gaussian distribution
 
 \begin{align}
-\text{PDF} = \frac{\frac{1}{\sqrt{2\pi \sigma^2}}
+\frac{\frac{1}{\sqrt{2\pi \sigma^2}}
+  e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^{10}_{-\infty} \frac{1}{\sqrt{2\pi
+      \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x}.
+\end{align}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=.9\linewidth]{../images/gaussian_cut.pdf}
+  \caption{The data shown are random values normal distributed with a
+    mean of 9.5 and a standard deviation of $\sqrt{9.5}$. All values
+    above 10 is excluded. The two lines are gaussians fitted with a
+    maximum likelihood fit to the data. The black line gaussian is a
+    standard gaussian and the blue line is a gaussian divided by a
+    normalization compensating for the missing values above 10.}
+  \label{gaussian-cut}
+\end{figure}
+
+
+It is visible that without this normalization the distribution is
+shifted and not resembles the data. So in order to consider truncated
+distributions the probability density function can be calculated as
+
+\begin{align}
+\frac{\frac{1}{\sqrt{2\pi \sigma^2}}
   e^{-\frac{(x-\mu)^2}{2 \sigma^2}}}{\int^b_a \frac{1}{\sqrt{2\pi
       \sigma^2}} e^{-\frac{(x-\mu)^2}{2 \sigma^2}} \dd x} =
 \frac{\frac{1}{\sqrt{2\pi \sigma^2}} e^{-\frac{(x-\mu)^2}{2
@@ -2033,8 +2066,8 @@ density function is calculated,
   - \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)},
 \end{align}
 
-where \(a\) and \(b\) here are 0.0 and 10.0 GeV. The loss function
-which has to be minimized for the neural net can than be derived,
+where \(a\) and \(b\) in our case are 0.0 and 10.0 GeV. A loss function
+which has to be minimized for the neural net can than be derived as
 
 \begin{align}
 &\text{max}\left[ \prod \frac{\frac{1}{\sqrt{2\pi \sigma^2}}
@@ -2059,38 +2092,22 @@ which has to be minimized for the neural net can than be derived,
   \\ &=\text{min} \sum \frac{(x-\mu)^2}{\sigma^2} + \ln(\frac{\pi
     \sigma^2}{2}\left(\text{erf}\left(\frac{\mu-a}{\sqrt{2}\sigma}\right)
   -
-  \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)^2) \label{likelihood-loss}
+  \text{erf}\left(\frac{\mu-b}{\sqrt{2}\sigma}\right)\right)^2). \label{likelihood-loss}
 \end{align}
 
-\todo{überarbeiten ->\\
-The resulting loss function consists of a mean weighted squared error
-part \added{and a correction term}. This weighting prevents the global
-shift of the mean $\mu$ towards higher values. Because values with
-high energies contribute to the total loss function as values with low
-energies. The second term is a correction factor that takes into
-account the ends of the distribution and reduces its effects.
 
+\todo{überarbeiten}
+The resulting loss function consists of a mean weighted squared term
+part and a boundary correction term. This weighting prevents the
+global shift of the mean $\mu$ towards higher values. Because values
+with high energies contribute to the total loss function as values
+with low energies. The second term is a correction factor that takes
+into account the ends of the distribution and reduces its effects.
 
 Effects of distribution on the results are a general fitting problem
 and do not only refer to neural networks. In the first part these
 effects were solved by inverting the problem. This is possible with a
-linear fit, but not with a neural network.}
-
-\todo{dritte gerade einfügen oder schreiben liegt unter likelihood fit}
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=.9\linewidth]{../images/e-vs-sum_n_like.pdf}
-  \caption{ The graph compares two minimizations of a linear fit to the
-    summed entries of the calorimeter cells. The blue straight line
-    represents the linear fit optimized with the minimization function
-    derived above. For the black line, the mean squared error has been
-    minimized.}
-  \label{e-vs-sum_n_like}
-\end{figure}
-
-This is shown for the linear fit in figure \ref{e-vs-sum_n_like}. You
-can see how the mse is slightly tilted relative to the data. This is
-fixed by the maximum likelihood fit.
+linear fit, but not with a neural network.
 
 \todo{satz zu pretrained network} The pre-trained neural net was then
 further trained with \eqref{likelihood-loss} as loss function for 50
