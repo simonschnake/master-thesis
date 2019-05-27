@@ -66,7 +66,6 @@ Here are the needed packages. Also to config matplotlib for latex export
 [[file:./.ob-jupyter/5f4386913c9170d08c225cff32a522a73ce8363c.png]]
 :END:
 
-
 * JETNET
 ** Data Loading
 #+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports results :eval no-export
@@ -77,6 +76,7 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
+: 344428cd-87e8-4993-98fa-aa3a2fe80924
 :END:
 
 ** Scatter MSE
@@ -98,14 +98,12 @@ Here are the needed packages. Also to config matplotlib for latex export
 
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)  
-  ax.spines["left"].set_visible(False)
-  ax.spines["bottom"].set_visible(False)  
   plt.savefig('images/jetnet_R_scatter.pdf', bbox_inches = 'tight', transparent=True)
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
-[[file:./.ob-jupyter/ec9f306415dd7cd04047f14287899568779a7244.png]]
+[[file:./.ob-jupyter/f365518cd0d457b5b8817d15a6eeac2aaf40738b.png]]
 :END:
 
 ** Mean R
