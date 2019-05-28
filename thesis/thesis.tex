@@ -2236,6 +2236,43 @@ particles, the free entries were filled with zero vectors.
 \section{Deep Learning Setup}
 \label{sec:orgf3b24cc}
 
+\todo{genereller Prozess}
+-genereller Text
+- loss function
+
+
+\begin{align}
+  \mathcal{L}_{J}(\hat Y, Y, \sigma(Y, c_{0,1,2}))
+  = \frac{1}{n} \sum_{i} \frac{1}{n_{b_i} }  \sum_{b_i < Y \leq b_{i+1}} \frac{(\hat Y -Y)^2}{\sigma^2} + \ln(\frac{\pi
+    \sigma^2}{2}\left(\text{erf}\left(\frac{Y-a}{\sqrt{2}\sigma}\right)
+  - \text{erf}\left(\frac{Y-b}{\sqrt{2}\sigma}\right)\right)^2),
+\end{align}
+
+where $n$ is the number of bins and $n_{b_i}$ is the number of entries
+per bin.
+  
+Since the data spectrum covered only a limited space of \(P_{T,
+  \text{Gen}}\), it was to be expected that the systematic deviations
+described in the previous chapter would occur. The fact that the
+information from the calorimeters is incorporated into the
+reconstructed particles is also correlated with their error structure.
+
+Therefore the loss function from the previous chapter was used. Since
+the standard deviation \(\sigma\) was not a priori apparent, it was
+approximated before.
+
+Since the distribution of the \(P_{T, \text{Gen}}\) values is not
+flat, the loss function was divided into equal areas in a further
+step.
+
+\todo{neu: This means that the data points were sorted by
+  \(P_{T,\text{Gen}}\) and the mean value for each bin was
+  calculated. Then the mean value of previously determined mean values
+  is used as the loss function value.} As a result, the individual
+value ranges in the spectrum no longer contributed to the total value,
+even if their population is higher. The bias to values with a high
+population will be reduced in this way.
+
 
 \begin{figure}[H]
   \centering
@@ -2285,10 +2322,63 @@ particles, the free entries were filled with zero vectors.
     \label{\todo{XXXX}}
 \end{figure}
 
+- model generell input 200x4 -> 800 output linear 1
+
 To deduce the momentum, the 4 vectors of the particles of the jets
-were used as an input for the networks. First, the dimensions of the
-\((200, 4)\) input space are transformed into a (800, 1) space. The
-network is than applied.
+are used as an input for the networks. First, the dimensions of the
+\((200, 4)\) input space are transformed into a (800, 1) space.
+
+Die möglichen Netzwerk Architekturen bleiben hier generell gehalten,
+sie werden später für die beiden analysierten Fälle, das JetNet und
+das Particle Flow Netzwerk beschrieben. Die generelle Anforderung an
+das Netzwerk ist nur, dass das Input Layer aus 800 Einträgen besteht
+und dass das Output Layer ein Node ist mit einer linearen Output Node.
+
+In the training process, the data was processed in batch sizes of
+1024.
+
+- iteration
+
+- mse
+As a first step the network was trained with the mean squared
+error as loss function.
+- predict sigma
+
+For this purpose the results of the network were calculated and
+divided into 20 bins according to \(P_{T, \text{Gen}}\). The standard deviation
+was then determined for each bin and the analytical function 
+
+
+
+\todo{plot fit}
+\begin{align}
+\sigma(P_{T, \text{Gen}})= c_0 \sqrt{P_{T, \text{Gen}}}+c_1 P_{T, \text{Gen}} + c_2
+\end{align}
+
+was fitted to these \(\sigma\) values. This function is used as a
+\(\sigma\) term in the loss function. At this point it should be noted
+that a differentiable function for \(\sigma\) is indispensable, since
+the gradient of the loss function is required for the backpropagation
+algorithm. \todo{the initial values for $c_{0,1,2}$ were optained by
+  ...} The calculation of the \(\sigma\) values is be done
+iteratively. Here this process was iterated twice and the results were
+marked with \texttt{1st} and \texttt{2nd}.
+
+- 1st
+- train
+- 2nd
+
+
+
+
+The response \(R\) was used as a measure for the calibration,
+
+\begin{align}
+R = \frac{P_{T, \text{Reco}}}{P_{T, \text{Gen}}}.
+\end{align}
+
+\section{Jetnet Analysis}
+\label{sec:org03235a3}
 
 The network used for analysis is a very simple fully connected
 network.  Table \ref{jet_fcn_structure} shows the structure. The
@@ -2321,60 +2411,6 @@ referred to as \emph{JetNet} in the following.
   \label{jet_fcn_structure}
 \end{table}
 
-In the training process, the data was processed in batch sizes of
-1024. As a first step the network was trained with the mean squared
-error as loss function.
-
-Since the data spectrum covered only a limited space of \(P_{T,
-  \text{Gen}}\), it was to be expected that the systematic deviations
-described in the previous chapter would occur. The fact that the
-information from the calorimeters is incorporated into the
-reconstructed particles is also correlated with their error structure.
-
-Therefore the loss function from the previous chapter was used. Since
-the standard deviation \(\sigma\) was not a priori apparent, it was
-approximated before.
-
-For this purpose the results of the network were calculated and
-divided into 20 bins according to \(P_{T, \text{Gen}}\). The standard deviation
-was then determined for each bin and the analytical function 
-
-\todo{plot fit}
-\begin{align}
-\sigma(P_{T, \text{Gen}})= c_0 \sqrt{P_{T, \text{Gen}}}+c_1 P_{T, \text{Gen}} + c_2
-\end{align}
-
-was fitted to these \(\sigma\) values. This function is used as a
-\(\sigma\) term in the loss function. At this point it should be noted
-that a differentiable function for \(\sigma\) is indispensable, since
-the gradient of the loss function is required for the backpropagation
-algorithm. \todo{the initial values for $c_{0,1,2}$ were optained by
-  ...} The calculation of the \(\sigma\) values is be done
-iteratively. Here this process was iterated twice and the results were
-marked with \texttt{1st} and \texttt{2nd}.
-
-\todo{MSE, 1st, 2nd beschreiben}
-
-Since the distribution of the \(P_{T, \text{Gen}}\) values is not
-flat, the loss function was divided into equal areas in a further
-step.
-
-\todo{neu: This means that the data points were sorted by
-  \(P_{T,\text{Gen}}\) and the mean value for each bin was
-  calculated. Then the mean value of previously determined mean values
-  is used as the loss function value.} As a result, the individual
-value ranges in the spectrum no longer contributed to the total value,
-even if their population is higher. The bias to values with a high
-population will be reduced in this way.
-
-The response \(R\) was used as a measure for the calibration,
-
-\begin{align}
-R = \frac{P_{T, \text{Reco}}}{P_{T, \text{Gen}}}.
-\end{align}
-
-\section{Jetnet Analysis}
-\label{sec:org03235a3}
 
 \todo{loss function, overtraining}
 

@@ -1,0 +1,58 @@
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  import numpy as np
+  import matplotlib as mpl
+  import matplotlib.pyplot as plt
+  mpl.rcParams['text.usetex'] = True
+  mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
+  mpl.rcParams['mathtext.fontset'] = 'stix'
+  mpl.rcParams['font.family'] = 'STIXGeneral'
+  mpl.rcParams['font.size'] = 15
+  mpl.rcParams['axes.labelsize'] = 15
+
+  %matplotlib inline
+
+  from scipy.special import erf
+  from scipy.stats import norm
+  from scipy import optimize
+
+  gaussian_data = np.random.normal(9.5, np.sqrt(9.5), 100000)
+  cut = gaussian_data[gaussian_data<10.]
+
+  def normed_pdf(x, mu, sigma):
+	epsilon = 0.0000001
+	elements = norm.pdf(x, mu, sigma)
+	normalization = norm.cdf(10., mu, sigma)
+	return np.divide(elements, normalization)
+
+  def normed(par):
+	epsilon = 0.0000001
+	mu = par
+	sigma = np.sqrt(mu)
+	pdf = normed_pdf(cut, mu, sigma)
+	return -np.sum(np.log(pdf+epsilon))
+
+  def normal(par):
+        mu = par
+	sigma = np.sqrt(par)
+	elements = norm.pdf(cut, mu, sigma)
+	return -np.sum(np.log(elements))
+
+  out_normed = optimize.minimize(normed, 9.)['x']
+  out_normal = optimize.minimize(normal, 9.)['x']
+
+  plt.hist(cut, bins=50, density=True, alpha=0.4, color='r', label='data')
+
+  x = np.arange(-5., 20., 0.1)
+  plt.plot(x, norm.pdf(x, out_normal, np.sqrt(out_normal)), color='k', label='gaussian')
+  plt.plot(x, normed_pdf(x, out_normed, np.sqrt(out_normed)), color='b', label='normed')
+  plt.plot([10., 10.], [0., 0.3], 'k--', linewidth=0.7)
+  plt.legend(loc='best', frameon=False)
+  plt.xlim([0., 20.])
+  plt.ylim([0., 0.27])
+  plt.savefig('images/gaussian_cut.pdf')
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/b407a902417a12465d5c1e775cd2c064e9ab770c.png]]
+:END:
