@@ -76,7 +76,6 @@ Here are the needed packages. Also to config matplotlib for latex export
 
 #+RESULTS:
 :RESULTS:
-: 344428cd-87e8-4993-98fa-aa3a2fe80924
 :END:
 
 ** Scatter MSE
@@ -153,6 +152,59 @@ Here are the needed packages. Also to config matplotlib for latex export
 : 4.799954833984375
 : 4.799954833984375
 [[file:./.ob-jupyter/4d18c98b3f1b09acbea702ffa5a121f59437f1b9.png]]
+:END:
+
+** sigma fit
+
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  from scipy.stats import binned_statistic
+  from scipy.optimize import leastsq
+
+  x = binned_statistic(genjet_pt, jetnet['first']['pred'], statistic='mean', bins=50)[0]
+  y = binned_statistic(genjet_pt, jetnet['first']['pred'], statistic='std', bins=50)[0]
+  fitfunc = lambda c , x: c[0]*np.sqrt(x)+c[1]*x+c[2]
+  errfunc = lambda c , x, y: (y - fitfunc(c, x))
+  out = leastsq(errfunc, [1., 0.1, 0.], args=(x, y), full_output=1)
+  c = out[0]
+
+  plt.plot(x, y, 'k.')
+  x = np.arange(30, 150, 2.5)
+  plt.plot(x, fitfunc(c, x) , 'b-')
+
+  plt.xlabel(r"$P_{T, \text{Gen}}$ [GeV]")
+  plt.ylabel(r"$\sigma$ [GeV]")
+  
+  plt.xlim([30.,140])
+
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)  
+  plt.savefig('images/sigma_fit.pdf', bbox_inches = 'tight', transparent=True)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/bf34004d2d2031a69efa88217db5cb823a9a7986.png]]
+:END:
+
+** Loss Function
+
+#+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
+  val_loss = jetnet['first']['history']['val_loss']
+  loss = jetnet['first']['history']['loss']
+  plt.plot(np.arange(len(val_loss))+1, val_loss, 'k-')
+  plt.plot(np.arange(len(loss))+1, loss, 'r-')
+
+  plt.xlabel(r"$P_{T, \text{Gen}}$ [GeV]")
+  plt.ylabel(r"$\sigma$ [GeV]")
+  
+  ax.spines["top"].set_visible(False)
+  ax.spines["right"].set_visible(False)  
+  #plt.savefig('images/sigma_fit.pdf', bbox_inches = 'tight', transparent=True)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+[[file:./.ob-jupyter/615e6948378fe7d46a1a4157116d4799a6cea132.png]]
 :END:
 
 * PFNET
@@ -498,4 +550,6 @@ R_reco = jet_pt/genjet_pt
 # Out[104]:
 [[file:./obipy-resources/w9WYjs.png]]
 :END:
+
+
 
