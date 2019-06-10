@@ -24,8 +24,8 @@
 \usepackage[dvipsnames]{xcolor} % color packages; needed by xy
 \usepackage{graphicx}  % graphics packages
 \usepackage{tikzpagenodes}
-% for final version change all to some
-\usepackage[pages=all]{background}
+% for draft version change some to all
+\usepackage[pages=some]{background}
 \backgroundsetup{scale=1.5, color=black, opacity=0.1, angle=-90, contents={
     \includegraphics[height=\paperheight]{../images/background3.jpeg}}}
 
@@ -102,14 +102,14 @@
 
 % draft option
 
-\backgroundsetup%
-{   angle=0,
-    opacity=0.15,
-    scale=1,
-    contents=%
-    {   \begin{tikzpicture}[remember picture,overlay, scale=3]
-            \fontsize{150}{150}\selectfont
-            \node[text=gray,rotate=90, above=1cm] at (current page text area.east) {DRAFT};
-        \end{tikzpicture}
-    }
-}
+%% \backgroundsetup%
+%% {   angle=0,
+%%     opacity=0.15,
+%%     scale=1,
+%%     contents=%
+%%     {   \begin{tikzpicture}[remember picture,overlay, scale=3]
+%%             \fontsize{150}{150}\selectfont
+%%             \node[text=gray,rotate=90, above=1cm] at (current page text area.east) {DRAFT};
+%%         \end{tikzpicture}
+%%     }
+%% }
