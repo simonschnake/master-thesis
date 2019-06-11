@@ -3,8 +3,6 @@
 #+LATEX_HEADER: \usepackage{physics}
 #+LATEX_HEADER: \usepackage{amssymb}
 #+OPTIONS: toc:nil
-
-
  
 * Setup                                                            :noexport:
 Here are the needed packages. Also to config matplotlib for latex export
@@ -133,8 +131,8 @@ Comparing different models
   
   plt.ylabel('norm. to 1')
   
-  plt.text(75, 0.03, r'$2\pm \Delta 0.1$ GeV', color='blue', size=13)
-  plt.text(250, 0.015, r'$8\pm \Delta 0.1$ GeV', color='red', size=13)
+  plt.text(75, 0.03, r'$2\pm 0.1$ GeV', color='blue', size=13)
+  plt.text(250, 0.015, r'$8\pm 0.1$ GeV', color='red', size=13)
   # plt.xlim([0., 10.])
   # plt.ylim([0., 0.01])
   plt.savefig('images/sumn_e28_distribution.pdf')
@@ -142,7 +140,7 @@ Comparing different models
 
 #+RESULTS:
 :RESULTS:
-[[file:./.ob-jupyter/376ee575b089d638e282e9f4a010e8d44c2beb59.png]]
+[[file:./.ob-jupyter/b48b36805c9c714110b1684c74c9b6b83d8c9cf4.png]]
 :END:
 
 #+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
@@ -184,8 +182,8 @@ Comparing different models
   plt.xlabel(r'layer in x')
   plt.ylabel('norm. to 1')
   
-  plt.text(4, 0.3, r'$2\pm \Delta 0.1$ GeV', color='blue', size=13)
-  plt.text(5, 0.15, r'$8\pm \Delta 0.1$ GeV', color='red', size=13)
+  plt.text(4, 0.3, r'$2\pm 0.1$ GeV', color='blue', size=13)
+  plt.text(5, 0.15, r'$8\pm 0.1$ GeV', color='red', size=13)
   # plt.xlim([0., 10.])
   # plt.ylim([0., 0.01])
   plt.savefig('images/x_e28_distribution.pdf')
@@ -194,7 +192,7 @@ Comparing different models
 
 #+RESULTS:
 :RESULTS:
-[[file:./.ob-jupyter/b44c3460d5c411f4dc80580c2a09c2fc8488cac1.png]]
+[[file:./.ob-jupyter/5b5e1a9e742c1556feb04885043c471f191c5f0c.png]]
 :END:
 
 #+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
@@ -214,8 +212,8 @@ Comparing different models
   plt.xlabel(r'cell in y')
   plt.ylabel('norm. to 1')
   
-  plt.text(4.5, 0.3, r'$2\pm \Delta 0.1$ GeV', color='blue', size=13)
-  plt.text(4.5, 0.2, r'$8\pm \Delta 0.1$ GeV', color='red', size=13)
+  plt.text(4.5, 0.3, r'$2\pm 0.1$ GeV', color='blue', size=13)
+  plt.text(4.5, 0.2, r'$8\pm 0.1$ GeV', color='red', size=13)
   # plt.xlim([0., 10.])
   # plt.ylim([0., 0.01])
   plt.savefig('images/y_e28_distribution.pdf')
@@ -223,7 +221,7 @@ Comparing different models
 
 #+RESULTS:
 :RESULTS:
-[[file:./.ob-jupyter/9c2fdca15f69e21af08ec1f993ec44e06b4cb1aa.png]]
+[[file:./.ob-jupyter/0472836cf18e2fd4b48a2e035abf461b5a681a95.png]]
 :END:
 
 #+BEGIN_SRC jupyter-python :async "yes" :session "py" :results raw drawer :exports none :eval no-export
@@ -846,7 +844,7 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
   ax = fig.add_subplot(2,1,2)
   ax.plot(y_f, sigma_f / np.sqrt(y_f), '-', color='#1f77b4')
   ax.plot(y_nn, sigma_nn / np.sqrt(y_nn), 'k-')
-  plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$')
+  plt.ylabel(r'$\sigma / \sqrt{E_{\text{true}}}$ [GeV]')
   plt.xlabel(r'$E_{\text{true}}$ [GeV]')
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
@@ -855,6 +853,30 @@ plt.savefig('images/data_augment_loss.pdf', bbox_inches = 'tight')
   plt.ylim([0., 0.5])
   plt.savefig('images/data_augment_res.pdf', bbox_inches = 'tight')
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# [goto error]
+#+BEGIN_EXAMPLE
+
+ModuleNotFoundErrorTraceback (most recent call last)
+<ipython-input-11-42a753b75ced> in <module>
+      1 import sys
+      2 sys.path.append('./src')
+----> 3 from utils import *
+      4 y_true = np.array(Y_test)[:len(results)].reshape(len(results),)
+      5 y_pred = results.reshape(len(results),)
+
+~/master-thesis/src/utils.py in <module>
+      1 # this file is for outsourcing python functions, to keep our notebooks clean
+----> 2 import keras
+      3 import numpy as np
+      4 import random
+      5 
+
+ModuleNotFoundError: No module named 'keras'
+#+END_EXAMPLE
+:END:
 
 #+CAPTION: Results of the linear fit vs the first neural net width data augmentation
 #+NAME: first_res
