@@ -1,0 +1,31 @@
+* Calorimeter
+** Geant & Calorimeter
+** Simulation vorstellen
+** Deep Learning
+*** Structure
+*** Backpropagation
+*** Loss Function
+** FCN
+*** Verlauf Loss -> Overfitting
+*** Data Augmentation
+*** Abflachen -> Systematic Error
+*** Overall Performance is not good
+** Conv Setup
+*** Convolutional Layer
+*** Results
+** Adversarial Training
+*** Adversarial Network
+*** Results
+** Loss Function Design
+*** MSE -> Max Likelihood
+*** Toy Example
+*** Max Likelihood -> Specific Loss Function
+*** Results
+* Jets
+** Data Set
+** Particle FLow Network
+** Deep Learning Setup
+** Results
+
+
+(global-set-key (kbd "C-c y") 'company-yasnippet)
