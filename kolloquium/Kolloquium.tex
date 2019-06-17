@@ -241,10 +241,6 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Data Augmentation}
-  
-\end{frame}
-
 \begin{frame}{First Results}
   \begin{columns}
     \column{0.5\textwidth}
@@ -267,7 +263,6 @@
   \begin{tikzpicture}[overlay]
     \draw<1> [blue, thick, ->] (n1) to [bend left=30] node [above, sloped] (text) {binned statistics} (n2);
   \end{tikzpicture}
-
  
   % description kink
   \begin{textblock*}{150pt}(70pt, 210pt)
@@ -294,10 +289,6 @@
     \path[red, thick, ->]<2> (kink) edge [bend right] (p2);
     \path[red, thick, ->]<3> (shift) edge [bend right=80] (p3);
   \end{tikzpicture}
-\end{frame}
-
-\begin{frame}{Conv Setup}
-  
 \end{frame}
 
 \begin{frame}{Adversarial Training}
@@ -390,7 +381,19 @@
   \item repeat last two steps until convergence
   \end{itemize}
 
-  \color{red}{$\Rightarrow$ no stable results}
+\end{frame}
+
+\begin{frame}{Adversarial Training}
+  \begin{itemize}
+  \item Results after training $i \cdot$ 5 epochs each   
+  \end{itemize}
+  \begin{figure}[hbtp]
+    \centering
+    \includegraphics[width=.9\linewidth]{../images/adv_scatter.png}
+  \end{figure}
+  \begin{itemize}
+  \item No Convergence
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Maximum Likelihood Loss}
@@ -405,11 +408,17 @@
 \end{frame}
 
 \begin{frame}{Maximum Likelihood Loss}
-  \begin{textblock*}{150pt}(30pt,35pt)
-      \includegraphics[width=\textwidth]{../images/gaussian_shift.png}
+
+  \begin{textblock*}{150pt}(10pt, 55pt)
+    \begin{itemize}
+    \item Toy Gaussian Monte Carlo
+    \item Max Likelihood Fit \emph{\textcolor{black}{Gaussian}} and \emph{\textcolor{blue}{Normed Gaussian}}
+    \end{itemize}
   \end{textblock*}
+
+  
   \begin{textblock*}{150pt}(175pt,35pt)
-      \includegraphics[width=\textwidth]{../images/e-vs-sum_n.png}
+      \includegraphics[width=\textwidth]{../images/gaussian_cut.pdf}
   \end{textblock*}
 
   \begin{textblock*}{150pt}(5pt,140pt)
@@ -419,13 +428,6 @@
     \end{align*}
   \end{textblock*}
 
-    \begin{textblock*}{300pt}(150pt, 42pt)
-      \begin{tikzpicture}
-        \draw (6,1) rectangle (6.1, 4);
-        \draw [<-] (2, 3) .. controls (3.5, 3.5) .. (6,2.5);
-      \end{tikzpicture}
-      
-    \end{textblock*}
 \end{frame}
 
 \begin{frame}{Maximum Likelihood Loss}
@@ -496,19 +498,19 @@
       shorten >= 2pt},
   }
 
-  \begin{textblock*}{250pt}(15pt, 20pt)
+  \begin{textblock*}{250pt}(0pt, 20pt)
   \begin{figure}[htp]
     \tikzstyle{arrow} = [draw, -latex']
     \begin{tikzpicture}[]
       \node[punkt] (model) {Model};
-      \node[below=2.5cm of model] (1loss) {$\mathcal{L}_{J}(\hat Y, Y, \sigma)$};
+      \node[below=2.5cm of model] (1loss) {$\mathcal{L}_{J}(P_{T,\text{Pred}}, P_{T,\text{Gen}}, \sigma)$};
       \node[below=0.3 cm of 1loss] (1st) {1st};
-      \node[left=2.5cm of 1loss] (mseloss) {$(\hat Y - Y)^2$};
+      \node[left=1.2cm of 1loss] (mseloss) {$(P_{T,\text{Pred}}-P_{T,\text{Gen}})^2$};
       \node[below=0.3 cm of mseloss] (mse) {MSE};
-      \node[right=2.5cm of 1loss] (2loss) {$\mathcal{L}_{J}(\hat Y, Y, \sigma)$};
+      \node[right=1.2cm of 1loss] (2loss) {$\mathcal{L}_{J}(P_{T,\text{Pred}}, P_{T,\text{Gen}}, \sigma)$};
       \node[below=0.3 cm of 2loss] (2nd) {2nd};
 
-      \node[left=0.5 cm of mseloss] (l) {Loss:};
+      \node[left=0.3 cm of mseloss] (l) {Loss:};
       
       \path [arrow, thick] (mseloss) -- (model.south west);
       \path [postaction={decorate,decoration={text along path,text
@@ -533,18 +535,28 @@
   \end{figure}
   \end{textblock*}
   
-  \begin{textblock*}{250pt}(5pt, 190pt)
+  \begin{textblock*}{250pt}(15pt, 190pt)
     \begin{align*}
-      \mathcal{L}_J=\ \text{binned} \underbrace{\frac{(y_{\text{true}}-y_{\text{pred}})^2}{\sigma^2}}_{\text{\textcolor{blue}{mean squared weighted error}}} +\underbrace{\ln(\frac{\pi \sigma^2}{2} \left(\text{erf}(\frac{y_{\text{pred}}-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{y_{\text{pred}}-b}{\sqrt{2}\sigma})\right)^2)}_{\text{\textcolor{red}{boundary correction term}}}
+      \mathcal{L}_J=\underbrace{\frac{(P_{T,\text{Gen}}-P_{T,\text{Pred}})^2}{\sigma^2}}_{\text{\textcolor{blue}{mean squared weighted error}}} +\underbrace{\ln(\frac{\pi \sigma^2}{2} \left(\text{erf}(\frac{P_{T,\text{Pred}}-a}{\sqrt{2}\sigma}) - \text{erf}(\frac{P_{T,\text{Pred}}-b}{\sqrt{2}\sigma})\right)^2)}_{\text{\textcolor{red}{boundary correction term}}}
     \end{align*}
   \end{textblock*}
 \end{frame}
 
 \begin{frame}{Predict $\sigma$}
+
+  \begin{itemize}
+  \item Output $P_{T,\text{Pred}}$ of the network
+  \item Calculate \emph{std} for $P_{T,\text{Pred}}$ sliced in 50 bins
+  \end{itemize}  
+ 
   \begin{figure}[hbtp]
     \centering
-    \includegraphics[width=.9\linewidth]{../images/sigma_fit.pdf}
+    \includegraphics[width=.7\linewidth]{../images/sigma_fit.pdf}
   \end{figure}
+\begin{itemize}
+\item Fit \(\sigma(P_{T,\text{Gen}})= c_0 \sqrt{P_{T,\text{Gen}}}+c_1 P_{T,\text{Gen}} + c_2 \)
+\item  \(\sigma(P_{T,\text{Gen}}) \) needs to be analytical for the \emph{backpropagation}
+\end{itemize}  
 \end{frame}
 
 \begin{frame}{Summary and Outlook}
