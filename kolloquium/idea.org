@@ -1,31 +1,50 @@
-* Calorimeter
-** Geant & Calorimeter
-** Simulation vorstellen
-** Deep Learning
-*** Structure
-*** Backpropagation
-*** Loss Function
-** FCN
-*** Verlauf Loss -> Overfitting
-*** Data Augmentation
-*** Abflachen -> Systematic Error
-*** Overall Performance is not good
-** Conv Setup
-*** Convolutional Layer
+* Ground Idea
+** Calorimeter
+*** Geant & Calorimeter
+*** Simulation vorstellen
+*** Deep Learning
+**** Structure
+**** Backpropagation
+**** Loss Function
+*** FCN
+**** Verlauf Loss -> Overfitting
+**** Data Augmentation
+**** Abflachen -> Systematic Error
+**** Overall Performance is not good
+*** Conv Setup
+**** Convolutional Layer
+**** Results
+*** Adversarial Training
+**** Adversarial Network
+**** Results
+*** Loss Function Design
+**** MSE -> Max Likelihood
+**** Toy Example
+**** Max Likelihood -> Specific Loss Function
+**** Results
+** Jets
+*** Data Set
+*** Particle FLow Network
+*** Deep Learning Setup
 *** Results
-** Adversarial Training
-*** Adversarial Network
-*** Results
-** Loss Function Design
-*** MSE -> Max Likelihood
-*** Toy Example
-*** Max Likelihood -> Specific Loss Function
-*** Results
-* Jets
-** Data Set
-** Particle FLow Network
-** Deep Learning Setup
-** Results
 
 
-(global-set-key (kbd "C-c y") 'company-yasnippet)
+ (global-set-key (kbd "C-c y") 'company-yasnippet)
+
+* What's missing
+** TODO Flow of Content
+** Jet Calibration
+*** TODO QCD Data Set
+
+Full CMS 2018 Detector Simulation
+QCD Jets 
+30 - 150 GeV
+$\approx$ 15 Mio.
+Up to 200 particle flow objects with $(P_T, \eta, \phi)$
+
+*** TODO Motivation Particle Flow Network
+
+switch of particle numbering
+
+*** TODO Loss Binning
+*** TODO Results

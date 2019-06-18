@@ -18,7 +18,7 @@
 \usepackage{mathtools}
 \usepackage{physics}
 \usepackage[absolute,overlay]{textpos}
-\usepackage[texcoord,grid,gridcolor=red!10,subgridcolor=green!10,gridunit=pt]{eso-pic}
+%\usepackage[texcoord,grid,gridcolor=red!10,subgridcolor=green!10,gridunit=pt]{eso-pic}
 
 \usepackage{tikz}
 \usetikzlibrary{arrows,shapes, positioning}
@@ -161,6 +161,19 @@
 \end{frame}
 
 \begin{frame}{Resulting Data}
+\centering  \includegraphics[width=0.51 \textwidth]{../images/energy_distribution.pdf}
+  \includegraphics[width=0.49 \textwidth]{../images/sumn_distribution.pdf}
+  \includegraphics[width=0.49 \textwidth]{../images/sumn_e28_distribution.pdf}
+\end{frame}
+
+\begin{frame}{Resulting Data}
+  \includegraphics[width=0.49 \textwidth]{../images/x_distribution.pdf}
+  \includegraphics[width=0.49 \textwidth]{../images/x_e28_distribution.pdf}
+  \includegraphics[width=0.49 \textwidth]{../images/y_distribution.pdf}
+  \includegraphics[width=0.49 \textwidth]{../images/y_e28_distribution.pdf}
+\end{frame}
+
+\begin{frame}{Resulting Data}
     \begin{textblock*}{250pt}(20pt, 75pt)
     Calibration by linear fitting:
   \end{textblock*}
@@ -176,9 +189,6 @@
     \begin{figure}[htp]
       \includegraphics[width=1.1\textwidth]{../images/data_display.png}
     \end{figure}
-  \end{textblock*}
-  \begin{textblock*}{250pt}(150pt, 240pt)
-    $\Rightarrow$ data structure suggest 3D Conv. net
   \end{textblock*}
 \end{frame}
 
@@ -385,7 +395,7 @@
 
 \begin{frame}{Adversarial Training}
   \begin{itemize}
-  \item Results after training $i \cdot$ 5 epochs each   
+  \item Results after training $i \cdot$ 5 epochs each network
   \end{itemize}
   \begin{figure}[hbtp]
     \centering
@@ -455,11 +465,7 @@
 
 
 
-\section{Jets}
-
-\begin{frame}{Jet Physics}
-  \todo{what is a jet}
-\end{frame}
+\section{Jet Calibration}
 
 \begin{frame}{QCD Jet CMS Simulation}
   \todo{Simulation vorstellen}
@@ -467,17 +473,19 @@
 \end{frame}
 
 \begin{frame}{Particle Flow Network}
-\todo{particle flow einführen}
-\end{frame}
+  \begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.75\textwidth]{../images/EFNDiagram.jpg}
+  \end{figure}
 
-\begin{frame}{Daten vorstellen}
-  
+  \footnotesize{\color{gray} {P. T. Komiske, E.M. Metodiev, and
+      J. Thaler, Energy Flow Networks: Deep Sets for Particle Jets,
+      JHEP 01 (2019)}}
 \end{frame}
 
 \begin{frame}{Binned Loss}
   
 \end{frame}
-
 
 \begin{frame}{Training Setup}
   \tikzset{
